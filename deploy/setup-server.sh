@@ -131,9 +131,9 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl reload nginx || systemctl restart nginx
 
-# ── 8. Let's Encrypt (best effort, requires DNS to point here) ───────────────
-if [ -n "${RUN_CERTBOT:-}" ]; then
-  certbot --nginx -d "${DOMAIN}" --non-interactive --agree-tos --register-unsafely-without-email --redirect || true
+# ── 8. Let's Encrypt (auto-HTTPS for podvet.biztrack.uk; DNS must be live) ──
+if [ "${SKIP_CERTBOT:-0}" != "1" ]; then
+  certbot --nginx -d "${DOMAIN}" --non-interactive --agree-tos --register-unsafely-without-email --redirect || echo "certbot failed - will retry on next deploy"
 fi
 
 echo "=== PodVet deploy complete: http://${DOMAIN} ==="
