@@ -1,0 +1,6 @@
+{
+  "name": "electron-log",
+  "version": "0.0.0-web",
+  "private": true,
+  "main": "index.js"
+}

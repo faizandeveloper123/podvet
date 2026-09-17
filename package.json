@@ -1,0 +1,26 @@
+{
+  "name": "podvet",
+  "version": "5.0.10-web",
+  "description": "PodVet — standalone Node.js web edition of the PetVet veterinary management app. No Electron, no window runtime; the exact same React frontend and handler logic served by a pure Express + MySQL backend.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "web": "node index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.1",
+    "electron": "file:compat/electron-compat",
+    "electron-log": "file:compat/electron-log",
+    "express": "^5.2.1",
+    "image-size": "^2.0.2",
+    "jspdf": "^3.0.2",
+    "mysql2": "^3.14.3",
+    "pdfkit": "^0.18.0",
+    "xlsx": "^0.18.5"
+  }
+}

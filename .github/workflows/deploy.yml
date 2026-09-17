@@ -1,0 +1,47 @@
+name: Deploy PodVet
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  VPS_HOST: ${{ secrets.VPS_HOST || '81.17.101.93' }}
+  VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+  VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy code to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USER }}
+          key: ${{ secrets.ACCESS_KEY }}
+          passphrase: ${{ secrets.SECRET_KEY }}
+          port: ${{ env.VPS_PORT }}
+          source: "."
+          target: /opt/podvet
+          strip_components: 0
+          rm: false
+
+      - name: Provision and restart on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USER }}
+          key: ${{ secrets.ACCESS_KEY }}
+          passphrase: ${{ secrets.SECRET_KEY }}
+          port: ${{ env.VPS_PORT }}
+          envs: DB_PASSWORD
+          script: |
+            set -e
+            export DB_PASSWORD="${DB_PASSWORD}"
+            bash /opt/podvet/deploy/setup-server.sh
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD || '' }}
