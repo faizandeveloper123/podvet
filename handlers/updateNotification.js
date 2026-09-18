@@ -12,7 +12,7 @@ const { showNativeNotification } = require("./nativeNotifications");
 // it has to be inferred here, at the next app start, by comparing versions.
 const LAST_SEEN_VERSION_KEY = "lastSeenAppVersion";
 
-const FALLBACK_MESSAGE = "PetVet has been updated.";
+const FALLBACK_MESSAGE = "PodVet has been updated.";
 
 // changelog.json sits at the repo root (packaged into the app via
 // package.json's electron-builder "files" list, same as package.json

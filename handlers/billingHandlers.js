@@ -163,7 +163,7 @@ module.exports = function setupBillingHandlers(store) {
         use12HourTime,
       };
 
-      const baseDir = path.join(app.getPath("documents"), "PetVet-Invoices");
+      const baseDir = path.join(app.getPath("documents"), "PodVet-Invoices");
       await fs.promises.mkdir(baseDir, { recursive: true });
       const filePath = path.join(baseDir, `Invoice_${result.data.billingId}_${now.toISOString().slice(0, 10)}.pdf`);
       await generateInvoicePDF(invoiceData, filePath);
@@ -214,7 +214,7 @@ module.exports = function setupBillingHandlers(store) {
         branding: await buildBranding(store),
       };
 
-      const baseDir = path.join(app.getPath("documents"), "PetVet-Invoices");
+      const baseDir = path.join(app.getPath("documents"), "PodVet-Invoices");
       await fs.promises.mkdir(baseDir, { recursive: true });
       const safeInvoiceNo = String(payload.invoiceNo).replace(/[^\w.-]+/g, "_");
       const filePath = path.join(baseDir, `Invoice_${safeInvoiceNo}_${now.toISOString().slice(0, 10)}_${Date.now()}.pdf`);

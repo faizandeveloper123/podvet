@@ -1,4 +1,4 @@
-// PetVet Website Color Picker
+// PodVet Website Color Picker
 // Injected into the Settings -> Profile screen. Lets the user pick any color
 // with an MS Office "More Colors"-style hexagon honeycomb grid + brightness
 // slider, and applies it site-wide by overriding the --brand-* CSS variables.
@@ -104,10 +104,10 @@
     if (!existing) {
       panel.innerHTML = '';
 
-      if (window.PetVetColorPicker) {
+      if (window.PodVetColorPicker) {
         var holder = document.createElement('div');
         panel.appendChild(holder);
-        pickerApi = window.PetVetColorPicker.init(holder, {
+        pickerApi = window.PodVetColorPicker.init(holder, {
           value: currentStored() || DEFAULT_HEX,
           onChangeLive: function (hex) { applyBrand(hexToHsl(hex), false); },
           onChangeCommit: function (hex) { applyBrand(hexToHsl(hex), true); seedSwatchFromStored(); }

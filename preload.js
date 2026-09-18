@@ -5,7 +5,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const invoke = (channel, ...args) =>
   ipcRenderer.invoke(channel, ...args.map(a => a === undefined ? null : a));
 
-//PetVet Pro
+//PodVet Pro
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // Multi-tenant auth (centralized backend, not the per-clinic MySQL)

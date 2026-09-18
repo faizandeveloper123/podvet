@@ -117,7 +117,7 @@ import{b7 as M,r as t,u as $,j as e,F as x,b8 as D,b9 as z,T as O,c as W,ba as G
                     font-bold\r
                     text-gray-800\r
                     tracking-tight\r
-                  `,children:"PetVet"}),e.jsx("span",{className:`\r
+                  `,children:"PodVet"}),e.jsx("span",{className:`\r
                     text-[10px]\r
                     font-semibold\r
                     px-1.5\r

@@ -1,4 +1,4 @@
-// Mobile-usage optimization layer for the PetVet web app.
+// Mobile-usage optimization layer for the PodVet web app.
 //
 // The React bundle ships a desktop-first app: a fixed w-64 sidebar that leaves
 // the content column ~120px wide on phones, plus tables/cards/inputs built for

@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodVet - AI-Driven Veterinary Clinic Management Software</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: 'rgb(var(--brand-50) / <alpha-value>)',
+                            100: 'rgb(var(--brand-100) / <alpha-value>)',
+                            200: 'rgb(var(--brand-200) / <alpha-value>)',
+                            300: 'rgb(var(--brand-300) / <alpha-value>)',
+                            400: 'rgb(var(--brand-400) / <alpha-value>)',
+                            500: 'rgb(var(--brand-500) / <alpha-value>)',
+                            600: 'rgb(var(--brand-600) / <alpha-value>)',
+                            700: 'rgb(var(--brand-700) / <alpha-value>)',
+                            800: 'rgb(var(--brand-800) / <alpha-value>)',
+                            900: 'rgb(var(--brand-900) / <alpha-value>)',
+                            950: 'rgb(var(--brand-950) / <alpha-value>)',
+                            dark: 'rgb(var(--brand-dark) / <alpha-value>)',
+                            surface: 'rgb(var(--brand-surface) / <alpha-value>)'
+                        },
+                        accent: {
+                            yellow: '#f8e327',
+                            yellowHover: '#e5d119',
+                            whatsapp: '#0a5c36',
+                            whatsappBg: '#02381f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --brand-50: 246 251 254;
+            --brand-100: 246 251 254;
+            --brand-200: 242 249 253;
+            --brand-300: 220 238 249;
+            --brand-400: 194 225 245;
+            --brand-500: 146 202 237;
+            --brand-600: 111 185 231;
+            --brand-700: 85 172 226;
+            --brand-800: 59 159 222;
+            --brand-900: 36 146 214;
+            --brand-950: 31 125 183;
+            --brand-dark: 27 110 161;
+            --brand-surface: 242 249 253;
+        }
+    </style>
+
+    <!-- Google Font & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1e1b26;
+            overflow-x: hidden;
+        }
+
+        /* Hero glowing dots/particles simulation */
+        .bg-particles {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+                              radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 20%, rgb(var(--brand-700)) 0%, rgb(var(--brand-900)) 60%, rgb(var(--brand-dark)) 100%);
+        }
+
+        .cta-gradient {
+            background: radial-gradient(circle at 50% 30%, rgb(var(--brand-700)) 0%, rgb(var(--brand-dark)) 100%);
+        }
+
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgb(var(--brand-300));
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(var(--brand-500));
+        }
+
+        /* Smooth accordion transitions */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        /* Glassmorphism overlays */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-900 selection:bg-brand-500 selection:text-white">
+
+    <!-- NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-brand-900 border-b border-brand-900/40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="flex items-center space-x-2.5 group">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-400/40 flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-cloud-meatball"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold text-white tracking-tight">podvet</span>
+                    </a>
+
+                    <!-- Nav Links -->
+                    <nav class="hidden md:flex items-center space-x-8 ml-10 text-sm font-medium text-brand-200">
+                        <div class="relative group cursor-pointer py-2">
+                            <span class="hover:text-white transition flex items-center gap-1">
+                                Solutions <i class="fa-solid fa-chevron-down text-[10px] opacity-70 group-hover:rotate-180 transition-transform"></i>
+                            </span>
+                            <!-- Dropdown -->
+                            <div class="absolute left-0 top-full hidden group-hover:block w-48 bg-brand-900 border border-brand-800/80 rounded-xl shadow-2xl p-2 z-50">
+                                <a href="#ai-section" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Veterinary AI</a>
+                                <a href="#features" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Solo Practitioners</a>
+                                <a href="#features" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Midsized Clinics</a>
+                                <a href="#features" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Hospitals</a>
+                            </div>
+                        </div>
+                        <a href="#features" class="hover:text-white transition">Features</a>
+                        <a href="#pricing" class="hover:text-white transition">Pricing</a>
+                        <div class="relative group cursor-pointer py-2">
+                            <span class="hover:text-white transition flex items-center gap-1">
+                                Resources <i class="fa-solid fa-chevron-down text-[10px] opacity-70 group-hover:rotate-180 transition-transform"></i>
+                            </span>
+                            <div class="absolute left-0 top-full hidden group-hover:block w-40 bg-brand-900 border border-brand-800/80 rounded-xl shadow-2xl p-2 z-50">
+                                <a href="#" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Blog</a>
+                                <a href="#" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Documentation</a>
+                                <a href="#" class="block px-3 py-2 text-xs text-brand-200 hover:bg-brand-800/50 hover:text-white rounded-lg">Help Center</a>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-5">
+                    <button class="text-brand-300 hover:text-white text-sm transition hidden sm:inline-block">
+                        <i class="fa-solid fa-globe mr-1"></i>
+                    </button>
+                    <button onclick="openModal('login')" class="text-white hover:text-brand-200 text-sm font-semibold transition px-2">
+                        Log In
+                    </button>
+                    <button onclick="openModal('signup')" class="bg-accent-yellow hover:bg-accent-yellowHover text-brand-dark font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full transition-all duration-200 shadow-md transform hover:-translate-y-0.5 active:translate-y-0">
+                        Try for Free
+                    </button>
+                    
+                    <!-- Mobile Hamburger -->
+                    <button id="mobile-menu-btn" class="md:hidden text-brand-200 text-xl focus:outline-none">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Container -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-950 px-6 py-4 space-y-3 border-b border-brand-800/50">
+            <a href="#features" class="block text-brand-200 hover:text-white text-sm">Solutions</a>
+            <a href="#features" class="block text-brand-200 hover:text-white text-sm">Features</a>
+            <a href="#pricing" class="block text-brand-200 hover:text-white text-sm">Pricing</a>
+            <a href="#integrations" class="block text-brand-200 hover:text-white text-sm">Integrations</a>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative hero-gradient bg-particles pt-12 pb-24 text-white overflow-hidden">
+        
+        <!-- Ambient Glow Elements -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
+            
+            <!-- Hey PodVet Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-900/60 border border-brand-400/30 text-xs font-medium text-brand-200 mb-8 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+                Hey PodVet!
+            </div>
+
+            <!-- Main Headline -->
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1] mb-6">
+                You focus on your patients,<br class="hidden sm:inline" /> we'll run the clinic
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="max-w-3xl mx-auto text-base sm:text-lg text-brand-200 font-normal leading-relaxed mb-10">
+                Manage everything from appointments to invoicing and from medical records to patient tracking on a single platform, powered by AI-driven clinic management software.
+            </p>
+
+            <!-- Hero Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                <button onclick="openModal('signup')" class="w-full sm:w-auto px-8 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-full shadow-lg transition-all transform hover:scale-105">
+                    Try for Free
+                </button>
+                <a href="#features" class="w-full sm:w-auto px-8 py-3.5 bg-brand-950/80 hover:bg-brand-900/90 text-white font-medium rounded-full border border-brand-500/40 transition-all backdrop-blur-sm">
+                    Explore Features
+                </a>
+            </div>
+
+            <!-- Feature Pills Selector -->
+            <div class="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto mb-8">
+                <button onclick="switchTab('records')" id="tab-records" class="hero-tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-brand-800/90 text-white border border-brand-400/50 shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-notes-medical"></i> Medical Records
+                </button>
+                <button onclick="switchTab('calendar')" id="tab-calendar" class="hero-tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-brand-950/60 text-brand-200 hover:text-white border border-brand-800/60 hover:border-brand-500 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check"></i> Vaccine & Appointment Calendar
+                </button>
+                <button onclick="switchTab('invoices')" id="tab-invoices" class="hero-tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-brand-950/60 text-brand-200 hover:text-white border border-brand-800/60 hover:border-brand-500 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-receipt"></i> Invoices & Payments
+                </button>
+                <button onclick="switchTab('reminders')" id="tab-reminders" class="hero-tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-brand-950/60 text-brand-200 hover:text-white border border-brand-800/60 hover:border-brand-500 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-bell"></i> Reminders
+                </button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PREVIEW WRAPPER -->
+        <div class="max-w-6xl mx-auto px-4 relative z-20">
+            <div class="rounded-2xl border border-brand-500/30 bg-white/10 p-2 sm:p-3 shadow-2xl backdrop-blur-xl">
+                
+                <!-- Main Dashboard Frame -->
+                <div id="dashboard-mockup" class="bg-white rounded-xl shadow-xl overflow-hidden text-gray-800 text-left border border-gray-100">
+                    
+                    <!-- Top App Header -->
+                    <div class="bg-brand-900 text-white px-4 py-3 flex items-center justify-between border-b border-brand-800">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-sm flex items-center gap-1.5"><i class="fa-solid fa-cloud-meatball text-brand-400"></i> podvet</span>
+                            <span class="bg-brand-800/80 px-2 py-0.5 rounded text-[11px] text-brand-200"><i class="fa-solid fa-plus mr-1"></i> New</span>
+                            <div class="relative hidden sm:block">
+                                <input type="text" placeholder="Search patient, client, or record" class="bg-brand-950/80 text-xs px-3 py-1 rounded-md text-brand-100 border border-brand-700/50 w-56 focus:outline-none">
+                                <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-1.5 text-brand-400 text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs text-brand-200">
+                            <span><i class="fa-solid fa-hospital mr-1"></i> Main Clinic</span>
+                            <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center font-bold text-white text-xs">
+                                DR
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inner App Grid -->
+                    <div class="grid grid-cols-12 min-h-[420px] bg-slate-50">
+                        
+                        <!-- Sidebar -->
+                        <div class="col-span-3 sm:col-span-2 bg-white border-r border-gray-200 p-2 text-xs space-y-1">
+                            <div class="px-2 py-1.5 text-gray-500 font-semibold text-[10px] uppercase">Menu</div>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-chart-pie w-4 text-brand-600"></i> <span class="hidden sm:inline">Overview</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-list-check w-4 text-brand-600"></i> <span class="hidden sm:inline">Flowboard</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-calendar-days w-4 text-brand-600"></i> <span class="hidden sm:inline">Appointments</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 bg-brand-100 text-brand-800 font-semibold rounded-lg"><i class="fa-solid fa-notes-medical w-4 text-brand-700"></i> <span class="hidden sm:inline">Medical Records</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-file-invoice-dollar w-4 text-brand-600"></i> <span class="hidden sm:inline">Invoices</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-boxes-packing w-4 text-brand-600"></i> <span class="hidden sm:inline">Products</span></a>
+                            <a href="#" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-gray-600 hover:bg-brand-50"><i class="fa-solid fa-chart-line w-4 text-brand-600"></i> <span class="hidden sm:inline">Reports</span></a>
+                        </div>
+
+                        <!-- Main Record Display Content -->
+                        <div id="tab-content-container" class="col-span-9 sm:col-span-10 p-4 sm:p-6 overflow-y-auto max-h-[500px]">
+                            
+                            <!-- Dynamic Content Inserted by JS -->
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-200 mb-4 gap-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        Exam Notes & Treatments 
+                                        <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-medium">In Progress</span>
+                                    </h3>
+                                    <p class="text-xs text-gray-500">Patient: <strong class="text-gray-700">Leo (Golden Retriever)</strong> | Client: <span class="text-gray-700">Adam Jansone</span></p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="bg-brand-600 text-white text-xs px-3 py-1.5 rounded-md font-medium hover:bg-brand-700 transition flex items-center gap-1">
+                                        <i class="fa-solid fa-paper-plane"></i> Send to Client
+                                    </button>
+                                    <button class="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-md font-medium hover:bg-gray-200">
+                                        SOAP Templates
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Record Card -->
+                            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-4">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs">
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px]">Date</span>
+                                        <span class="font-semibold text-gray-800">June 20, 2026 13:30</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px]">Reasons</span>
+                                        <span class="inline-flex gap-1">
+                                            <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Loss of appetite</span>
+                                            <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Lethargy</span>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px]">Veterinarian</span>
+                                        <span class="font-semibold text-gray-800">Dr. Eli Vile</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px]">Staff</span>
+                                        <span class="font-semibold text-gray-800">Gurkan Uzunca</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3 text-xs">
+                                    <div>
+                                        <h4 class="font-bold text-brand-900 mb-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-stethoscope text-brand-600"></i> Chief Complaint
+                                        </h4>
+                                        <p class="text-gray-600">Patient reported loss of appetite and lethargy for about 2 days, with mild vomiting since last night.</p>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="font-bold text-brand-900 mb-1">Clinical Findings</h4>
+                                        <p class="text-gray-600">Mucous membrane color is normal, capillary refill time is 2 sec. Mild dehydration signs present.</p>
+                                        <div class="flex gap-2 mt-1">
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-check text-emerald-500 mr-1"></i> Vital Signs Checked</span>
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-check text-emerald-500 mr-1"></i> Physical Exam Done</span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="font-bold text-brand-900 mb-1">Assessment & Diagnosis</h4>
+                                        <p class="text-gray-600">Moderate tenderness and pain response observed during abdominal palpation. Suspected acute gastroenteritis.</p>
+                                    </div>
+
+                                    <div class="p-3 bg-brand-50/60 rounded-lg border border-brand-100">
+                                        <h4 class="font-bold text-brand-900 mb-1">Treatment Plan & Prescriptions</h4>
+                                        <ul class="list-disc list-inside text-gray-700 space-y-0.5">
+                                            <li>Do not give dry or wet food for 24 hours. Start with small amounts of water.</li>
+                                            <li>Administer Maropitant 10mg/ml injection S.C.</li>
+                                            <li>Prescribe gastrointestinal diet food for 5 days.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST STATS & RATING SECTION -->
+    <section class="bg-white py-12 border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-xs sm:text-sm font-semibold text-gray-500 tracking-wide uppercase mb-6">
+                Trusted by veterinary clinics around the world
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-16">
+                
+                <!-- Capterra -->
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved text-brand-600 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-gray-900 text-sm">Capterra</div>
+                        <div class="text-amber-400 text-xs flex gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Store -->
+                <div class="flex items-center space-x-2">
+                    <i class="fa-brands fa-apple text-gray-900 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-gray-900 text-sm">App Store</div>
+                        <div class="text-amber-400 text-xs flex gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Play -->
+                <div class="flex items-center space-x-2">
+                    <i class="fa-brands fa-google-play text-emerald-600 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-gray-900 text-sm">Google Play</div>
+                        <div class="text-amber-400 text-xs flex gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- HIGHLIGHT BANNER: SAVE MEDICAL RECORDS 40% FASTER -->
+    <section class="py-16 bg-white" id="features">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="bg-brand-900 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Left text content -->
+                <div class="lg:col-span-6 space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                        Save medical records 40% faster.
+                    </h2>
+                    <p class="text-brand-200 text-sm sm:text-base leading-relaxed">
+                        The patient arrives, you run the exam — and now the record-keeping marathon begins. In PodVet it takes just 3 steps: pick the treatment, write the prescription, and the invoice is created automatically. E-invoice, e-receipt and e-archive documents are ready with a single click on the same screen; take payment by cash, card or bank transfer and close the visit.
+                    </p>
+                    <div>
+                        <button onclick="openModal('signup')" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-6 py-3 rounded-full text-sm transition shadow-lg">
+                            Try for Free <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right visual mockup snippet -->
+                <div class="lg:col-span-6 bg-white/10 rounded-2xl p-3 border border-brand-400/20 backdrop-blur-md">
+                    <div class="bg-white rounded-xl p-4 text-gray-800 text-xs shadow-inner space-y-3">
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="font-bold text-brand-900">Exam Notes & Treatments</span>
+                            <span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded text-[10px] font-bold">Auto-Invoice Active</span>
+                        </div>
+                        <div class="p-2 bg-brand-50/50 rounded border border-brand-100 flex items-center justify-between">
+                            <div>
+                                <div class="font-semibold text-gray-800">Gastrointestinal Visit Package</div>
+                                <div class="text-[10px] text-gray-500">Includes Exam + Injection + Prescription</div>
+                            </div>
+                            <span class="font-bold text-brand-900">$85.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-gray-600 font-medium">
+                            <span>E-Invoice Status:</span>
+                            <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Ready to Send</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CLINICS THAT TRUST US -->
+    <section class="py-12 bg-white border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Veterinary Clinics That Trust Us</h3>
+            <p class="text-xs text-gray-500 mb-8">More than 400 veterinarians choose PodVet. We'd love to see you among them.</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center opacity-75 grayscale hover:grayscale-0 transition-all">
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-paw text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">Pet Care Clinic</span>
+                </div>
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-hospital-user text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">Imperial Vet Hospital</span>
+                </div>
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-cat text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">Athens Vet Care</span>
+                </div>
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-user-doctor text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">VetCheck</span>
+                </div>
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-horse text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">Marradong Animal</span>
+                </div>
+                <div class="flex flex-col items-center p-2">
+                    <i class="fa-solid fa-heart-pulse text-2xl text-brand-700 mb-1"></i>
+                    <span class="text-xs font-bold text-gray-700">Healthy Pet Vet</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI FEATURES & CLIENT RETENTION SECTION -->
+    <section id="ai-section" class="py-20 bg-brand-surface">
+        <div class="max-w-6xl mx-auto px-4 space-y-20">
+            
+            <!-- ROW 1: AI SOAP & VOICE -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Text Left -->
+                <div class="lg:col-span-6 space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        Write less, treat more with AI
+                    </h2>
+                    <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+                        Dictate your exam notes by voice and let AI turn them into SOAP format automatically. Get drug-interaction and dosage warnings while prescribing, and have your discharge summaries and referral letters ready in seconds. You focus on the patient — observe, examine, treat — and leave the paperwork to AI.
+                    </p>
+
+                    <!-- Stats Badges -->
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">40%</div>
+                            <div class="text-xs text-gray-500">Faster records creation</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">SOAP</div>
+                            <div class="text-xs text-gray-500">Automatic formatting</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Right: Vet Doctor with AI overlay -->
+                <div class="lg:col-span-6 relative">
+                    <div class="bg-white rounded-3xl p-4 shadow-xl border border-brand-100 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&w=800&q=80" alt="Veterinarian with golden retriever" class="w-full h-80 object-cover rounded-2xl">
+                        
+                        <!-- Floating Glass AI Card -->
+                        <div class="absolute top-8 right-8 glass-card p-4 rounded-2xl shadow-xl max-w-xs border border-brand-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </div>
+                                <span class="font-bold text-xs text-brand-900">AI Voice Assistant</span>
+                            </div>
+                            <div class="space-y-1.5 text-[11px] text-gray-700">
+                                <div class="p-1.5 bg-brand-50 rounded border border-brand-100 font-medium text-brand-900">
+                                    <strong>SOAP Generated:</strong> Lethargy, decreased appetite for 2 days.
+                                </div>
+                                <div class="p-1.5 bg-emerald-50 text-emerald-800 rounded font-medium flex items-center gap-1">
+                                    <i class="fa-solid fa-shield-check"></i> Drug Interaction Alert: Clear
+                                </div>
+                                <div class="p-1.5 bg-blue-50 text-blue-800 rounded font-medium">
+                                    Discharge Summary Ready
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ROW 2: STAY CONNECTED & CLIENT COMMUNICATION -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Visual Left -->
+                <div class="lg:col-span-6 order-2 lg:order-1">
+                    <div class="bg-white rounded-3xl p-4 shadow-xl border border-brand-100 relative">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                            
+                            <!-- Phone Mockup -->
+                            <div class="bg-slate-900 text-white p-3 rounded-3xl shadow-2xl border-4 border-slate-800">
+                                <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+                                <div class="bg-slate-800 p-2 rounded-xl text-center mb-3">
+                                    <i class="fa-solid fa-cloud-meatball text-brand-400 text-xl"></i>
+                                    <div class="font-bold text-xs mt-1">PodVet Client</div>
+                                </div>
+                                <div class="space-y-2 text-[10px]">
+                                    <div class="bg-slate-800/90 p-2 rounded-lg text-left">
+                                        <div class="text-brand-300 font-semibold">Vaccine Reminder</div>
+                                        <div class="text-slate-300">Rabies due on Nov 15</div>
+                                    </div>
+                                    <div class="bg-brand-600 p-2 rounded-lg text-center font-bold text-white">
+                                        Book Online Appointment
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Floating Badges -->
+                            <div class="space-y-2">
+                                <div class="bg-brand-50 border border-brand-200 p-3 rounded-xl text-xs font-semibold text-brand-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-comment-sms text-brand-600 text-base"></i> SMS Notifications
+                                </div>
+                                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs font-semibold text-emerald-900 flex items-center gap-2">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i> WhatsApp Integration
+                                </div>
+                                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-xs font-semibold text-blue-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-bell text-blue-600 text-base"></i> Mobile Push
+                                </div>
+                                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-semibold text-amber-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-amber-600 text-base"></i> Revenue Growth
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Right -->
+                <div class="lg:col-span-6 space-y-6 order-1 lg:order-2">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        Stay connected with your clients and grow your revenue
+                    </h2>
+                    <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+                        Reach your clients on every channel with SMS, WhatsApp, email and mobile push notifications. Send automatic vaccination and appointment reminders, and let clients reach you easily with online booking. Strengthen client loyalty with the pet owner mobile app. When your clients don't forget their appointments, your show-up rate — and your revenue — go up.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">4 channels</div>
+                            <div class="text-xs text-gray-500">Reach your clients anywhere</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">Fewer</div>
+                            <div class="text-xs text-gray-500">Missed appointments & lost revenue</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- INVENTORY & CLINIC ANALYTICS GRID -->
+    <section class="py-20 bg-brand-surface border-t border-brand-100/60">
+        <div class="max-w-6xl mx-auto px-4 space-y-20">
+            
+            <!-- ROW 3: INVENTORY MANAGEMENT -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Text Left -->
+                <div class="lg:col-span-6 space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        Which products make you money, and which sit on the shelf?
+                    </h2>
+                    <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+                        Track your stock and inventory in real time. After every treatment and sale, stock is deducted automatically, and you're alerted the moment it hits the minimum level. See how much you earn from each pet food and which medication is nearing its expiry date — all on one screen. Instead of counting stock, focus on treating your patients.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">Real-time</div>
+                            <div class="text-xs text-gray-500">Stock and inventory control</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">Clear</div>
+                            <div class="text-xs text-gray-500">Product-level profit visibility</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Right: Pharmacy/Inventory Mockup -->
+                <div class="lg:col-span-6">
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-brand-100 space-y-4">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <span class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-boxes-stacked text-brand-600 mr-2"></i> Real-time Stock Tracking</span>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">Auto-Deducted</span>
+                        </div>
+                        
+                        <div class="space-y-2 text-xs">
+                            <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-gray-800">Hypoallergenic Dog Kibble 10kg</div>
+                                    <div class="text-[10px] text-gray-400">SKU: PET-3902</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-emerald-600 font-bold block">In Stock (18 units)</span>
+                                    <span class="text-[10px] text-gray-500">Margin: +42%</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2.5 bg-amber-50 rounded-xl border border-amber-200">
+                                <div>
+                                    <div class="font-bold text-amber-900">Maropitant 10mg/ml Injectable</div>
+                                    <div class="text-[10px] text-amber-700"><i class="fa-solid fa-triangle-exclamation"></i> Minimum Stock Alert</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-amber-700 font-bold block">3 Vials Remaining</span>
+                                    <button class="bg-amber-600 text-white text-[10px] px-2 py-0.5 rounded font-semibold mt-0.5">Reorder</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ROW 4: CLINIC REPORTING & EARNINGS -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Visual Left -->
+                <div class="lg:col-span-6 order-2 lg:order-1">
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-brand-100 space-y-4">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <span class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-chart-line text-brand-600 mr-2"></i> Clinic Performance Dashboard</span>
+                            <span class="text-xs bg-brand-100 text-brand-800 font-semibold px-2.5 py-0.5 rounded-full">Updated Live</span>
+                        </div>
+
+                        <!-- Bar Chart Simulation -->
+                        <div class="space-y-2 pt-2">
+                            <div class="flex items-center justify-between text-xs text-gray-600 font-semibold">
+                                <span>Weekly Clinic Revenue</span>
+                                <span class="text-brand-900 font-bold">$14,850.00 (+18%)</span>
+                            </div>
+                            <div class="flex items-end gap-2 h-28 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="flex-1 bg-brand-200 h-[40%] rounded-t"></div>
+                                <div class="flex-1 bg-brand-300 h-[65%] rounded-t"></div>
+                                <div class="flex-1 bg-brand-400 h-[50%] rounded-t"></div>
+                                <div class="flex-1 bg-brand-500 h-[80%] rounded-t"></div>
+                                <div class="flex-1 bg-brand-600 h-[95%] rounded-t"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="p-2.5 bg-brand-50 rounded-lg">
+                                <span class="text-[10px] text-gray-500 block">Most Profitable Service</span>
+                                <span class="font-bold text-brand-900">Vaccinations & Exams</span>
+                            </div>
+                            <div class="p-2.5 bg-brand-50 rounded-lg">
+                                <span class="text-[10px] text-gray-500 block">Vet Efficiency Avg</span>
+                                <span class="font-bold text-brand-900">94.2% On-Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Right -->
+                <div class="lg:col-span-6 space-y-6 order-1 lg:order-2">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        What's happening at the clinic, and how much are we earning?
+                    </h2>
+                    <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+                        Knowing what's left in the till at the end of the day isn't enough. Which service earns the most, which vet works most efficiently, which hours go empty? With PodVet's reporting dashboard, see your daily, weekly and monthly income and expense analysis on a single screen. Decide where to invest and where to save with data-driven decisions.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">Real-time</div>
+                            <div class="text-xs text-gray-500">Clinic performance overview</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-brand-100 shadow-sm">
+                            <div class="text-2xl font-extrabold text-brand-900 mb-0.5">Clear</div>
+                            <div class="text-xs text-gray-500">Income, expense & profit analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- INTERACTIVE COMMUNICATION CHANNELS SHOWCASE -->
+    <section class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
+                    Stay connected with your clients, keep in touch and grow your revenue
+                </h2>
+                
+                <!-- Pill selector buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+                    <button onclick="switchChannel('whatsapp')" id="chan-whatsapp" class="chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-emerald-600 bg-emerald-50 text-emerald-900">
+                        WhatsApp
+                    </button>
+                    <button onclick="switchChannel('sms')" id="chan-sms" class="chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-gray-300 text-gray-600 hover:border-brand-500">
+                        SMS
+                    </button>
+                    <button onclick="switchChannel('push')" id="chan-push" class="chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-gray-300 text-gray-600 hover:border-brand-500">
+                        Mobile Push
+                    </button>
+                    <button onclick="switchChannel('email')" id="chan-email" class="chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-gray-300 text-gray-600 hover:border-brand-500">
+                        Email
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div id="channels-card-container" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- WhatsApp Card -->
+                <div class="md:col-span-7 bg-emerald-900 text-white rounded-3xl p-8 flex flex-col justify-between shadow-xl relative overflow-hidden min-h-[260px]">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-3">WhatsApp Notifications</h3>
+                        <p class="text-emerald-100 text-sm max-w-md leading-relaxed">
+                            Activate the WhatsApp integration to send your clients notifications automatically. See and reply to the messages your clients send you directly from the PodVet inbox.
+                        </p>
+                    </div>
+                    <div class="self-end mt-6">
+                        <i class="fa-brands fa-whatsapp text-7xl text-emerald-400 opacity-90"></i>
+                    </div>
+                </div>
+
+                <!-- SMS Notification Card -->
+                <div class="md:col-span-5 bg-brand-900 text-white rounded-3xl p-8 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-3">SMS Notifications</h3>
+                        <p class="text-brand-200 text-sm leading-relaxed mb-6">
+                            Automatically send important information such as vaccination, appointment and debt reminders to your clients via SMS.
+                        </p>
+                    </div>
+                    
+                    <!-- Inner phone snippet -->
+                    <div class="bg-brand-950 p-4 rounded-2xl border border-brand-700/50 text-center">
+                        <div class="text-xs font-semibold text-brand-300 mb-1">Care for your pets, anywhere, anytime.</div>
+                        <div class="text-[11px] text-gray-300">PodVet automated SMS queue active</div>
+                    </div>
+                </div>
+
+                <!-- Bottom 2 cards -->
+                <div class="md:col-span-6 bg-slate-50 border border-slate-200 rounded-3xl p-6">
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">Mobile Notifications</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Automatically send important information such as vaccination, appointment and debt reminders to your clients via mobile push notifications.
+                    </p>
+                </div>
+
+                <div class="md:col-span-6 bg-slate-50 border border-slate-200 rounded-3xl p-6">
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">Email Notifications</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Automatically send important information such as vaccination, appointment and debt reminders to your clients via email.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PODVET PET OWNER MOBILE APP SECTION -->
+    <section class="py-20 hero-gradient bg-particles text-white overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Phone Graphic -->
+                <div class="lg:col-span-6 flex justify-center">
+                    <div class="w-72 bg-white text-gray-900 rounded-[40px] p-4 shadow-2xl border-8 border-brand-950 relative">
+                        <!-- Camera notch -->
+                        <div class="w-32 h-4 bg-brand-950 rounded-full mx-auto mb-4"></div>
+                        
+                        <div class="space-y-4 text-left">
+                            <div class="text-center">
+                                <i class="fa-solid fa-cloud-meatball text-brand-600 text-3xl"></i>
+                                <h4 class="font-extrabold text-gray-900 text-lg mt-1">Care for your pets, anywhere, anytime.</h4>
+                            </div>
+
+                            <div class="bg-brand-50 p-3 rounded-2xl border border-brand-100">
+                                <span class="text-[10px] text-gray-400 uppercase font-bold block">Welcome Back</span>
+                                <span class="font-bold text-sm text-brand-950">Adam Jansone</span>
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                                <span class="text-[10px] text-gray-500 font-bold block mb-1">Your Pets</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center font-bold text-amber-800 text-xs">
+                                        🐶
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-800">Leo (Golden Retriever)</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-brand-50 p-3 rounded-2xl">
+                                <span class="text-[10px] text-brand-800 font-bold block">Upcoming Vaccinations</span>
+                                <span class="text-xs font-semibold text-gray-800 block mt-0.5">Rabies Booster - Nov 18, 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Description & Downloads -->
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                    <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight">
+                        PodVet Pet
+                    </h2>
+                    <p class="text-brand-200 text-base leading-relaxed">
+                        Strengthen your clients' connection with your clinic by giving them a single app to easily follow their vaccination schedule, appointments, visit details and invoices.
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+                        <a href="#" class="inline-flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-2xl font-bold text-sm hover:bg-gray-100 transition shadow-lg">
+                            <i class="fa-brands fa-google-play text-emerald-600 text-xl"></i>
+                            <span>Google Play</span>
+                        </a>
+                        <a href="#" class="inline-flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-2xl font-bold text-sm hover:bg-gray-100 transition shadow-lg">
+                            <i class="fa-brands fa-apple text-gray-900 text-xl"></i>
+                            <span>AppStore</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPLORE ALL FEATURES ACCORDION GRID -->
+    <section class="py-20 bg-slate-50 border-t border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
+                    Explore All Features
+                </h2>
+                <p class="text-sm text-gray-600">
+                    Join 400+ veterinarians who switched to PodVet.
+                </p>
+            </div>
+
+            <!-- 3 Column Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                
+                <!-- COLUMN 1 -->
+                <div class="space-y-3">
+                    <!-- Expanded Card -->
+                    <div class="bg-white p-4 rounded-xl border border-brand-200 shadow-sm">
+                        <div class="flex items-center justify-between font-bold text-xs text-brand-900 cursor-pointer">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-calendar-check text-brand-600"></i> Appointment Management</span>
+                            <i class="fa-solid fa-chevron-up text-xs text-brand-500"></i>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                            View all appointments on one calendar, prevent conflicts and manage the day plan more neatly. Make operations more controlled with per-vet scheduling.
+                        </p>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-user-clock text-gray-500"></i> Per-Vet Calendar and Shift Management</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Manage vet schedules, shift swaps, and on-call rotations effortlessly.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-syringe text-gray-500"></i> Vaccination Tracking & Reminders</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Automated SMS & WhatsApp reminders for pet vaccination schedules.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-address-book text-gray-500"></i> Client & Patient Records</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Complete pet history, ownership records, and contact details in one click.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-notes-medical text-gray-500"></i> Medical Records</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Digital SOAP notes, exam histories, prescriptions, and lab attachments.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2 -->
+                <div class="space-y-3">
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-gray-500"></i> Use from Mobile, Tablet and Computer</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Cloud access from any device with automatic real-time sync.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-gray-500"></i> Product & Inventory Management</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Real-time stock deduction, minimum stock alerts, and expiration warnings.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-receipt text-gray-500"></i> Invoices, Payments & Account Tracking</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Generate e-invoices, process card/cash payments, and track outstanding balances.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-credit-card text-gray-500"></i> One-Click Payment Record</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Instant checkout flow integrated right inside patient exam screens.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-cash-register text-gray-500"></i> Free POS Integration</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Connect physical card readers and payment terminals seamlessly.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 3 -->
+                <div class="space-y-3">
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-square-phone text-gray-500"></i> Pet Owner Mobile App</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Branded mobile app for pet owners to view records and book online.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-chart-pie text-gray-500"></i> Reporting and Analysis</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Detailed daily, weekly, and monthly clinic profit/loss reports.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gray-500"></i> Financial Reports</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Comprehensive tax, accounting, and revenue analysis dashboard.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-users text-gray-500"></i> Client Analysis</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Track client retention rates, average visit values, and loyalty metrics.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-brand-300 transition" onclick="toggleAccordion(this)">
+                        <div class="flex items-center justify-between font-semibold text-xs text-gray-800">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-shield-virus text-gray-500"></i> Vaccine & Preventive Care Reports</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </div>
+                        <div class="accordion-content text-[11px] text-gray-500 pt-2">
+                            Monitor clinic-wide vaccination compliance rates across all patients.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- INTEGRATIONS SHOWCASE -->
+    <section id="integrations" class="py-16 bg-white">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Integrations</h2>
+                <p class="text-xs sm:text-sm text-gray-500 max-w-xl mx-auto">
+                    With PodVet's integrations, you can bring together all the systems in your clinic.
+                </p>
+
+                <div class="flex flex-wrap items-center justify-center gap-8 pt-4 text-gray-600 font-bold text-sm sm:text-base">
+                    <span class="flex items-center gap-1 text-red-500"><i class="fa-solid fa-comments"></i> Twilio</span>
+                    <span class="flex items-center gap-1 text-orange-500"><i class="fa-solid fa-circle-nodes"></i> Infobip</span>
+                    <span class="flex items-center gap-1 text-blue-600"><i class="fa-solid fa-envelope"></i> Mutlucell</span>
+                    <span class="flex items-center gap-1 text-emerald-600"><i class="fa-brands fa-whatsapp"></i> WhatsApp Business</span>
+                    <span class="flex items-center gap-1 text-sky-600"><i class="fa-solid fa-plug"></i> Beko</span>
+                    <span class="flex items-center gap-1 text-indigo-600"><i class="fa-solid fa-token"></i> Token</span>
+                    <span class="flex items-center gap-1 text-cyan-600"><i class="fa-solid fa-cash-register"></i> Ödeal</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 14-DAY FREE TRIAL BANNER CARD -->
+    <section class="py-12 bg-white" id="pricing">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="cta-gradient rounded-3xl p-12 text-center text-white shadow-2xl relative overflow-hidden bg-particles">
+                <h2 class="text-3xl sm:text-4xl font-extrabold mb-3">Try Free for 14 Days</h2>
+                <p class="text-brand-200 text-sm mb-8">Try it free for 14 days without paying anything.</p>
+
+                <button onclick="openModal('signup')" class="bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm px-8 py-3.5 rounded-full shadow-xl transition-all transform hover:scale-105">
+                    Try for Free
+                </button>
+
+                <div class="text-[11px] text-brand-300 mt-6 flex items-center justify-center gap-4">
+                    <span>No credit card required</span>
+                    <span>•</span>
+                    <span>GDPR compliant</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-white pt-16 pb-12 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-8 pb-12 border-b border-gray-800">
+                
+                <!-- Col 1: Brand Info -->
+                <div class="col-span-2 space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white text-sm">
+                            <i class="fa-solid fa-cloud-meatball"></i>
+                        </div>
+                        <span class="text-xl font-extrabold text-white">podvet</span>
+                    </div>
+
+                    <div>
+                        <button onclick="openModal('signup')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs px-5 py-2.5 rounded-full transition shadow">
+                            Try for Free
+                        </button>
+                    </div>
+
+                    <p class="text-xs text-gray-400 leading-relaxed pt-2">
+                        Mithatpaşa Mah. 503 Sokak No:10/2<br />
+                        Menderes, İzmir, Türkiye
+                    </p>
+
+                    <p class="text-xs text-gray-400">
+                        support@podvet.com<br />
+                        +90 552 895 30 15
+                    </p>
+
+                    <div class="flex items-center space-x-3 text-gray-400 text-sm pt-2">
+                        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Solutions -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Solutions</h4>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Veterinary AI</a></li>
+                        <li><a href="#" class="hover:text-white transition">Solo Practitioners</a></li>
+                        <li><a href="#" class="hover:text-white transition">Midsized Clinics</a></li>
+                        <li><a href="#" class="hover:text-white transition">Hospitals</a></li>
+                        <li><a href="#" class="hover:text-white transition">Mobile Veterinarians</a></li>
+                        <li><a href="#" class="hover:text-white transition">Data Migration</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Features -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Features</h4>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Appointments</a></li>
+                        <li><a href="#" class="hover:text-white transition">Vaccinations</a></li>
+                        <li><a href="#" class="hover:text-white transition">Client Records</a></li>
+                        <li><a href="#" class="hover:text-white transition">Medical Records</a></li>
+                        <li><a href="#" class="hover:text-white transition">Inventory</a></li>
+                        <li><a href="#" class="hover:text-white transition">Reporting</a></li>
+                        <li><a href="#" class="hover:text-white transition">SMS & WhatsApp</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Resources -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Resources</h4>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Frequently Asked Questions</a></li>
+                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Terms of Use</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 5: Compare -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Compare</h4>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">PodVet vs Digitail</a></li>
+                        <li><a href="#" class="hover:text-white transition">PodVet vs Provet</a></li>
+                        <li><a href="#" class="hover:text-white transition">PodVet vs ezyVet</a></li>
+                        <li><a href="#" class="hover:text-white transition">PodVet vs Shepherd</a></li>
+                        <li><a href="#" class="hover:text-white transition">PodVet vs DaySmart Vet</a></li>
+                        <li><a href="#" class="hover:text-white transition">All comparisons</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="pt-8 text-xs text-gray-500 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p>Copyright © 2018–2026 PodVet. All rights reserved.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:underline">Privacy</a>
+                    <a href="#" class="hover:underline">Terms</a>
+                    <a href="#" class="hover:underline">Cookies</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- FLOATING CHAT BUTTON -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button onclick="toggleChat()" class="w-14 h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-2xl flex items-center justify-center text-xl transition-transform hover:scale-110 active:scale-95">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+
+        <!-- Popover Chat Window -->
+        <div id="chat-window" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 text-gray-800 overflow-hidden text-xs">
+            <div class="bg-brand-900 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-meatball text-brand-400 text-lg"></i>
+                    <div>
+                        <div class="font-bold">PodVet Support</div>
+                        <div class="text-[10px] text-brand-300">We typically reply instantly</div>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="text-brand-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="p-4 space-y-3 h-52 overflow-y-auto bg-slate-50">
+                <div class="bg-brand-100 text-brand-900 p-2.5 rounded-xl rounded-tl-none max-w-[85%]">
+                    Hello! 👋 Welcome to PodVet. How can we help your veterinary clinic today?
+                </div>
+            </div>
+
+            <div class="p-2 border-t bg-white flex gap-2">
+                <input type="text" placeholder="Type a message..." class="w-full bg-slate-100 border-none rounded-xl px-3 py-2 text-xs focus:outline-none">
+                <button class="bg-brand-600 text-white px-3 py-2 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR SIGNUP / LOGIN -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 relative shadow-2xl text-gray-800">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 text-2xl mx-auto mb-3">
+                    <i class="fa-solid fa-cloud-meatball"></i>
+                </div>
+                <h3 id="modal-title" class="text-2xl font-bold text-gray-900">Try PodVet Free</h3>
+                <p class="text-xs text-gray-500 mt-1">Start your 14-day free trial. No credit card required.</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); alert('Thank you for choosing PodVet! Your trial environment is ready.'); closeModal();" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Clinic Name</label>
+                    <input type="text" required placeholder="Happy Paws Veterinary Clinic" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Email Address</label>
+                    <input type="email" required placeholder="vet@happypaws.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" required placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition shadow-lg mt-2">
+                    Start Free 14-Day Trial
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Mobile Menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Tab Content Data for Dashboard Preview
+        const tabContents = {
+            records: `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-200 mb-4 gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            Exam Notes & Treatments 
+                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-medium">In Progress</span>
+                        </h3>
+                        <p class="text-xs text-gray-500">Patient: <strong class="text-gray-700">Leo (Golden Retriever)</strong> | Client: <span class="text-gray-700">Adam Jansone</span></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="bg-brand-600 text-white text-xs px-3 py-1.5 rounded-md font-medium hover:bg-brand-700 transition flex items-center gap-1">
+                            <i class="fa-solid fa-paper-plane"></i> Send to Client
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-md font-medium hover:bg-gray-200">
+                            SOAP Templates
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs">
+                        <div>
+                            <span class="text-gray-400 block text-[10px]">Date</span>
+                            <span class="font-semibold text-gray-800">June 20, 2026 13:30</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px]">Reasons</span>
+                            <span class="inline-flex gap-1">
+                                <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Loss of appetite</span>
+                                <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Lethargy</span>
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px]">Veterinarian</span>
+                            <span class="font-semibold text-gray-800">Dr. Eli Vile</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px]">Staff</span>
+                            <span class="font-semibold text-gray-800">Gurkan Uzunca</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <h4 class="font-bold text-brand-900 mb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-stethoscope text-brand-600"></i> Chief Complaint
+                            </h4>
+                            <p class="text-gray-600">Patient reported loss of appetite and lethargy for about 2 days, with vomiting continuing since last night.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-900 mb-1">Clinical Findings</h4>
+                            <p class="text-gray-600">Mucous membrane color is normal, capillary refill time is 2 sec. Mild dehydration signs present.</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            calendar: `
+                <div class="pb-4 border-b border-gray-200 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Vaccine & Appointment Calendar</h3>
+                    <p class="text-xs text-gray-500">Live scheduling conflicts checker active</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="p-3 bg-brand-50 rounded-xl border border-brand-200">
+                        <div class="font-bold text-brand-900">09:00 AM - Dr. Eli Vile</div>
+                        <div class="text-gray-700 font-semibold mt-1">Bella (Persian Cat)</div>
+                        <div class="text-gray-500 text-[11px]">Annual Vaccination Booster</div>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="font-bold text-blue-900">10:30 AM - Dr. Sarah Jenkins</div>
+                        <div class="text-gray-700 font-semibold mt-1">Max (German Shepherd)</div>
+                        <div class="text-gray-500 text-[11px]">Post-Surgery Checkup</div>
+                    </div>
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="font-bold text-amber-900">01:30 PM - Dr. Eli Vile</div>
+                        <div class="text-gray-700 font-semibold mt-1">Leo (Golden Retriever)</div>
+                        <div class="text-gray-500 text-[11px]">Exam & Abdominal Palpation</div>
+                    </div>
+                </div>
+            `,
+            invoices: `
+                <div class="pb-4 border-b border-gray-200 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Invoices & E-Archive Payments</h3>
+                    <p class="text-xs text-gray-500">Instant revenue & POS checkout status</p>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
+                        <div>
+                            <span class="font-bold text-gray-900 block">Invoice #INV-2026-089</span>
+                            <span class="text-gray-500 text-[10px]">Client: Adam Jansone</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-brand-900 text-sm">$142.50</span>
+                            <span class="block text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Paid via POS</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
+                        <div>
+                            <span class="font-bold text-gray-900 block">Invoice #INV-2026-090</span>
+                            <span class="text-gray-500 text-[10px]">Client: Sarah Connor</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-brand-900 text-sm">$89.00</span>
+                            <span class="block text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> E-Invoice Sent</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            reminders: `
+                <div class="pb-4 border-b border-gray-200 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Automated Patient Reminders</h3>
+                    <p class="text-xs text-gray-500">Multichannel delivery queue</p>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-lg"></i>
+                            <div>
+                                <span class="font-bold text-emerald-950 block">WhatsApp Rabies Reminder</span>
+                                <span class="text-[10px] text-emerald-700">Sent to 42 clients today</span>
+                            </div>
+                        </div>
+                        <span class="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">100% Delivered</span>
+                    </div>
+                    <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-comment-sms text-brand-600 text-lg"></i>
+                            <div>
+                                <span class="font-bold text-brand-950 block">SMS Appointment Confirmations</span>
+                                <span class="text-[10px] text-brand-700">18 confirmations received</span>
+                            </div>
+                        </div>
+                        <span class="bg-brand-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">Active</span>
+                    </div>
+                </div>
+            `
+        };
+
+        function switchTab(tabKey) {
+            // Update button styles
+            document.querySelectorAll('.hero-tab-btn').forEach(btn => {
+                btn.className = 'hero-tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-brand-950/60 text-brand-200 hover:text-white border border-brand-800/60 hover:border-brand-500 transition-all flex items-center gap-2';
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'hero-tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-brand-800/90 text-white border border-brand-400/50 shadow-md transition-all flex items-center gap-2';
+            }
+
+            // Update content container
+            const container = document.getElementById('tab-content-container');
+            if (container && tabContents[tabKey]) {
+                container.innerHTML = tabContents[tabKey];
+            }
+        }
+
+        // Channel Selector Toggle
+        function switchChannel(channel) {
+            const btns = document.querySelectorAll('.chan-btn');
+            btns.forEach(b => {
+                b.className = 'chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-gray-300 text-gray-600 hover:border-brand-500';
+            });
+
+            const activeBtn = document.getElementById(`chan-${channel}`);
+            if (activeBtn) {
+                activeBtn.className = 'chan-btn px-6 py-2 rounded-full border text-xs font-bold transition border-emerald-600 bg-emerald-50 text-emerald-900';
+            }
+        }
+
+        // Accordion Toggle Logic
+        function toggleAccordion(element) {
+            const content = element.querySelector('.accordion-content');
+            const icon = element.querySelector('.fa-chevron-down, .fa-chevron-up');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                if (icon) {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            } else {
+                // Close all others first
+                document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
+                document.querySelectorAll('.accordion-item i').forEach(i => {
+                    i.classList.remove('fa-chevron-up');
+                    i.classList.add('fa-chevron-down');
+                });
+
+                content.classList.add('open');
+                if (icon) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                }
+            }
+        }
+
+        // Chat Toggle
+        function toggleChat() {
+            const chatWin = document.getElementById('chat-window');
+            chatWin.classList.toggle('hidden');
+        }
+
+        // Modal Handler
+        function openModal(type) {
+            window.location.href = (type === 'login') ? '/app' : '/app#/signup';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        // Dynamic brand color: reuses the landing tailwind config's --brand-*
+        // CSS variables so the whole page follows the clinic's saved color.
+        (function pvBrandSync() {
+            var SLOTS = ['50','100','200','300','400','500','600','700','800','900','950'];
+            var L_DELTA = { 50: 30, 100: 26, 200: 22, 300: 17, 400: 11, 500: 0, 600: -8, 700: -14, 800: -20, 900: -26, 950: -33 };
+
+            function hexToHsl(hex) {
+                hex = (hex || '').replace('#', '');
+                if (hex.length === 3) hex = hex.split('').map(function (c) { return c + c; }).join('');
+                var r = parseInt(hex.slice(0, 2), 16) / 255,
+                    g = parseInt(hex.slice(2, 4), 16) / 255,
+                    b = parseInt(hex.slice(4, 6), 16) / 255;
+                var max = Math.max(r, g, b), min = Math.min(r, g, b), h = 0, s = 0, l = (max + min) / 2, d = max - min;
+                if (d) {
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h *= 60;
+                }
+                return { h: Math.round(h) % 360, s: Math.round(s * 100), l: Math.round(l * 100) };
+            }
+
+            function hslToRgb(h, s, l) {
+                s /= 100; l /= 100;
+                var c = (1 - Math.abs(2 * l - 1)) * s, hp = h / 60, x = c * (1 - Math.abs((hp % 2) - 1));
+                var r = 0, g = 0, b = 0;
+                if (hp >= 0 && hp < 1) { r = c; g = x; }
+                else if (hp < 2) { r = x; g = c; }
+                else if (hp < 3) { g = c; b = x; }
+                else if (hp < 4) { g = x; b = c; }
+                else if (hp < 5) { r = x; b = c; }
+                else { r = c; b = x; }
+                var m = l - c / 2;
+                r = Math.round((r + m) * 255); g = Math.round((g + m) * 255); b = Math.round((b + m) * 255);
+                return r + ' ' + g + ' ' + b;
+            }
+
+            function applyBrand(hex) {
+                var hsl = hexToHsl(hex);
+                var s = Math.max(55, hsl.s);
+                var root = document.documentElement;
+                SLOTS.forEach(function (slot) {
+                    var ll = Math.max(6, Math.min(98, hsl.l + L_DELTA[slot]));
+                    root.style.setProperty('--brand-' + slot, hslToRgb(hsl.h, s, ll));
+                });
+                root.style.setProperty('--brand-dark', hslToRgb(hsl.h, s, Math.max(6, Math.min(90, hsl.l - 38))));
+                root.style.setProperty('--brand-surface', hslToRgb(hsl.h, s, Math.max(88, Math.min(98, hsl.l + 22))));
+            }
+
+            function refresh() {
+                fetch('/api/public/branding', { cache: 'no-store' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d && d.brandColor) applyBrand(d.brandColor);
+                    })
+                    .catch(function () {});
+            }
+
+            refresh();
+            setInterval(refresh, 30000);
+        })();
+    </script>
+</body>
+</html>

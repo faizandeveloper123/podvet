@@ -666,7 +666,7 @@ module.exports = function setupBoardingHandlers(store) {
   }
 
   async function saveBoardingConsentFormToDocuments(storeInst, stayId) {
-    const dir = path.join(app.getPath("documents"), "PetVet-Boarding-Consent-Forms");
+    const dir = path.join(app.getPath("documents"), "PodVet-Boarding-Consent-Forms");
     await fs.promises.mkdir(dir, { recursive: true });
     const data = await buildConsentFormData(stayId);
     const safeName = (data.pet?.name || "pet").replace(/[^a-z0-9_-]/gi, "_");
@@ -719,7 +719,7 @@ module.exports = function setupBoardingHandlers(store) {
     const stay = await saasClient.getBoardingStay(stayId);
     const branding = await buildBranding(storeInst);
     const d = stay.data;
-    const dir = path.join(app.getPath("documents"), "PetVet-Invoices");
+    const dir = path.join(app.getPath("documents"), "PodVet-Invoices");
     await fs.promises.mkdir(dir, { recursive: true });
     const invoiceData = {
       invoice_no: `BRD-${d.billingId ?? d.id}`,

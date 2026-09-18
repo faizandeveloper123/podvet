@@ -12,13 +12,13 @@ app.use(express.json({ limit: '50mb' }));
 
 // Local upload area for images (form pages, clinic logo) that avoids any
 // external cloud dependency — the renderer reaches them via /uploaded/*.
-let uploadsDir = process.env.PETVET_UPLOADS_DIR;
+let uploadsDir = process.env.PODVET_UPLOADS_DIR;
 if (!uploadsDir) {
   try {
     const { app: electronApp } = require('electron');
     uploadsDir = path.join(electronApp.getPath('userData'), 'uploads');
   } catch {
-    uploadsDir = path.join(process.env.APPDATA || require('os').homedir(), 'PetVet (Pro)', 'uploads');
+    uploadsDir = path.join(process.env.APPDATA || require('os').homedir(), 'PodVet (Pro)', 'uploads');
   }
 }
 uploadsDir = path.resolve(uploadsDir);
@@ -58,8 +58,8 @@ let _platPromise = null;
 const clinicConns = new Map();
 // PodVet runs its own databases: the platform DB name (platform DB) and the
 // clinic DB prefix can be overridden so a PodVet deployment never touches an
-// existing PetVet install's `petvet` / `clinic_*` databases on a shared MySQL.
-const DB_NAME = process.env.DB_NAME || 'petvet';
+// Existing PodVet install's `podvet` / `clinic_*` databases on a shared MySQL.
+const DB_NAME = process.env.DB_NAME || 'podvet';
 const CLINIC_PREFIX = process.env.CLINIC_PREFIX || 'clinic_';
 const DB_OPTS = {
   host: process.env.DB_HOST || 'localhost',
@@ -72,7 +72,7 @@ const DB_OPTS = {
 
 const CLOSED_RE = /closed state|ECONNRESET|EPIPE|socket hang up|Connection lost|PROTOCOL_CONNECTION_LOST|keepalive|handshake timeout/i;
 
-// Platform connection (`petvet`) with lazy connect + auto-reconnect. Hosted
+// Platform connection (`podvet`) with lazy connect + auto-reconnect. Hosted
 // MySQL (Aiven/Railway/...) closes idle connections; mysql2 doesn't heal a
 // dead single connection, so we replace it on the next call.
 async function ensurePlat() {
@@ -145,7 +145,7 @@ function getClinicConn(clinicId) {
 
 // `db` routes every query to the current request's clinic database (from the
 // JWT set by authMiddleware). Whole-account tables (users / clinics) always
-// run against the platform DB (`petvet`) explicitly via platConn.
+// run against the platform DB (`podvet`) explicitly via platConn.
 const db = new Proxy({}, {
   get(_t, prop) {
     return (...args) => {
@@ -166,7 +166,7 @@ async function ensurePlatformSchema() {
     WHERE TABLE_SCHEMA='${DB_NAME}' AND TABLE_NAME='users' AND COLUMN_NAME='clinic_id'`);
   if (!cols[0].n) await platConn.query('ALTER TABLE users ADD COLUMN clinic_id INT DEFAULT 1');
   const [cc] = await platConn.query('SELECT COUNT(*) AS n FROM clinics WHERE id=1');
-  if (!cc[0].n) await platConn.query('INSERT INTO clinics (id, clinic_name, slug) VALUES (1, "PetVet Clinic", "petvet")');
+  if (!cc[0].n) await platConn.query('INSERT INTO clinics (id, clinic_name, slug) VALUES (1, "PodVet Clinic", "podvet")');
   await platConn.query('UPDATE users SET clinic_id=1 WHERE clinic_id IS NULL');
 }
 
@@ -214,7 +214,7 @@ function makeToken(userId, clinicId) {
 
 async function okClinicSession(u, clinicId) {
   const cid = Number(clinicId) || Number(u.clinic_id) || 1;
-  let clinicName = 'PetVet Clinic';
+  let clinicName = 'PodVet Clinic';
   try {
     const conn = await getClinicConn(cid);
     const [rows] = await conn.query('SELECT clinic_name FROM clinic_settings WHERE id=1');
@@ -222,7 +222,7 @@ async function okClinicSession(u, clinicId) {
   } catch (_) {}
   return {
     user: { id: u.id, name: u.name, username: u.username, email: u.email, isPlatformAdmin: u.role === 'OWNER' },
-    activeClinic: { clinicId: cid, clinicName, slug: 'petvet', role: u.role || 'OWNER', branchId: null, accessBlocked: null },
+    activeClinic: { clinicId: cid, clinicName, slug: 'podvet', role: u.role || 'OWNER', branchId: null, accessBlocked: null },
   };
 }
 
@@ -347,13 +347,13 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/clinics', async (req, res) => {
   try {
     const owner = req.body.owner || req.body;
-    const clinicName = req.body.clinicName || req.body.clinic_name || owner.clinicName || 'PetVet Clinic';
+    const clinicName = req.body.clinicName || req.body.clinic_name || owner.clinicName || 'PodVet Clinic';
     const name = owner.name || 'Owner';
     const username = owner.username || 'owner';
-    const email = owner.email || 'owner@petvet.local';
+    const email = owner.email || 'owner@podvet.local';
     const password = owner.password || 'password123';
     const hash = await bcrypt.hash(password, 10);
-    const [reg] = await platConn.query('INSERT INTO clinics (clinic_name, slug) VALUES (?, ?)', [clinicName, 'petvet']);
+    const [reg] = await platConn.query('INSERT INTO clinics (clinic_name, slug) VALUES (?, ?)', [clinicName, 'podvet']);
     const clinicId = reg.insertId;
     await createClinicDatabase(clinicId, clinicName);
     const [r] = await platConn.query('INSERT INTO users (name, username, email, password, role, phone_number, clinic_id) VALUES (?, ?, ?, ?, "OWNER", ?, ?)',
@@ -362,7 +362,7 @@ app.post('/api/clinics', async (req, res) => {
     res.json({
       accessToken: token, refreshToken: token,
       user: { id: r.insertId, name, username, email, isPlatformAdmin: false },
-      activeClinic: { clinicId, clinicName, slug: 'petvet', role: 'OWNER', branchId: null, accessBlocked: null },
+      activeClinic: { clinicId, clinicName, slug: 'podvet', role: 'OWNER', branchId: null, accessBlocked: null },
     });
   } catch (e) { res.status(500).json({ error: { message: e.message } }); }
 });
@@ -385,13 +385,13 @@ app.patch('/api/auth/me', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/auth/switch-clinic', authMiddleware, async (req, res) => {
-  let clinicName = 'PetVet Clinic';
+  let clinicName = 'PodVet Clinic';
   try {
     const conn = await getClinicConn(req.clinicId);
     const [rows] = await conn.query('SELECT clinic_name FROM clinic_settings WHERE id=1');
     if (rows.length && rows[0].clinic_name) clinicName = rows[0].clinic_name;
   } catch (_) {}
-  res.json({ accessToken: makeToken(req.userId, req.clinicId), refreshToken: makeToken(req.userId, req.clinicId), user: { id: req.userId, name: 'User' }, activeClinic: { clinicId: req.clinicId, clinicName, slug: 'petvet', role: 'OWNER', branchId: null } });
+  res.json({ accessToken: makeToken(req.userId, req.clinicId), refreshToken: makeToken(req.userId, req.clinicId), user: { id: req.userId, name: 'User' }, activeClinic: { clinicId: req.clinicId, clinicName, slug: 'podvet', role: 'OWNER', branchId: null } });
 });
 
 app.post('/api/auth/logout', (req, res) => res.json({ success: true }));
@@ -427,7 +427,7 @@ function settingsRow() {
 function clinicDTO(row) {
   const s = toCamel(row || {});
   return {
-    id: 1, clinicName: s.clinicName || 'PetVet Clinic', slug: 'petvet',
+    id: 1, clinicName: s.clinicName || 'PodVet Clinic', slug: 'podvet',
     logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed',
     firstTimeFee: 1050, discountRange: 50, discountMinPercent: 1, discountMaxPercent: 7,
     use12HourTime: false, address: s.address || '', phone: s.phone || '',
@@ -463,8 +463,13 @@ app.patch('/api/clinics/me', authMiddleware, async (req, res) => {
 });
 app.get('/api/clinics/me/branding', authMiddleware, async (req, res) => {
   try { const [rows] = await settingsRow(); const s = toCamel(rows[0] || {});
-    res.json({ clinicName: s.clinicName || 'PetVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed' });
-  } catch { res.json({ clinicName: 'PetVet Clinic', logoUrl: null, brandColor: '#93caed' }); }
+    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed' });
+  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#93caed' }); }
+});
+app.get('/api/public/branding', async (req, res) => {
+  try { const [rows] = await settingsRow(); const s = toCamel(rows[0] || {});
+    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed' });
+  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#93caed' }); }
 });
 
 // ─── PLANS / SUBSCRIPTION ────────────────────────────────────────────────────
@@ -2216,11 +2221,11 @@ function startServer(port) {
   const p = port || PORT;
   const listen = () => new Promise((resolve) => {
     const srv = app.listen(p, () => {
-      console.log(`PetVet API server running on port ${p}`);
+      console.log(`PodVet API server running on port ${p}`);
       resolve(true);
     });
     srv.on('error', (e) => {
-      console.error(`PetVet API server listen error: ${e.message} — another server on port ${p} will be used`);
+      console.error(`PodVet API server listen error: ${e.message} — another server on port ${p} will be used`);
       resolve(true);
     });
   });

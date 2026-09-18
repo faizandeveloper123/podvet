@@ -283,7 +283,7 @@ module.exports = function setupAppointmentsHandlers(store) {
         };
       }
 
-      const baseDir = path.join(app.getPath("documents"), "PetVet-Invoices");
+      const baseDir = path.join(app.getPath("documents"), "PodVet-Invoices");
       await fs.promises.mkdir(baseDir, { recursive: true });
       const safeName = (payload.clientName || "client").replace(/[^\w\s]/g, "").replace(/\s+/g, "_");
       const ts = now.toISOString().slice(0, 19).replace(/:/g, "-");

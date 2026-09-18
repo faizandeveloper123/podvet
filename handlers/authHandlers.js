@@ -94,8 +94,8 @@ module.exports = function setupAuthHandlers(store) {
         user: { ...(data.user || {}), isPlatformAdmin: false },
         activeClinic: {
           clinicId: clinic.id || clinic.clinicId || 1,
-          clinicName: clinic.clinicName || clinic.clinic_name || 'PetVet Clinic',
-          slug: clinic.slug || 'petvet',
+          clinicName: clinic.clinicName || clinic.clinic_name || 'PodVet Clinic',
+          slug: clinic.slug || 'podvet',
           role: 'OWNER',
           branchId: clinic.branchId || null,
           // A brand-new clinic has no subscription yet, but that's the

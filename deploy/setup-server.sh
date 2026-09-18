@@ -30,7 +30,7 @@ fi
 
 # ── 2. Isolated MySQL database + user ────────────────────────────────────────
 # Grants are limited to podvet / podvet_clinic_* ONLY, so shared databases
-# (petvet, clinic_*, …) on the same MySQL server are never affected.
+# (podvet, clinic_*, …) on the same MySQL server are never affected.
 if [ ! -f "$APP_DIR/.db-env" ]; then
   DB_PASSWORD_RANDOM="$(openssl rand -hex 20)"
   if [ -n "${DB_PASSWORD:-}" ]; then

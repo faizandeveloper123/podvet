@@ -1,6 +1,6 @@
 const { safeStorage, BrowserWindow } = require('electron');
 
-// Thin HTTP client for the centralized PetVet multi-tenant backend.
+// Thin HTTP client for the centralized PodVet multi-tenant backend.
 // Tokens never leave the main process — the renderer only ever talks to
 // this through ipcMain handlers in authHandlers.js, never directly.
 

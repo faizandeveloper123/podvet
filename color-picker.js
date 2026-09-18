@@ -1,16 +1,16 @@
 /* ===========================================================================
- * PetVetColorPicker — MS Office "More Colors"-style palette shown as columns.
+ * PodVetColorPicker — MS Office "More Colors"-style palette shown as columns.
  * Self-contained vanilla JS. Usage:
- *    PetVetColorPicker.init(containerEl, {
+ *    PodVetColorPicker.init(containerEl, {
  *      value: '#93CAED',          // initial color
  *      onChangeLive: fn(hex),     // fired on scrub
  *      onChangeCommit: fn(hex)    // fired on click / slider release / hex Add
  *    });
- * Exposes window.PetVetColorPicker. No dependencies.
+ * Exposes window.PodVetColorPicker. No dependencies.
  * =========================================================================== */
 (function (global) {
   'use strict';
-  if (global.PetVetColorPicker) return;
+  if (global.PodVetColorPicker) return;
 
   /* ---------------- color math ---------------- */
   function hue2rgb(p, q, t) {
@@ -339,5 +339,5 @@
     };
   }
 
-  global.PetVetColorPicker = { init: init };
+  global.PodVetColorPicker = { init: init };
 })(window);

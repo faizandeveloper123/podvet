@@ -204,7 +204,7 @@ module.exports = function setupExpensesHandlers(store) {
     }
   });
 
-  // Download expense report PDF (saved under Documents/PetVet-Expenses)
+  // Download expense report PDF (saved under Documents/PodVet-Expenses)
   ipcMain.handle("download-expense-pdf", async (_event, { date, startDate, endDate } = {}) => {
     try {
       const { data, totalAmount } = await fetchAllExpenses({ date, startDate, endDate });
@@ -214,7 +214,7 @@ module.exports = function setupExpensesHandlers(store) {
       const clinicResult = await saasClient.getMyClinic();
       const branding = await resolveApiBranding(store, clinicResult.clinic);
 
-      const baseDir = path.join(app.getPath("documents"), "PetVet-Expenses");
+      const baseDir = path.join(app.getPath("documents"), "PodVet-Expenses");
       await fs.promises.mkdir(baseDir, { recursive: true });
 
       const label = date ? date : `${startDate || "start"}_to_${endDate || "end"}`;

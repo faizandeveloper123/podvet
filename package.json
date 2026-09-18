@@ -1,7 +1,7 @@
 {
   "name": "podvet",
   "version": "5.0.10-web",
-  "description": "PodVet — standalone Node.js web edition of the PetVet veterinary management app. No Electron, no window runtime; the exact same React frontend and handler logic served by a pure Express + MySQL backend.",
+  "description": "PodVet — standalone Node.js web edition of the PodVet veterinary management app. No Electron, no window runtime; the exact same React frontend and handler logic served by a pure Express + MySQL backend.",
   "license": "MIT",
   "type": "commonjs",
   "main": "index.js",

@@ -3,7 +3,7 @@
 -- `clinics` metadata table. Each additional clinic gets its own database
 -- (podvet_clinic_<id>) auto-created by the server based on this schema.
 --
--- The plain `petvet` / `clinic_*` databases from other installs are NEVER
+-- The plain `podvet` / `clinic_*` databases from other installs are NEVER
 -- touched: this schema uses its own database name (DB_NAME, default "podvet")
 -- and its own clinic prefix (CLINIC_PREFIX, default "podvet_clinic_").
 

@@ -18,7 +18,7 @@ node index.js          # http://localhost:8080
 PodVet is fully isolated from any shared MySQL: it creates its own platform
 database (`DB_NAME`, default `podvet`) and its own per-clinic databases
 (`DB_PREFIX` + clinic id, default `podvet_clinic_`). It never touches an
-existing `petvet` / `clinic_*` database.
+existing `podvet` / `clinic_*` database.
 
 Bootstrap the platform schema on a fresh MySQL server:
 
@@ -35,12 +35,12 @@ Environment variables (see `.env.example`):
 | `DB_PORT`      | MySQL port                           | `3306`           |
 | `DB_USER`      | MySQL user                           | `root`           |
 | `DB_PASSWORD`  | MySQL password                       | ``               |
-| `DB_NAME`      | PodVet platform database             | `petvet`         |
+| `DB_NAME`      | PodVet platform database             | `podvet`         |
 | `DB_PREFIX`    | PodVet clinic database prefix        | `clinic_`        |
 | `DB_SSL`       | Set `true` for TLS to MySQL          | unset            |
 
 > For an isolated deployment set `DB_NAME=podvet` and `DB_PREFIX=podvet_clinic_`
-> so the app can never collide with an existing shared `petvet` database. The
+> so the app can never collide with an existing shared `podvet` database. The
 > repository's `db/schema.sql` already targets the `podvet` database.
 
 ## Deploy

@@ -1257,7 +1257,7 @@ async function printGeneratedPdf(filePath) {
 // ─────────────────────────────────────────────────────────────────────────────
 // BOARDING CONSENT FORM — a distinct pipeline from consentForm.js
 // (Appointments' own, unrelated surgical/medical consent form). Ported from
-// the legacy single-tenant app's (PetVet-EMR) generateBoardingConsentFormJS,
+// the legacy single-tenant app's (PodVet-EMR) generateBoardingConsentFormJS,
 // which is the accurate/complete version of this document — this port must
 // stay a faithful match to it, not the earlier incomplete port. Page 1 is the
 // stay's own fillable details (owner/pet/schedule/feeding/medical/optional

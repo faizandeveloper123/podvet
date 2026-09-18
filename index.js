@@ -25,7 +25,7 @@ fs.mkdirSync(WEB_USER_DATA_DIR, { recursive: true });
 // dir when the desktop install has never been run.
 const DESKTOP_UPLOADS = path.join(
   process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'),
-  'PetVet (Pro)',
+  'PodVet (Pro)',
   'uploads',
 );
 const UPLOADS_DIR = fs.existsSync(DESKTOP_UPLOADS)
@@ -34,7 +34,7 @@ const UPLOADS_DIR = fs.existsSync(DESKTOP_UPLOADS)
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // Let server.js's /uploaded static point at the same dir the desktop exposes.
-process.env.PETVET_UPLOADS_DIR = UPLOADS_DIR;
+process.env.PODVET_UPLOADS_DIR = UPLOADS_DIR;
 
 try { require('dotenv').config(); } catch (_) {}
 
@@ -279,6 +279,7 @@ function buildWebIndexHtml() {
   return raw.replace('<head>', '<head>\n    ' + inject);
 }
 const webIndexHtml = buildWebIndexHtml();
+const landingHtml = fs.readFileSync(path.join(__dirname, 'landing.html'), 'utf8');
 
 app.get('/web-preload.js', (req, res) => {
   res.type('application/javascript').send(webPreload.source);
@@ -296,6 +297,9 @@ app.get('/color-picker.html', (req, res) => {
   res.type('text/html').send(fs.readFileSync(path.join(__dirname, 'color-picker.html'), 'utf8'));
 });
 app.get('/', (req, res) => {
+  res.type('text/html').send(landingHtml);
+});
+app.get('/app', (req, res) => {
   res.type('text/html').send(webIndexHtml);
 });
 app.use(express.static(DIST_DIR));

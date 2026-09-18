@@ -3,5 +3,5 @@
   "version": "0.0.0-web",
   "private": true,
   "main": "index.js",
-  "description": "Pure-Node stand-in for the tiny slice of the Electron API that PetVet's handlers use. There is NO real Electron here — nothing runs in a Chromium window."
+  "description": "Pure-Node stand-in for the tiny slice of the Electron API that PodVet's handlers use. There is NO real Electron here — nothing runs in a Chromium window."
 }

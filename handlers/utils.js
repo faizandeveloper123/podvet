@@ -97,7 +97,7 @@ async function saveLocalImage(dataUrl, prefix) {
   if (!match) throw new Error("Invalid data URL");
   const baseMime = match[1].toLowerCase();
   let ext = baseMime.split("/")[1] || "bin"; if (ext === "jpg") ext = "jpeg"; if (ext === "svg+xml") ext = "svg";
-  const dir = process.env.PETVET_UPLOADS_DIR
+  const dir = process.env.PODVET_UPLOADS_DIR
     || path.join(app.getPath("userData"), "uploads");
   await fs.promises.mkdir(dir, { recursive: true });
   const filename = `${prefix}${Date.now()}_${Math.round(Math.random() * 1e6)}.${ext}`;

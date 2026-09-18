@@ -120,7 +120,7 @@ module.exports = function setupDataManagementHandlers() {
         }));
       }
 
-      const exportDir = path.join(os.homedir(), "Desktop", "PetVet-Backup");
+      const exportDir = path.join(os.homedir(), "Desktop", "PodVet-Backup");
       if (!fs.existsSync(exportDir)) {
         fs.mkdirSync(exportDir, { recursive: true });
       }
@@ -209,7 +209,7 @@ module.exports = function setupDataManagementHandlers() {
         saasClient.createClinicUser({
           name: row.name,
           username: row.username,
-          email: row.email || `${row.username}@imported.petvet.local`,
+          email: row.email || `${row.username}@imported.podvet.local`,
           password: row.password && String(row.password).length >= 8 ? String(row.password) : "ImportedUser123",
           role: String(row.role || "USER").toUpperCase() === "ADMIN" ? "ADMIN" : "USER",
         }),
