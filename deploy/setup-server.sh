@@ -110,7 +110,42 @@ systemctl enable podvet.service
 systemctl restart podvet.service || true
 
 # ── 7. nginx reverse proxy ───────────────────────────────────────────────────
-cat > /etc/nginx/sites-available/podvet <<NGINX
+# Reuse already-issued certs: if a Let's Encrypt cert exists, write a server
+# block that keeps HTTPS on all deploys (so certbot is only needed for the
+# initial issuance). Otherwise write an HTTP-only block for certbot to upgrade.
+CERT_DIR="/etc/letsencrypt/live/${DOMAIN}"
+if [ -f "${CERT_DIR}/fullchain.pem" ]; then
+  cat > /etc/nginx/sites-available/podvet <<NGINX
+server {
+    server_name ${DOMAIN};
+
+    location / {
+        proxy_pass http://127.0.0.1:${APP_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 300s;
+    }
+
+    listen 443 ssl; # managed by certbot template
+    ssl_certificate ${CERT_DIR}/fullchain.pem;
+    ssl_certificate_key ${CERT_DIR}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+}
+server {
+    if (\$host = ${DOMAIN}) {
+        return 301 https://\$host\$request_uri;
+    }
+    listen 80;
+    server_name ${DOMAIN};
+    return 404;
+}
+NGINX
+  SKIP_CERTBOT=1
+else
+  cat > /etc/nginx/sites-available/podvet <<NGINX
 server {
     listen 80;
     server_name ${DOMAIN};
@@ -126,6 +161,7 @@ server {
     }
 }
 NGINX
+fi
 ln -sf /etc/nginx/sites-available/podvet /etc/nginx/sites-enabled/podvet
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
