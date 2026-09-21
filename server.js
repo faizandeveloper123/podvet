@@ -4,6 +4,7 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const { AsyncLocalStorage } = require('async_hooks');
+const { ensureSuperAdminSchema, bootstrapSuperAdmin, registerSuperAdmin } = require('./lib/superAdmin');
 
 const app = express();
 app.set('query parser', 'extended');
@@ -172,6 +173,12 @@ async function ensurePlatformSchema() {
   const [cc] = await platConn.query('SELECT COUNT(*) AS n FROM clinics WHERE id=1');
   if (!cc[0].n) await platConn.query('INSERT INTO clinics (id, clinic_name, slug) VALUES (1, "PodVet Clinic", "podvet")');
   await platConn.query('UPDATE users SET clinic_id=1 WHERE clinic_id IS NULL');
+  // Platform (Super Admin) tables live in the same DB but are a separate trust
+  // boundary — own credentials, roles, plans, audit trail. Must run before the
+  // clinics UPDATE below, which uses columns this call adds.
+  await ensureSuperAdminSchema(platConn, DB_NAME);
+  await platConn.query("UPDATE clinics SET status='active', plan='pro', subscription_start=COALESCE(subscription_start, CURDATE()), registration_date=COALESCE(registration_date, DATE(created_at)) WHERE id=1");
+  await bootstrapSuperAdmin(platConn, bcrypt);
 }
 
 async function createClinicDatabase(clinicId, clinicName) {
@@ -181,9 +188,15 @@ async function createClinicDatabase(clinicId, clinicName) {
     await admin.query(`USE \`${CLINIC_PREFIX}${clinicId}\``);
     await admin.query('SET FOREIGN_KEY_CHECKS=0');
     const [tables] = await platConn.query('SHOW TABLES');
+    // Platform-only tables must never be cloned into a clinic database —
+    // they hold platform credentials and the token-signing secret.
+    const PLATFORM_TABLES = new Set([
+      'users', 'clinics', 'platform_admins', 'roles', 'role_permissions',
+      'audit_logs', 'plans', 'platform_settings',
+    ]);
     for (const t of tables) {
       const name = Object.values(t)[0];
-      if (name === 'users' || name === 'clinics') continue;
+      if (PLATFORM_TABLES.has(name)) continue;
       const [[def]] = await platConn.query(`SHOW CREATE TABLE \`${name}\``);
       await admin.query(def['Create Table']);
     }
@@ -2212,6 +2225,12 @@ app.get('/api/discount-range', authMiddleware, (req, res) => res.json({ min: 0, 
 app.get('/api/time-format', authMiddleware, (req, res) => res.json({ use12Hour: false }));
 
 // ─── CATCH-ALL ───────────────────────────────────────────────────────────────
+// ─── PLATFORM SUPER ADMIN (registered before the /api catch-all) ─────────────
+registerSuperAdmin(app, {
+  platConn, getClinicConn, createClinicDatabase, bcrypt, makeToken,
+  DB_NAME, CLINIC_PREFIX,
+});
+
 app.all('/api/{*splat}', (req, res) => {
   const m = req.method.toUpperCase();
   if (m === 'POST' || m === 'PUT' || m === 'PATCH' || m === 'DELETE') res.json({ success: true });

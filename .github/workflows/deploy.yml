@@ -36,10 +36,14 @@ jobs:
           username: ${{ env.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ env.VPS_PORT }}
-          envs: DB_PASSWORD
+          envs: DB_PASSWORD,SUPER_ADMIN_USERNAME,SUPER_ADMIN_PASSWORD
           script: |
             set -e
             export DB_PASSWORD="${DB_PASSWORD}"
+            export SUPER_ADMIN_USERNAME="${SUPER_ADMIN_USERNAME}"
+            export SUPER_ADMIN_PASSWORD="${SUPER_ADMIN_PASSWORD}"
             bash /opt/podvet/deploy/setup-server.sh
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD || '' }}
+          SUPER_ADMIN_USERNAME: ${{ secrets.SUPER_ADMIN_USERNAME || '' }}
+          SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD || '' }}

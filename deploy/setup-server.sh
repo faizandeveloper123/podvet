@@ -85,6 +85,9 @@ DB_NAME=${DB_NAME}
 DB_PREFIX=${DB_PREFIX}
 CLINIC_PREFIX=${DB_PREFIX}
 DB_SSL=false
+SUPER_ADMIN_USERNAME=${SUPER_ADMIN_USERNAME:-superadmin}
+SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD:-}
+SUPER_ADMIN_EMAIL=${SUPER_ADMIN_EMAIL:-superadmin@podvet.local}
 ENV
 
 # ── 6. systemd service ───────────────────────────────────────────────────────
@@ -110,6 +113,14 @@ UNIT
 systemctl daemon-reload
 systemctl enable podvet.service
 systemctl restart podvet.service || true
+
+# One-time: surface the Super Admin bootstrap banner (including the generated
+# password) in the deploy log. Set SUPER_ADMIN_PASSWORD as a repo secret first
+# to choose your own; otherwise change this password after first login.
+if [ "${SHOW_BOOTSTRAP_CREDENTIALS:-1}" = "1" ]; then
+  sleep 3
+  journalctl -u podvet.service --no-pager -n 400 2>/dev/null | grep -A6 "SUPER ADMIN BOOTSTRAPPED" || true
+fi
 
 # ── 7. nginx reverse proxy ───────────────────────────────────────────────────
 # Reuse already-issued certs: if a Let's Encrypt cert exists, write a server

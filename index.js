@@ -302,6 +302,18 @@ app.get('/', (req, res) => {
 app.get('/app', (req, res) => {
   res.type('text/html').send(webIndexHtml);
 });
+
+// ── Platform Super Admin (separate app + separate /api/super-admin namespace) ─
+const SUPER_ADMIN_DIR = path.join(__dirname, 'public', 'super-admin');
+const superAdminHtml = fs.readFileSync(path.join(SUPER_ADMIN_DIR, 'index.html'), 'utf8');
+app.get('/super-admin', (req, res) => {
+  res.type('text/html').send(superAdminHtml);
+});
+app.use('/super-admin', express.static(SUPER_ADMIN_DIR));
+app.get('/super-admin/{*splat}', (req, res) => {
+  res.type('text/html').send(superAdminHtml);
+});
+
 app.use(express.static(DIST_DIR));
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/_rpc/')) {
