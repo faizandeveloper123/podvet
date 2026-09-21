@@ -60,7 +60,11 @@ const clinicConns = new Map();
 // clinic DB prefix can be overridden so a PodVet deployment never touches an
 // Existing PodVet install's `podvet` / `clinic_*` databases on a shared MySQL.
 const DB_NAME = process.env.DB_NAME || 'podvet';
-const CLINIC_PREFIX = process.env.CLINIC_PREFIX || 'clinic_';
+// setup-server.sh / .env write DB_PREFIX (e.g. podvet_clinic_) and grant the
+// DB user privileges on `<DB_PREFIX>%` only. server.js must read the SAME
+// variable — defaulting to 'clinic_' made clinic creation try `clinic_<id>`,
+// which the user has no grant for, so every signup 500'd with access denied.
+const CLINIC_PREFIX = process.env.CLINIC_PREFIX || process.env.DB_PREFIX || 'podvet_clinic_';
 const DB_OPTS = {
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT || 3306),
