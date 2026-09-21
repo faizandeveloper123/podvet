@@ -65,13 +65,16 @@
   'use strict';
   const SESS_KEY = 'podvet_session';
   const params = new URLSearchParams(location.search);
-  const next = params.get('next') || '';
+  let next = params.get('next') || '';
+  if (next === '/app' || next === '/login' || next.startsWith('/app?')) next = '';
   const asSuper = next.startsWith('/super-admin');
+  const CLINIC_HOME = next || '/dashboard';
 
-  // If already signed in, go straight through.
+  // /app is the single entry point: if this browser already holds a session,
+  // send it straight to the right role's home instead of showing the form.
   try {
-    if (asSuper && localStorage.getItem('podvet_super_token')) return location.replace('/super-admin');
-    if (!asSuper && localStorage.getItem(SESS_KEY)) return location.replace(next || '/app');
+    if (localStorage.getItem(SESS_KEY)) return location.replace(CLINIC_HOME);
+    if (localStorage.getItem('podvet_super_token')) return location.replace('/super-admin');
   } catch (_) {}
 
   if (asSuper) {
@@ -99,7 +102,7 @@
           user: Object.assign({}, body.user, { isPlatformAdmin: false }),
           tokens: { accessToken: body.accessToken, refreshToken: body.refreshToken },
         }));
-        location.replace(next || '/app');
+        location.replace(CLINIC_HOME);
       }
     } catch (err2) {
       document.getElementById('err').textContent = err2.message;

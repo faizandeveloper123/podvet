@@ -273,9 +273,12 @@ const themePickerSource = fs.readFileSync(path.join(__dirname, 'theme-picker.js'
 const colorPickerSource = fs.readFileSync(path.join(__dirname, 'color-picker.js'), 'utf8');
 const mobileUxSource = fs.readFileSync(path.join(__dirname, 'mobile-ux.js'), 'utf8');
 
-// One login page for the whole platform: unauthenticated visitors to the
-// clinic app are sent to /login (which routes to /app or /super-admin by role).
-const AUTH_GUARD = '<script>(function(){try{if(!localStorage.getItem("podvet_session")){location.replace("/login?next="+encodeURIComponent(location.pathname+location.search));}}catch(e){}})();</script>';
+// One login page for the whole platform, served at /app: it sniffs the
+// credentials and forwards the user to their role's home (/dashboard for a
+// clinic account, /super-admin for platform staff). Any other clinic-app route
+// bounces an unauthenticated visitor back to /app. A few pre-auth screens
+// (signup, forgot-password, verify-otp) are allowed through untouched.
+const AUTH_GUARD = '<script>(function(){try{var p=location.pathname;var open=["/signup","/forgot-password","/verify-otp"];if(!localStorage.getItem("podvet_session")&&open.indexOf(p)===-1){location.replace("/app?next="+encodeURIComponent(p+location.search));}}catch(e){}})();</script>';
 
 function buildWebIndexHtml() {
   const raw = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
@@ -305,13 +308,12 @@ app.get('/', (req, res) => {
   res.type('text/html').send(landingHtml);
 });
 app.get('/app', (req, res) => {
-  res.type('text/html').send(webIndexHtml);
-});
-
-// Single, role-based login page for the whole platform.
-app.get('/login', (req, res) => {
   res.type('text/html').send(loginHtml);
 });
+
+// The platform login page lives at /app: it detects the account (clinic vs
+// platform staff) and redirects to the matching role's home.
+app.get('/login', (req, res) => res.redirect('/app'));
 
 // ── Platform Super Admin (separate app + separate /api/super-admin namespace) ─
 const SUPER_ADMIN_DIR = path.join(__dirname, 'public', 'super-admin');

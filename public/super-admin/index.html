@@ -844,7 +844,7 @@
   // ── auth ────────────────────────────────────────────────────────────────
   function showLogin() {
     // Single login page for the whole platform.
-    location.replace('/login?next=' + encodeURIComponent('/super-admin'));
+    location.replace('/app?next=' + encodeURIComponent('/super-admin'));
   }
   function showApp() {
     el('login').classList.add('hidden'); el('login').classList.remove('flex');
@@ -855,7 +855,7 @@
   function doLogout(hitServer) {
     if (hitServer && token) { api('/logout', { method: 'POST', body: {} }).catch(() => {}); }
     token = ''; admin = null; localStorage.removeItem(TOKEN_KEY);
-    location.replace('/login');
+    location.replace('/app');
   }
   window.__logout = doLogout;
 
