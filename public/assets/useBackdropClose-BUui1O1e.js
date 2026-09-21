@@ -130,7 +130,7 @@ import{b7 as M,r as t,u as $,j as e,F as x,b8 as D,b9 as z,T as O,c as W,ba as G
                   text-[11px]\r
                   text-gray-400\r
                   font-medium\r
-                `,children:"Powered by hifi."})})]}),e.jsxs("nav",{ref:d,onScroll:E,className:`
+                `,children:"Powered by Parkar Technologies LLC"})})]}),e.jsxs("nav",{ref:d,onScroll:E,className:`
             flex-1
             py-4
             space-y-1
