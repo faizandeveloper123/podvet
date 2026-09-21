@@ -273,21 +273,17 @@ const themePickerSource = fs.readFileSync(path.join(__dirname, 'theme-picker.js'
 const colorPickerSource = fs.readFileSync(path.join(__dirname, 'color-picker.js'), 'utf8');
 const mobileUxSource = fs.readFileSync(path.join(__dirname, 'mobile-ux.js'), 'utf8');
 
-// One login page for the whole platform, served at /app: it sniffs the
-// credentials and forwards the user to their role's home (/dashboard for a
-// clinic account, /super-admin for platform staff). Any other clinic-app route
-// bounces an unauthenticated visitor back to /app. A few pre-auth screens
-// (signup, forgot-password, verify-otp) are allowed through untouched.
-const AUTH_GUARD = '<script>(function(){try{var p=location.pathname;var open=["/signup","/forgot-password","/verify-otp"];if(!localStorage.getItem("podvet_session")&&open.indexOf(p)===-1){location.replace("/app?next="+encodeURIComponent(p+location.search));}}catch(e){}})();</script>';
-
+// The clinic app is served as-is at /app (and every SPA route, via the catch-all
+// below). Its own screens decide auth: signed-out visitors get the app's real
+// login page, which the backend also uses to sign platform staff in and hand
+// them over to /super-admin. No injected guard, so the native login renders.
 function buildWebIndexHtml() {
   const raw = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
-  const inject = AUTH_GUARD + '\n    <script src="/web-preload.js"></script>\n    <script src="/color-picker.js" defer></script>\n    <script src="/theme-picker.js" defer></script>\n    <script src="/mobile-ux.js" defer></script>\n  ';
+  const inject = '\n    <script src="/web-preload.js"></script>\n    <script src="/color-picker.js" defer></script>\n    <script src="/theme-picker.js" defer></script>\n    <script src="/mobile-ux.js" defer></script>\n  ';
   return raw.replace('<head>', '<head>\n    ' + inject);
 }
 const webIndexHtml = buildWebIndexHtml();
 const landingHtml = fs.readFileSync(path.join(__dirname, 'landing.html'), 'utf8');
-const loginHtml = fs.readFileSync(path.join(__dirname, 'public', 'login.html'), 'utf8');
 
 app.get('/web-preload.js', (req, res) => {
   res.type('application/javascript').send(webPreload.source);
@@ -308,11 +304,10 @@ app.get('/', (req, res) => {
   res.type('text/html').send(landingHtml);
 });
 app.get('/app', (req, res) => {
-  res.type('text/html').send(loginHtml);
+  res.type('text/html').send(webIndexHtml);
 });
 
-// The platform login page lives at /app: it detects the account (clinic vs
-// platform staff) and redirects to the matching role's home.
+// The one login page is the clinic app's own login screen, available at /app.
 app.get('/login', (req, res) => res.redirect('/app'));
 
 // ── Platform Super Admin (separate app + separate /api/super-admin namespace) ─

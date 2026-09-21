@@ -46,6 +46,11 @@ module.exports = function setupAuthHandlers(store) {
   ipcMain.handle('login', async (_event, { identifier, password, clinicId }) => {
     try {
       const data = await saasClient.login({ identifier, password, clinicId });
+      // Platform staff: the backend flags the response so the preload can hand
+      // the token to /super-admin instead of building a clinic session.
+      if (data && data.superAdmin) {
+        return { success: true, superAdmin: true, token: data.token };
+      }
       saasClient.saveTokens({ accessToken: data.accessToken, refreshToken: data.refreshToken });
       const session = { user: data.user, activeClinic: data.activeClinic };
       saasClient.saveSession(session);

@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const { AsyncLocalStorage } = require('async_hooks');
-const { ensureSuperAdminSchema, bootstrapSuperAdmin, registerSuperAdmin } = require('./lib/superAdmin');
+const { ensureSuperAdminSchema, bootstrapSuperAdmin, registerSuperAdmin, authenticatePlatformAdmin } = require('./lib/superAdmin');
 
 const app = express();
 app.set('query parser', 'extended');
@@ -351,6 +351,16 @@ async function unpaidClientSummary(kind, { search = '', page = 1, pageSize = 10 
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { identifier, password } = req.body;
+    // Platform staff sign in through the same clinic login screen: detect them
+    // first and hand back a marker the app turns into a /super-admin hand-off.
+    const platform = await authenticatePlatformAdmin(platConn, bcrypt, identifier, password);
+    if (platform) {
+      if (platform.blocked) {
+        const code = platform.blocked === 'Invalid credentials' ? 401 : 403;
+        return res.status(code).json({ error: platform.blocked });
+      }
+      return res.json({ superAdmin: true, token: platform.token, admin: platform.admin });
+    }
     const [rows] = await platConn.query('SELECT * FROM users WHERE username = ? OR email = ?', [identifier, identifier]);
     if (!rows.length) return res.status(401).json({ error: 'Invalid credentials' });
     const u = rows[0];
