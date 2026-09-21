@@ -44,30 +44,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-<!-- ── LOGIN ─────────────────────────────────────────────────────────────── -->
-<div id="login" class="hidden min-h-screen items-center justify-center bg-slate-900 px-4">
-  <div class="w-full max-w-md">
-    <div class="text-center mb-8">
-      <div class="text-5xl">🐾</div>
-      <h1 class="mt-3 text-3xl font-bold text-white tracking-tight">PodVet</h1>
-      <p class="text-slate-400 text-sm mt-1">Platform Super Admin</p>
-    </div>
-    <form id="loginForm" class="bg-white rounded-2xl shadow-xl p-8 space-y-5">
-      <div>
-        <label class="block text-sm font-semibold text-slate-600 mb-1">Username or Email</label>
-        <input id="li_user" autocomplete="username" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="superadmin" />
-      </div>
-      <div>
-        <label class="block text-sm font-semibold text-slate-600 mb-1">Password</label>
-        <input id="li_pass" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••" />
-      </div>
-      <div id="loginErr" class="hidden text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2"></div>
-      <button id="loginBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl py-2.5 transition">Sign in</button>
-      <p class="text-center text-xs text-slate-400">Restricted to platform staff. All actions are audit-logged.</p>
-    </form>
-  </div>
-</div>
-
 <!-- ── APP ───────────────────────────────────────────────────────────────── -->
 <div id="app" class="hidden min-h-screen">
   <div class="flex h-screen overflow-hidden">
@@ -842,12 +818,11 @@
   }
 
   // ── auth ────────────────────────────────────────────────────────────────
+  // No separate super-admin login: /app is the one role-detecting sign-in page.
   function showLogin() {
-    // Single login page for the whole platform.
     location.replace('/app?next=' + encodeURIComponent('/super-admin'));
   }
   function showApp() {
-    el('login').classList.add('hidden'); el('login').classList.remove('flex');
     el('app').classList.remove('hidden');
     el('avatar').textContent = (admin.name || 'S').charAt(0).toUpperCase();
     el('who').innerHTML = `<div class="font-semibold text-slate-200">${esc(admin.name)}</div><div>${esc(admin.role)}</div>`;
@@ -858,29 +833,6 @@
     location.replace('/app');
   }
   window.__logout = doLogout;
-
-  el('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const err = el('loginErr'); err.classList.add('hidden');
-    el('loginBtn').disabled = true; el('loginBtn').textContent = 'Signing in…';
-    try {
-      const res = await fetch('/api/super-admin/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: el('li_user').value.trim(), password: el('li_pass').value }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((body.error && body.error.message) || 'Login failed');
-      token = body.token; admin = body.admin;
-      localStorage.setItem(TOKEN_KEY, token);
-      showApp();
-      if (!location.hash) location.hash = '#/dashboard';
-      render();
-    } catch (err2) {
-      err.textContent = err2.message; err.classList.remove('hidden');
-    } finally {
-      el('loginBtn').disabled = false; el('loginBtn').textContent = 'Sign in';
-    }
-  });
 
   el('refreshBtn').addEventListener('click', render);
   window.addEventListener('hashchange', render);
