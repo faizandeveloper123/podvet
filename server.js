@@ -92,8 +92,8 @@ async function ensurePlat() {
   return _platPromise;
 }
 
-function openClinicConn(clinicId) {
-  const conn = mysql.createConnection({ ...DB_OPTS, database: `${CLINIC_PREFIX}${clinicId}` });
+async function openClinicConn(clinicId) {
+  const conn = await mysql.createConnection({ ...DB_OPTS, database: `${CLINIC_PREFIX}${clinicId}` });
   conn.on('error', () => {});
   return conn;
 }
@@ -106,12 +106,12 @@ function healConn(holder, open) {
       if (prop === 'then') return undefined;
       return async (...args) => {
         let conn = holder.c;
-        if (!conn) { holder.c = open(); conn = holder.c; }
+        if (!conn) { conn = await open(); holder.c = conn; }
         try { return await conn[prop](...args); }
         catch (e) {
           if (!CLOSED_RE.test(String((e && e.message) || e))) throw e;
           try { conn.destroy && conn.destroy(); } catch (_) {}
-          holder.c = open(); conn = holder.c;
+          conn = await open(); holder.c = conn;
           return await conn[prop](...args);
         }
       };
