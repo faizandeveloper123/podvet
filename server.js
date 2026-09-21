@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 // Local upload area for images (form pages, clinic logo) that avoids any
-// external cloud dependency — the renderer reaches them via /uploaded/*.
+// external cloud dependency â€” the renderer reaches them via /uploaded/*.
 let uploadsDir = process.env.PODVET_UPLOADS_DIR;
 if (!uploadsDir) {
   try {
@@ -63,7 +63,7 @@ const clinicConns = new Map();
 const DB_NAME = process.env.DB_NAME || 'podvet';
 // setup-server.sh / .env write DB_PREFIX (e.g. podvet_clinic_) and grant the
 // DB user privileges on `<DB_PREFIX>%` only. server.js must read the SAME
-// variable — defaulting to 'clinic_' made clinic creation try `clinic_<id>`,
+// variable â€” defaulting to 'clinic_' made clinic creation try `clinic_<id>`,
 // which the user has no grant for, so every signup 500'd with access denied.
 const CLINIC_PREFIX = process.env.CLINIC_PREFIX || process.env.DB_PREFIX || 'podvet_clinic_';
 const DB_OPTS = {
@@ -174,7 +174,7 @@ async function ensurePlatformSchema() {
   if (!cc[0].n) await platConn.query('INSERT INTO clinics (id, clinic_name, slug) VALUES (1, "PodVet Clinic", "podvet")');
   await platConn.query('UPDATE users SET clinic_id=1 WHERE clinic_id IS NULL');
   // Platform (Super Admin) tables live in the same DB but are a separate trust
-  // boundary — own credentials, roles, plans, audit trail. Must run before the
+  // boundary â€” own credentials, roles, plans, audit trail. Must run before the
   // clinics UPDATE below, which uses columns this call adds.
   await ensureSuperAdminSchema(platConn, DB_NAME);
   await platConn.query("UPDATE clinics SET status='active', plan='pro', subscription_start=COALESCE(subscription_start, CURDATE()), registration_date=COALESCE(registration_date, DATE(created_at)) WHERE id=1");
@@ -188,7 +188,7 @@ async function createClinicDatabase(clinicId, clinicName) {
     await admin.query(`USE \`${CLINIC_PREFIX}${clinicId}\``);
     await admin.query('SET FOREIGN_KEY_CHECKS=0');
     const [tables] = await platConn.query('SHOW TABLES');
-    // Platform-only tables must never be cloned into a clinic database —
+    // Platform-only tables must never be cloned into a clinic database â€”
     // they hold platform credentials and the token-signing secret.
     const PLATFORM_TABLES = new Set([
       'users', 'clinics', 'platform_admins', 'roles', 'role_permissions',
@@ -201,7 +201,7 @@ async function createClinicDatabase(clinicId, clinicName) {
       await admin.query(def['Create Table']);
     }
     await admin.query('SET FOREIGN_KEY_CHECKS=1');
-    await admin.query('INSERT INTO clinic_settings (id, clinic_name, brand_color) VALUES (1, ?, "#93CAED")', [clinicName]);
+    await admin.query('INSERT INTO clinic_settings (id, clinic_name, brand_color) VALUES (1, ?, "#92CAED")', [clinicName]);
     await admin.query('INSERT INTO branches (branch_name, is_active) VALUES ("Main Branch", 1)');
   } finally { await admin.end(); }
 }
@@ -254,7 +254,7 @@ function toCamel(row) {
   for (const [k, v] of Object.entries(row)) {
     const ck = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
     if (v instanceof Date) {
-      // DATE columns must keep their calendar day — toISOString() shifts
+      // DATE columns must keep their calendar day â€” toISOString() shifts
       // them into UTC and the frontend displays the wrong day.
       out[ck] = /_date$|_on$/.test(k)
         ? `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, '0')}-${String(v.getDate()).padStart(2, '0')}`
@@ -272,7 +272,7 @@ function paginate(rows, total, page, pageSize) {
 
 const EMPTY = { data: [], total: 0, page: 1, totalPages: 0 };
 
-// ─── UNPAID BALANCES (appointments / walk-in billing / quick bills) ─────────
+// â”€â”€â”€ UNPAID BALANCES (appointments / walk-in billing / quick bills) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // All three "Outstanding Balances" panels + the client ledger share one shape:
 // billing rows with a balance remaining (final_total > amount_paid).
 const KINDS = {
@@ -347,7 +347,7 @@ async function unpaidClientSummary(kind, { search = '', page = 1, pageSize = 10 
   return { data, total, page: pg, totalPages: Math.ceil(total / sz) };
 }
 
-// ─── AUTH ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ AUTH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { identifier, password } = req.body;
@@ -356,8 +356,14 @@ app.post('/api/auth/login', async (req, res) => {
     const u = rows[0];
     const valid = await bcrypt.compare(password, u.password);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
-    const token = makeToken(u.id, u.clinic_id || 1);
-    res.json({ accessToken: token, refreshToken: token, ...(await okClinicSession(u, u.clinic_id)) });
+    const clinicId = u.clinic_id || 1;
+    const [cl] = await platConn.query('SELECT status FROM clinics WHERE id = ?', [clinicId]);
+    const status = cl.length ? cl[0].status : 'active';
+    if (status === 'suspended' || status === 'disabled') {
+      return res.status(403).json({ error: `This clinic is ${status}. Please contact platform support.` });
+    }
+    const token = makeToken(u.id, clinicId);
+    res.json({ accessToken: token, refreshToken: token, ...(await okClinicSession(u, clinicId)) });
   } catch (e) { res.status(500).json({ error: { message: e.message } }); }
 });
 
@@ -437,7 +443,7 @@ app.post('/api/auth/refresh', async (req, res) => {
   } catch { res.status(401).json({ error: 'Invalid refresh token' }); }
 });
 
-// ─── CLINIC ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CLINIC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function settingsRow() {
   return db.query('SELECT * FROM clinic_settings WHERE id=1');
 }
@@ -445,7 +451,7 @@ function clinicDTO(row) {
   const s = toCamel(row || {});
   return {
     id: 1, clinicName: s.clinicName || 'PodVet Clinic', slug: 'podvet',
-    logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed',
+    logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#92CAED',
     firstTimeFee: 1050, discountRange: 50, discountMinPercent: 1, discountMaxPercent: 7,
     use12HourTime: false, address: s.address || '', phone: s.phone || '',
     groupProductsOnInvoice: !!s.groupProductsOnInvoice, bankName: s.bankName || '',
@@ -480,16 +486,16 @@ app.patch('/api/clinics/me', authMiddleware, async (req, res) => {
 });
 app.get('/api/clinics/me/branding', authMiddleware, async (req, res) => {
   try { const [rows] = await settingsRow(); const s = toCamel(rows[0] || {});
-    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed' });
-  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#93caed' }); }
+    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#92CAED' });
+  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#92CAED' }); }
 });
 app.get('/api/public/branding', async (req, res) => {
   try { const [rows] = await settingsRow(); const s = toCamel(rows[0] || {});
-    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#93caed' });
-  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#93caed' }); }
+    res.json({ clinicName: s.clinicName || 'PodVet Clinic', logoUrl: s.logoUrl || null, brandColor: s.brandColor || '#92CAED' });
+  } catch { res.json({ clinicName: 'PodVet Clinic', logoUrl: null, brandColor: '#92CAED' }); }
 });
 
-// ─── PLANS / SUBSCRIPTION ────────────────────────────────────────────────────
+// â”€â”€â”€ PLANS / SUBSCRIPTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // NOTE: the frontend's PlanSelectScreen reads result.data.plan (array) and each
 // plan needs priceMonthly / trialDays / features to render. Server returns
 // { data: [...] } so subscriptionHandlers' `result.data` is the plans array.
@@ -510,7 +516,7 @@ app.get('/api/plans', authMiddleware, (req, res) => res.json({ data: [
 ] }));
 app.post('/api/clinics/me/subscription', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── BRANCHES ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ BRANCHES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/branches', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM branches ORDER BY branch_name'); res.json({ data: toCamel(rows) }); }
   catch { res.json({ data: [] }); }
@@ -536,7 +542,7 @@ app.delete('/api/branches/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── EMPLOYEES ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ EMPLOYEES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/employees', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search = '' } = req.query;
@@ -569,7 +575,7 @@ app.delete('/api/employees/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── USERS (clinic staff) ────────────────────────────────────────────────────
+// â”€â”€â”€ USERS (clinic staff) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/users', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search = '' } = req.query;
@@ -599,13 +605,13 @@ app.delete('/api/users/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── INVITATIONS ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ INVITATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/invitations', authMiddleware, (req, res) => res.json(EMPTY));
 app.post('/api/invitations', authMiddleware, (req, res) => res.json({ success: true }));
 app.delete('/api/invitations/:id', authMiddleware, (req, res) => res.json({ success: true }));
 app.post('/api/invitations/:id/resend', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── CLIENTS ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CLIENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/clients', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, limit = 20, search = '' } = req.query;
@@ -691,7 +697,7 @@ app.post('/api/clients/:id/pay-all', authMiddleware, async (req, res) => {
   } catch { res.json({ success: false }); }
 });
 
-// ─── PETS ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PETS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, limit = 20, search = '', clientId } = req.query;
@@ -742,7 +748,7 @@ app.delete('/api/pets/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── SERVICES ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ SERVICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/services', authMiddleware, async (req, res) => {
   try {
     const { category, excludeCategory } = req.query;
@@ -776,7 +782,7 @@ app.delete('/api/services/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── PRODUCTS ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PRODUCTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/products', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, limit = 20, search = '' } = req.query;
@@ -867,7 +873,7 @@ app.delete('/api/products/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── VENDORS ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ VENDORS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/vendors', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 100, search } = req.query; const pg = P(page), sz = P(pageSize) || 50;
@@ -1027,7 +1033,7 @@ app.get('/api/vendors/:id/settlements', authMiddleware, async (req, res) => {
   } catch { res.json(EMPTY); }
 });
 
-// ─── COUPONS ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ COUPONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/coupons', authMiddleware, async (req, res) => {
   try { const { page = 1, pageSize = 5, search } = req.query; const pg = P(page) || 1, sz = P(pageSize) || 5;
     let where = '1=1', params = [];
@@ -1068,7 +1074,7 @@ app.post('/api/coupons/apply', authMiddleware, async (req, res) => {
   } catch { res.json({ data: { discountValue: 0, couponId: null, discountType: null } }); }
 });
 
-// ─── APPOINTMENTS ────────────────────────────────────────────────────────────
+// â”€â”€â”€ APPOINTMENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/appointments', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 50, limit = 50, search = '', date, status, startDate, endDate } = req.query;
@@ -1231,7 +1237,7 @@ const pg = P(page) || 1, sz = P(pageSize) || 10;
     res.json({ data, total: count[0].cnt, page: pg, totalPages: Math.ceil(count[0].cnt / sz) });
   } catch (e) { res.status(500).json({ error: { message: e.message } }); }
 });
-// ─── APPOINTMENT PRODUCTS / INVENTORY USAGE / PREDISCOUNT ───────────────────
+// â”€â”€â”€ APPOINTMENT PRODUCTS / INVENTORY USAGE / PREDISCOUNT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function appointmentProductsSql(appointmentId, onlyUnlocked) {
   return `SELECT ap.*, p.name, p.barcode_number FROM appointment_products ap LEFT JOIN products p ON p.id = ap.product_id WHERE ap.appointment_id = ${Number(appointmentId) || 0}${onlyUnlocked ? ' AND ap.locked = 0' : ''} ORDER BY ap.locked, ap.id DESC`;
 }
@@ -1327,7 +1333,7 @@ app.delete('/api/appointments/:id/prediscount', authMiddleware, async (req, res)
   catch { res.json({ data: { removed: false } }); }
 });
 
-// ─── BILLING ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ BILLING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/billing', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, limit = 20, search = '', status } = req.query;
@@ -1477,7 +1483,7 @@ app.post('/api/billing/custom-invoices/clients/:id/pay-all', authMiddleware, asy
   } catch { res.json({ success: false }); }
 });
 
-// ─── EXPENSES ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ EXPENSES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/expenses', authMiddleware, async (req, res) => {
   try {
     const { page = 1, pageSize = 50, search = '', startDate, endDate, categoryId } = req.query;
@@ -1527,7 +1533,7 @@ app.delete('/api/expenses/:id', authMiddleware, async (req, res) => {
 });
 app.get('/api/expenses/pdf', authMiddleware, (req, res) => { res.setHeader('Content-Type', 'application/pdf'); res.end(''); });
 
-// ─── RECORDS (EMR) ──────────────────────────────────────────────────────────
+// â”€â”€â”€ RECORDS (EMR) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/records/recent', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT sn.*, p.pet_name, c.client_name FROM soap_notes sn JOIN pets p ON sn.pet_id=p.id JOIN clients c ON p.client_id=c.id ORDER BY sn.created_at DESC LIMIT ?', [P(req.query.limit)||20]);
     res.json({ data: rows.map(r => ({ id: r.id, petId: r.pet_id, petName: r.pet_name, recordType: 'SOAP NOTE', createdAt: r.created_at })) }); }
@@ -1542,7 +1548,7 @@ app.get('/api/records/search-pets', authMiddleware, async (req, res) => {
   catch { res.json({ data: [] }); }
 });
 
-// ─── SOAP NOTES ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ SOAP NOTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/soap-notes', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM soap_notes WHERE pet_id=? ORDER BY created_at DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); }
   catch { res.json({ data: [] }); }
@@ -1573,7 +1579,7 @@ app.delete('/api/soap-notes/:id', authMiddleware, async (req, res) => { try { aw
 app.get('/api/soap-notes/:id/tests-advised', authMiddleware, (req, res) => res.json({ data: [] }));
 app.put('/api/soap-notes/:id/tests-advised', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── VACCINATIONS ────────────────────────────────────────────────────────────
+// â”€â”€â”€ VACCINATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/vaccinations', authMiddleware, async (req, res) => { try { const [rows] = await db.query('SELECT * FROM vaccinations WHERE pet_id=? ORDER BY administered_on DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); } catch { res.json({ data: [] }); } });
 app.post('/api/pets/:petId/vaccinations', authMiddleware, async (req, res) => {
   try { const d = req.body; const [r] = await db.query('INSERT INTO vaccinations (pet_id,vaccine_name,administered_on,next_due_date,batch_number,notes,administered_by) VALUES (?,?,?,?,?,?,?)',
@@ -1584,7 +1590,7 @@ app.patch('/api/vaccinations/:id', authMiddleware, async (req, res) => { try { c
   [d.vaccineName||d.vaccine_name||'', d.administeredOn||d.administered_on||null, d.nextDueDate||d.next_due_date||null, d.batchNumber||d.batch_number||'', d.notes||'', d.administeredBy||d.administered_by||'', req.params.id]); res.json({ success: true }); } catch { res.json({ success: true }); } });
 app.delete('/api/vaccinations/:id', authMiddleware, async (req, res) => { try { await db.query('DELETE FROM vaccinations WHERE id=?', [req.params.id]); res.json({ success: true }); } catch { res.json({ success: true }); } });
 
-// ─── DEWORMINGS ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ DEWORMINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/dewormings', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM dewormings WHERE pet_id=? ORDER BY administered_on DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); }
   catch { res.json({ data: [] }); }
@@ -1604,7 +1610,7 @@ app.patch('/api/dewormings/:id', authMiddleware, async (req, res) => {
 });
 app.delete('/api/dewormings/:id', authMiddleware, async (req, res) => { try { await db.query('DELETE FROM dewormings WHERE id=?', [req.params.id]); res.json({ success: true }); } catch { res.json({ success: true }); } });
 
-// ─── PRESCRIPTIONS ───────────────────────────────────────────────────────────
+// â”€â”€â”€ PRESCRIPTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/prescriptions', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM prescriptions WHERE pet_id=? ORDER BY prescribed_on DESC', [req.params.petId]);
     for (const rx of rows) { const [meds] = await db.query('SELECT * FROM prescription_medications WHERE prescription_id=?', [rx.id]); rx.medications = meds; }
@@ -1619,7 +1625,7 @@ app.post('/api/pets/:petId/prescriptions', authMiddleware, async (req, res) => {
 app.patch('/api/prescriptions/:id', authMiddleware, (req, res) => res.json({ success: true }));
 app.delete('/api/prescriptions/:id', authMiddleware, async (req, res) => { try { await db.query('DELETE FROM prescription_medications WHERE prescription_id=?', [req.params.id]); await db.query('DELETE FROM prescriptions WHERE id=?', [req.params.id]); res.json({ success: true }); } catch { res.json({ success: true }); } });
 
-// ─── PRESCRIPTION UPDATE ─────────────────────────────────────────────────────
+// â”€â”€â”€ PRESCRIPTION UPDATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.patch('/api/prescriptions/:id', authMiddleware, async (req, res) => {
   try { const d = req.body;
     await db.query('UPDATE prescriptions SET prescribed_by=?,prescribed_on=?,notes=? WHERE id=?',
@@ -1631,7 +1637,7 @@ app.patch('/api/prescriptions/:id', authMiddleware, async (req, res) => {
     res.json({ success: true }); } catch { res.json({ success: true }); }
 });
 
-// ─── LAB / PROCEDURES / BODY WEIGHT (pet-scoped) ─────────────────────────────
+// â”€â”€â”€ LAB / PROCEDURES / BODY WEIGHT (pet-scoped) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/lab-results', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM lab_test_results WHERE pet_id=? ORDER BY test_date DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); }
   catch { res.json({ data: [] }); }
@@ -1715,7 +1721,7 @@ app.delete('/api/reports/:id', authMiddleware, async (req, res) => {
   catch { res.json({ success: true }); }
 });
 
-// ─── VETERINARIANS ───────────────────────────────────────────────────────────
+// â”€â”€â”€ VETERINARIANS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/veterinarians', authMiddleware, async (req, res) => {
   try {
     const [emp] = await db.query('SELECT id, name FROM employees WHERE position LIKE "%vet%" OR designation LIKE "%vet%" OR LOWER(name) LIKE "%vet%"');
@@ -1729,7 +1735,7 @@ app.get('/api/veterinarians', authMiddleware, async (req, res) => {
   } catch { res.json({ data: [] }); }
 });
 
-// ─── REMINDERS ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ REMINDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/reminders', authMiddleware, async (req, res) => {
   try { const { today } = req.query; let q = 'SELECT * FROM reminders WHERE is_dismissed=0', params = [];
     if (today) { q += ' AND remind_on<=?'; params.push(today); }
@@ -1763,7 +1769,7 @@ app.get('/api/reminder-notifications', authMiddleware, async (req, res) => { try
   catch { res.json({ success: true, notifications: [], unreadCount: 0 }); } });
 app.patch('/api/reminder-notifications/:id/read', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── REPORTS (financial) ─────────────────────────────────────────────────────
+// â”€â”€â”€ REPORTS (financial) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/reports', authMiddleware, async (req, res) => {
   try {
     const { startDate, endDate, period } = req.query;
@@ -1830,7 +1836,7 @@ app.get('/api/reports', authMiddleware, async (req, res) => {
   } catch (e) { console.error('[reports]', e.message); res.json({ data: { monthlyRevenue:[],totalRevenue:0,grossRevenue:0,totalExpenses:0,totalAppointments:0,totalBilling:0,appointmentRevenue:0,billingRevenue:0,totalClients:0,totalPets:0,serviceBreakdown:[],recentTransactions:[],topServices:[],clientGrowth:[] } }); }
 });
 
-// ─── FORMS ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ FORMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function formPagesOf(formRow) {
   if (!formRow) return null;
   return {
@@ -1925,12 +1931,12 @@ app.delete('/api/forms/:id', authMiddleware, async (req, res) => {
   } catch { res.json({ success: true }); }
 });
 
-// ─── BANK ACCOUNTS / PAYMENT SUBMISSIONS ─────────────────────────────────────
+// â”€â”€â”€ BANK ACCOUNTS / PAYMENT SUBMISSIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/bank-accounts', authMiddleware, (req, res) => res.json({ data: [] }));
 app.get('/api/clinics/me/payment-submissions', authMiddleware, (req, res) => res.json(EMPTY));
 app.post('/api/clinics/me/payment-submissions', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── BOARDING ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ BOARDING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const STAY_SELECT = `SELECT s.*, p.pet_name, p.species, p.breed, p.is_neutered, c.client_name, c.contact_number,
   cu.unit_label, cu.cage_type_id, ct.type_name, ct.is_free_area, sv.name as service_name, sv.base_rate as service_rate
   FROM boarding_stays s
@@ -2215,19 +2221,19 @@ app.post('/api/boarding/print-hospitalization-summary', authMiddleware, (req, re
 app.post('/api/boarding/preview-daily-summary', authMiddleware, (req, res) => res.json({ data: {} }));
 app.post('/api/boarding/print-daily-summary', authMiddleware, (req, res) => res.json({ success: true }));
 
-// ─── AI ──────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ AI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post('/api/ai/refine-reminder-note', authMiddleware, (req, res) => res.json({ text: req.body.text }));
 app.post('/api/ai/refine-soap-text', authMiddleware, (req, res) => res.json({ text: req.body.text }));
 app.post('/api/ai/scan-product-image', authMiddleware, (req, res) => res.json({ products: [] }));
 
-// ─── DISCOUNT RANGE / TIME FORMAT ────────────────────────────────────────────
+// â”€â”€â”€ DISCOUNT RANGE / TIME FORMAT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/discount-range', authMiddleware, (req, res) => res.json({ min: 0, max: 50 }));
 app.get('/api/time-format', authMiddleware, (req, res) => res.json({ use12Hour: false }));
 
-// ─── CATCH-ALL ───────────────────────────────────────────────────────────────
-// ─── PLATFORM SUPER ADMIN (registered before the /api catch-all) ─────────────
+// â”€â”€â”€ CATCH-ALL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ PLATFORM SUPER ADMIN (registered before the /api catch-all) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 registerSuperAdmin(app, {
-  platConn, getClinicConn, createClinicDatabase, bcrypt, makeToken,
+  platConn, getClinicConn, createClinicDatabase, bcrypt, makeToken, okClinicSession,
   DB_NAME, CLINIC_PREFIX,
 });
 
@@ -2237,7 +2243,7 @@ app.all('/api/{*splat}', (req, res) => {
   else res.json({ data: [], total: 0 });
 });
 
-// ─── START ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ START â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PORT = 4000;
 
 function startServer(port) {
@@ -2248,7 +2254,7 @@ function startServer(port) {
       resolve(true);
     });
     srv.on('error', (e) => {
-      console.error(`PodVet API server listen error: ${e.message} — another server on port ${p} will be used`);
+      console.error(`PodVet API server listen error: ${e.message} â€” another server on port ${p} will be used`);
       resolve(true);
     });
   });

@@ -1,4 +1,4 @@
--- PodVet — isolated platform database schema.
+﻿-- PodVet â€” isolated platform database schema.
 -- This creates the platform DB (default: podvet) that hosts clinic id 1 and the
 -- `clinics` metadata table. Each additional clinic gets its own database
 -- (podvet_clinic_<id>) auto-created by the server based on this schema.
@@ -10,7 +10,7 @@
 CREATE DATABASE IF NOT EXISTS `podvet` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `podvet`;
 
--- ── Platform-level tables ────────────────────────────────────────────────────
+-- â”€â”€ Platform-level tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 CREATE TABLE IF NOT EXISTS clinics (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ── Clinic-level tables (clone target for podvet_clinic_<id>) ───────────────
+-- â”€â”€ Clinic-level tables (clone target for podvet_clinic_<id>) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 CREATE TABLE IF NOT EXISTS clinic_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -479,12 +479,12 @@ CREATE TABLE IF NOT EXISTS boarding_medications (
     FOREIGN KEY (stay_id) REFERENCES boarding_stays(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ── Seed data (safe to re-run) ───────────────────────────────────────────────
+-- â”€â”€ Seed data (safe to re-run) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 INSERT INTO clinics (id, clinic_name, slug) VALUES (1, 'PodVet Clinic', 'podvet')
 ON DUPLICATE KEY UPDATE slug = VALUES(slug);
 
-INSERT INTO clinic_settings (id, clinic_name, brand_color) VALUES (1, 'PodVet Clinic', '#93CAED')
+INSERT INTO clinic_settings (id, clinic_name, brand_color) VALUES (1, 'PodVet Clinic', '#92CAED')
 ON DUPLICATE KEY UPDATE clinic_name = VALUES(clinic_name), brand_color = VALUES(brand_color);
 
 -- Default admin user (node-bcrypt password: admin123)

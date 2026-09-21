@@ -273,13 +273,18 @@ const themePickerSource = fs.readFileSync(path.join(__dirname, 'theme-picker.js'
 const colorPickerSource = fs.readFileSync(path.join(__dirname, 'color-picker.js'), 'utf8');
 const mobileUxSource = fs.readFileSync(path.join(__dirname, 'mobile-ux.js'), 'utf8');
 
+// One login page for the whole platform: unauthenticated visitors to the
+// clinic app are sent to /login (which routes to /app or /super-admin by role).
+const AUTH_GUARD = '<script>(function(){try{if(!localStorage.getItem("podvet_session")){location.replace("/login?next="+encodeURIComponent(location.pathname+location.search));}}catch(e){}})();</script>';
+
 function buildWebIndexHtml() {
   const raw = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
-  const inject = '<script src="/web-preload.js"></script>\n    <script src="/color-picker.js" defer></script>\n    <script src="/theme-picker.js" defer></script>\n    <script src="/mobile-ux.js" defer></script>\n  ';
+  const inject = AUTH_GUARD + '\n    <script src="/web-preload.js"></script>\n    <script src="/color-picker.js" defer></script>\n    <script src="/theme-picker.js" defer></script>\n    <script src="/mobile-ux.js" defer></script>\n  ';
   return raw.replace('<head>', '<head>\n    ' + inject);
 }
 const webIndexHtml = buildWebIndexHtml();
 const landingHtml = fs.readFileSync(path.join(__dirname, 'landing.html'), 'utf8');
+const loginHtml = fs.readFileSync(path.join(__dirname, 'public', 'login.html'), 'utf8');
 
 app.get('/web-preload.js', (req, res) => {
   res.type('application/javascript').send(webPreload.source);
@@ -301,6 +306,11 @@ app.get('/', (req, res) => {
 });
 app.get('/app', (req, res) => {
   res.type('text/html').send(webIndexHtml);
+});
+
+// Single, role-based login page for the whole platform.
+app.get('/login', (req, res) => {
+  res.type('text/html').send(loginHtml);
 });
 
 // ── Platform Super Admin (separate app + separate /api/super-admin namespace) ─

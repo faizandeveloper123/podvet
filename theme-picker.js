@@ -8,7 +8,7 @@
   window.__pvThemeInit = true;
 
   var STORE_KEY = 'pvBrandColor';
-  var DEFAULT_HEX = '#93CAED';
+  var DEFAULT_HEX = '#92CAED';
 
   // -- color helpers ---------------------------------------------------------
   function hexToHsl(hex) {
@@ -74,7 +74,7 @@
 
   function resetBrand() {
     try { localStorage.removeItem(STORE_KEY); } catch (_) {}
-    var RAMP = { 50: '#eef6fd', 100: '#e2f3ee', 200: '#e6f7f4', 300: '#c3e3f7', 400: '#93caed', 500: '#7eb3de', 600: '#4e93c9', 700: '#3c77a8', 800: '#2f5e88', 900: '#244a6b' };
+    var RAMP = { 50: '#f6fbfe', 100: '#eaf6fd', 200: '#d4ecfa', 300: '#b6def6', 400: '#a4d4f1', 500: '#92caed', 600: '#6fb9e7', 700: '#55ace2', 800: '#3b9fde', 900: '#2492d6' };
     var root = document.documentElement;
     Object.keys(RAMP).forEach(function (slot) { root.style.setProperty('--brand-' + slot, RAMP[slot]); });
     if (window.electronAPI && window.electronAPI.brandingUpdate) {

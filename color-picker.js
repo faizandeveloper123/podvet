@@ -1,8 +1,8 @@
-/* ===========================================================================
- * PodVetColorPicker — MS Office "More Colors"-style palette shown as columns.
+﻿/* ===========================================================================
+ * PodVetColorPicker â€” MS Office "More Colors"-style palette shown as columns.
  * Self-contained vanilla JS. Usage:
  *    PodVetColorPicker.init(containerEl, {
- *      value: '#93CAED',          // initial color
+ *      value: '#92CAED',          // initial color
  *      onChangeLive: fn(hex),     // fired on scrub
  *      onChangeCommit: fn(hex)    // fired on click / slider release / hex Add
  *    });
@@ -67,10 +67,10 @@
   }
 
   /* ---------------- palette (columns) ----------------
-   * 12 hue columns × 5 lightness shades each = 60 swatches, laid out so each
+   * 12 hue columns Ã— 5 lightness shades each = 60 swatches, laid out so each
    * column is one hue family (light shades at top, dark at bottom). */
-  var HUE_COLS = 12;          // every 30°
-  var SHADE_ROWS = 5;         // lightness 18 … 84
+  var HUE_COLS = 12;          // every 30Â°
+  var SHADE_ROWS = 5;         // lightness 18 â€¦ 84
   var SHADE_LIGHTS = [84, 68, 55, 42, 27];
 
   function buildSwatch(col, row) {
@@ -141,7 +141,7 @@
     container.innerHTML = '';
 
     var opts = options || {};
-    var initial = normalizeHex(opts.value) || '#93CAED';
+    var initial = normalizeHex(opts.value) || '#92CAED';
     var initHsl = hexToHsl(initial);
 
     var palette = buildPalette();
