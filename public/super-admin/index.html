@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PodVet · Super Admin</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2392CAED'%3E%3Ccircle cx='6' cy='9' r='2'/%3E%3Ccircle cx='10' cy='5.5' r='2'/%3E%3Ccircle cx='14' cy='5.5' r='2'/%3E%3Ccircle cx='18' cy='9' r='2'/%3E%3Cpath d='M12 11c-3 0-5.5 2.3-5.5 5.2 0 1.7 1.2 2.8 2.7 2.8 1 0 1.9-.6 2.8-.6s1.8.6 2.8.6c1.5 0 2.7-1.1 2.7-2.8C17.5 13.3 15 11 12 11z'/%3E%3C/svg%3E" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
@@ -17,48 +17,49 @@
   };
 </script>
 <style>
-  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
   ::-webkit-scrollbar { width: 9px; height: 9px; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9px; }
   ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-  /* PodVet brand theme (#92CAED) — remap the indigo accents used across the UI */
   .nav-item.active { background: #92CAED; color: #0f172a; font-weight: 600; }
-  .bg-indigo-600 { background-color: #92CAED !important; }
-  .bg-indigo-600.text-white, .bg-indigo-600 .text-white { color: #0f172a !important; }
-  .hover\:bg-indigo-700:hover { background-color: #6fb9e7 !important; }
-  .text-indigo-600 { color: #1f7db7 !important; }
-  .text-indigo-500 { color: #3b9fde !important; }
-  .text-indigo-400 { color: #55ace2 !important; }
-  .border-indigo-200 { border-color: #92CAED !important; }
-  .bg-indigo-50 { background-color: #f0f9fe !important; }
-  .hover\:bg-indigo-50:hover { background-color: #eaf6fd !important; }
-  .focus\:ring-indigo-500:focus { --tw-ring-color: #92CAED !important; }
-  .rounded.text-indigo-600 { color: #1f7db7 !important; }
+  .nav-item.active .nav-ico { color: #0f172a; }
   .lbl { display: block; font-size: .75rem; font-weight: 600; color: #64748b; margin-bottom: .25rem; }
-  .inp { width: 100%; border: 1px solid #e2e8f0; border-radius: .75rem; padding: .5rem .75rem; font-size: .875rem; outline: none; background: #fff; }
-  .inp:focus { box-shadow: 0 0 0 2px rgba(99,102,241,.5); border-color: #6366f1; }
+  .inp { width: 100%; border: 1px solid #e2e8f0; border-radius: .75rem; padding: .5rem .75rem; font-size: .875rem; outline: none; background: #fff; color: #0f172a; }
+  .inp:focus { box-shadow: 0 0 0 2px rgba(146,202,237,.55); border-color: #92CAED; }
+  .btn { display:inline-flex; align-items:center; gap:.4rem; border-radius:.75rem; font-size:.875rem; font-weight:600; padding:.5rem .9rem; }
+  .btn-primary { background:#92CAED; color:#0f172a; }
+  .btn-primary:hover { background:#6fb9e7; }
+  .btn-ghost { border:1px solid #e2e8f0; color:#334155; background:#fff; }
+  .btn-ghost:hover { background:#f8fafc; }
+  .btn-danger { background:#dc2626; color:#fff; }
+  .btn-danger:hover { background:#b91c1c; }
   .fade-in { animation: fade .18s ease-out; }
   @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   [x-cloak] { display: none !important; }
+  .card { background:#fff; border:1px solid #f1f5f9; border-radius:1rem; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+  .th { text-align:left; padding:.75rem 1rem; }
+  .td { padding:.75rem 1rem; border-top:1px solid #f8fafc; }
+  .skeleton { background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 37%,#f1f5f9 63%); background-size:400% 100%; animation:shimmer 1.3s ease infinite; border-radius:.5rem; }
+  @keyframes shimmer { 0%{background-position:100% 0} 100%{background-position:0 0} }
 </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="text-slate-800">
 
 <!-- ── APP ───────────────────────────────────────────────────────────────── -->
 <div id="app" class="hidden min-h-screen">
   <div class="flex h-screen overflow-hidden">
     <!-- sidebar -->
-    <aside id="sidebar" class="w-64 shrink-0 bg-slate-900 text-slate-300 flex flex-col">
-      <div class="h-16 flex items-center gap-2 px-5 border-b border-white/5">
-        <span class="text-2xl">🐾</span>
+    <aside id="sidebar" class="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+      <div class="h-16 flex items-center gap-2.5 px-5 border-b border-slate-100">
+        <span class="w-9 h-9 rounded-xl bg-brand-500 grid place-items-center text-slate-900" id="brandMark"></span>
         <div>
-          <div class="text-white font-bold leading-none">PodVet</div>
-          <div class="text-[10px] uppercase tracking-widest text-indigo-400">Super Admin</div>
+          <div class="text-slate-800 font-bold leading-none">PodVet</div>
+          <div class="text-[10px] uppercase tracking-widest text-brand-900">Super Admin</div>
         </div>
       </div>
       <nav id="nav" class="flex-1 overflow-y-auto px-3 py-4 space-y-4"></nav>
-      <div class="p-3 border-t border-white/5">
-        <div id="who" class="text-xs text-slate-400 px-2 py-1"></div>
+      <div class="p-3 border-t border-slate-100">
+        <div id="who" class="px-2 py-1"></div>
       </div>
     </aside>
     <!-- main -->
@@ -69,8 +70,8 @@
           <p id="pageSub" class="text-xs text-slate-400"></p>
         </div>
         <div class="flex items-center gap-3">
-          <button id="refreshBtn" class="text-sm rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50">Refresh</button>
-          <div class="w-9 h-9 rounded-full bg-indigo-600 text-white grid place-items-center font-semibold" id="avatar">S</div>
+          <button id="refreshBtn" class="btn btn-ghost" title="Refresh"></button>
+          <div class="w-9 h-9 rounded-full bg-brand-500 text-slate-900 grid place-items-center font-semibold" id="avatar">S</div>
         </div>
       </header>
       <div id="view" class="flex-1 overflow-y-auto p-6 fade-in"></div>
@@ -92,10 +93,64 @@
   const $ = (sel, root) => (root || document).querySelector(sel);
   const el = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const money = (n) => '£' + Number(n || 0).toLocaleString('en-GB', { maximumFractionDigits: 0 });
+  const money = (n) => '£' + Number(n || 0).toLocaleString('en-GB', { maximumFractionDigits: 2 });
   const num = (n) => Number(n || 0).toLocaleString('en-GB');
   const dateFmt = (d) => (d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
   const dtFmt = (d) => (d ? new Date(d).toLocaleString('en-GB') : '—');
+  const bytesFmt = (b) => { b = Number(b || 0); if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB'; return (b / 1073741824).toFixed(2) + ' GB'; };
+  const titleCase = (s) => String(s || '').replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  // ── inline SVG icon set (no emojis) ──────────────────────────────────────
+  const ICONS = {
+    dashboard: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+    building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h4"/><path d="M18 9h2a2 2 0 0 1 2 2v11h-4"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+    branch: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6"/><circle cx="18" cy="12" r="3"/><path d="M9 6h6a3 3 0 0 1 3 3v0"/><path d="M9 18h6a3 3 0 0 0 3-3v0"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 21 2"/><path d="m17 6 3 3"/><path d="m14 9 3 3"/>',
+    package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+    receipt: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+    tag: '<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.2 8.2a2 2 0 0 0 2.8 0l6.6-6.6a2 2 0 0 0 0-2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    puzzle: '<path d="M19.4 7.85c-.05.32.06.65.29.88l1.57 1.57c.47.47.7 1.09.7 1.7s-.23 1.23-.7 1.7l-1.61 1.61a.98.98 0 0 1-.84.28c-.47-.07-.8-.48-.97-.93a2.5 2.5 0 1 0-3.21 3.21c.45.17.86.5.93.97a.98.98 0 0 1-.28.84l-1.61 1.61a2.4 2.4 0 0 1-1.7.7 2.4 2.4 0 0 1-1.7-.7l-1.57-1.57a1.03 1.03 0 0 0-.88-.29c-.49.07-.84.5-1.02.97a2.5 2.5 0 1 1-3.24-3.24c.46-.18.89-.53.97-1.02a1.03 1.03 0 0 0-.29-.88L2.7 12.7A2.4 2.4 0 0 1 2 11c0-.62.24-1.23.7-1.7L4.23 7.77c.24-.24.58-.35.92-.3.51.08.88.53 1.07 1.01a2.5 2.5 0 1 0 3.26-3.26c-.48-.2-.93-.56-1.01-1.07a1.03 1.03 0 0 1 .3-.92l1.53-1.53A2.4 2.4 0 0 1 12 1.99c.62 0 1.23.24 1.7.7l1.57 1.57c.23.23.56.34.88.29.49-.07.84-.5 1.02-.97a2.5 2.5 0 1 1 3.24 3.24c-.46.18-.89.53-.97 1.02Z"/>',
+    plug: '<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v3a6 6 0 0 1-12 0V8Z"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/>',
+    megaphone: '<path d="m3 11 18-5v12L3 14v-3Z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    chart: '<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8" rx="1"/><rect x="12" y="6" width="3" height="12" rx="1"/><rect x="17" y="13" width="3" height="5" rx="1"/>',
+    trending: '<path d="m3 17 6-6 4 4 8-8"/><path d="M21 7v6h-6"/>',
+    banknote: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+    ticket: '<path d="M2 9a3 3 0 0 1 0 6v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a3 3 0 0 1 0-6V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/>',
+    message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>',
+    scroll: '<path d="M8 21h12a2 2 0 0 0 2-2v-1H10v1a2 2 0 0 1-4 0V5a2 2 0 0 0-4 0v1a2 2 0 0 0 2 2h2"/><path d="M19 3H8a2 2 0 0 0-2 2v13"/><path d="M12 8h5M12 12h5"/>',
+    login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/>',
+    monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+    settings: '<path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.2a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.4a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.2a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.2a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.4a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.2a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/>',
+    palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2a10 10 0 0 0 0 20 2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h2a4 4 0 0 0 4-4 10 10 0 0 0-10-10Z"/>',
+    database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+    backup: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+    health: '<path d="M19 14c1.5-1.5 3-3.3 3-5.5A5.5 5.5 0 0 0 12 5 5.5 5.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7Z"/><path d="M3.2 12.5H8l1.5-3 2 5 1.5-2h5.8"/>',
+    alert: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+    wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L2 19l3 3 7.5-7.5a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.5-2.5Z"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/>',
+    userCog: '<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h5"/><circle cx="18" cy="16" r="3"/><path d="M18 12v1M18 19v1M14.5 14l.9.5M20.6 17.5l.9.5M14.5 18l.9-.5M20.6 14.5l.9-.5"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    pencil: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    trash: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    download: '<path d="M21 15v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    dot: '<circle cx="12" cy="12" r="4"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  };
+  function icon(name, cls) {
+    return '<svg class="' + (cls || 'w-5 h-5') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.dot) + '</svg>';
+  }
 
   function toast(msg, type) {
     const t = el('toast');
@@ -121,82 +176,107 @@
 
   // ── nav ─────────────────────────────────────────────────────────────────
   const NAV = [
-    { group: '', items: [{ id: 'dashboard', label: 'Dashboard', icon: '◎' }] },
+    { group: '', items: [{ id: 'dashboard', label: 'Dashboard', icon: 'dashboard' }] },
     { group: 'Management', items: [
-      { id: 'clinics', label: 'Clinics', icon: '🏥' },
-      { id: 'branches', label: 'Branches', icon: '🏢' },
-      { id: 'users', label: 'Users', icon: '👥' },
-      { id: 'roles', label: 'Roles & Permissions', icon: '🔑' },
+      { id: 'clinics', label: 'Clinics', icon: 'building' },
+      { id: 'branches', label: 'Branches', icon: 'branch' },
+      { id: 'users', label: 'Users', icon: 'users' },
+      { id: 'roles', label: 'Roles & Permissions', icon: 'key' },
     ] },
     { group: 'Subscriptions', items: [
-      { id: 'plans', label: 'Plans', icon: '📦' },
-      { id: 'subscriptions', label: 'Subscriptions', icon: '🔄' },
-      { id: 'billing', label: 'Billing', icon: '🧾' },
-      { id: 'transactions', label: 'Transactions', icon: '💳' },
-      { id: 'coupons', label: 'Coupons', icon: '🏷️' },
+      { id: 'plans', label: 'Plans', icon: 'package' },
+      { id: 'subscriptions', label: 'Subscriptions', icon: 'refresh' },
+      { id: 'billing', label: 'Billing', icon: 'receipt' },
+      { id: 'transactions', label: 'Transactions', icon: 'card' },
+      { id: 'coupons', label: 'Coupons', icon: 'tag' },
     ] },
     { group: 'Platform', items: [
-      { id: 'features', label: 'Features', icon: '🧩' },
-      { id: 'integrations', label: 'Integrations', icon: '🔌' },
-      { id: 'notifications', label: 'Notifications', icon: '🔔' },
-      { id: 'templates', label: 'Templates', icon: '📝' },
-      { id: 'announcements', label: 'Announcements', icon: '📣' },
+      { id: 'features', label: 'Features', icon: 'puzzle' },
+      { id: 'integrations', label: 'Integrations', icon: 'plug' },
+      { id: 'notifications', label: 'Notifications', icon: 'bell' },
+      { id: 'templates', label: 'Templates', icon: 'file' },
+      { id: 'announcements', label: 'Announcements', icon: 'megaphone' },
     ] },
     { group: 'Analytics', items: [
-      { id: 'reports', label: 'Reports', icon: '📊' },
-      { id: 'usage-analytics', label: 'Usage Analytics', icon: '📈' },
-      { id: 'revenue-analytics', label: 'Revenue Analytics', icon: '💰' },
-      { id: 'clinic-analytics', label: 'Clinic Analytics', icon: '🏥' },
+      { id: 'reports', label: 'Reports', icon: 'chart' },
+      { id: 'usage-analytics', label: 'Usage Analytics', icon: 'trending' },
+      { id: 'revenue-analytics', label: 'Revenue Analytics', icon: 'banknote' },
+      { id: 'clinic-analytics', label: 'Clinic Analytics', icon: 'activity' },
     ] },
     { group: 'Support', items: [
-      { id: 'support', label: 'Support Tickets', icon: '🎫' },
-      { id: 'feedback', label: 'Feedback', icon: '💬' },
+      { id: 'support', label: 'Support Tickets', icon: 'ticket' },
+      { id: 'feedback', label: 'Feedback', icon: 'message' },
     ] },
     { group: 'Security', items: [
-      { id: 'audit-logs', label: 'Audit Logs', icon: '📜' },
-      { id: 'login-logs', label: 'Login Logs', icon: '🔓' },
-      { id: 'sessions', label: 'Sessions', icon: '🖥️' },
-      { id: 'security-settings', label: 'Security Settings', icon: '🛡️' },
+      { id: 'audit-logs', label: 'Audit Logs', icon: 'scroll' },
+      { id: 'login-logs', label: 'Login Logs', icon: 'login' },
+      { id: 'sessions', label: 'Sessions', icon: 'monitor' },
+      { id: 'security-settings', label: 'Security Settings', icon: 'shield' },
     ] },
     { group: 'System', items: [
-      { id: 'settings', label: 'General Settings', icon: '⚙️' },
-      { id: 'branding', label: 'Branding', icon: '🎨' },
-      { id: 'storage', label: 'Storage', icon: '💾' },
-      { id: 'backups', label: 'Backups', icon: '🗄️' },
-      { id: 'system-health', label: 'System Health', icon: '❤️' },
-      { id: 'error-logs', label: 'Error Logs', icon: '⚠️' },
-      { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
+      { id: 'settings', label: 'General Settings', icon: 'settings' },
+      { id: 'branding', label: 'Branding', icon: 'palette' },
+      { id: 'storage', label: 'Storage', icon: 'database' },
+      { id: 'backups', label: 'Backups', icon: 'backup' },
+      { id: 'system-health', label: 'System Health', icon: 'health' },
+      { id: 'error-logs', label: 'Error Logs', icon: 'alert' },
+      { id: 'maintenance', label: 'Maintenance', icon: 'wrench' },
     ] },
     { group: 'Account', items: [
-      { id: 'account', label: 'Profile', icon: '🙍' },
-      { id: 'admins', label: 'Super Admin Users', icon: '🧑‍💼' },
-      { id: 'logout', label: 'Logout', icon: '🚪' },
+      { id: 'account', label: 'Profile', icon: 'user' },
+      { id: 'admins', label: 'Super Admin Users', icon: 'userCog' },
+      { id: 'logout', label: 'Logout', icon: 'logout' },
     ] },
   ];
-
-  const IMPLEMENTED = ['dashboard', 'clinics', 'plans', 'roles', 'admins', 'audit-logs', 'account'];
 
   const TITLES = {
     dashboard: ['Dashboard', 'Platform overview'],
     clinics: ['Clinics', 'Master control for every registered veterinary clinic'],
-    plans: ['Subscription Plans', 'Pricing and limits per plan'],
+    branches: ['Branches', 'Locations configured across all clinics'],
+    users: ['Users', 'Every user account across the platform'],
     roles: ['Roles & Permissions', 'Module-wise access control'],
-    admins: ['Super Admin Users', 'Platform staff accounts'],
+    plans: ['Subscription Plans', 'Pricing and limits per plan'],
+    subscriptions: ['Subscriptions', 'Plan assignment, renewals and lifecycle'],
+    billing: ['Billing', 'Subscription invoices and outstanding balances'],
+    transactions: ['Transactions', 'Payment gateway transactions'],
+    coupons: ['Coupons', 'Promo codes and discounts'],
+    features: ['Features', 'Global feature flags and plan availability'],
+    integrations: ['Integrations', 'API keys, webhooks and providers'],
+    notifications: ['Notifications', 'Email, SMS, WhatsApp, in-app and push configuration'],
+    templates: ['Templates', 'Email, SMS and WhatsApp message templates'],
+    announcements: ['Announcements', 'Broadcast notices to clinics'],
+    reports: ['Reports', 'Revenue, growth and churn reports'],
+    'usage-analytics': ['Usage Analytics', 'Feature and plan usage across the platform'],
+    'revenue-analytics': ['Revenue Analytics', 'MRR / ARR and revenue by plan and clinic'],
+    'clinic-analytics': ['Clinic Analytics', 'Clinic-wise activity, engagement and churn'],
+    support: ['Support Tickets', 'Clinic-raised support tickets'],
+    feedback: ['Feedback', 'Platform feedback from clinics'],
     'audit-logs': ['Audit Logs', 'Every platform action, who did what and when'],
+    'login-logs': ['Login Logs', 'Successful and failed platform logins'],
+    sessions: ['Sessions', 'Active devices and session management'],
+    'security-settings': ['Security Settings', 'Password policy, session timeout and lockout'],
+    settings: ['General Settings', 'Platform name, currency, timezone and support details'],
+    branding: ['Branding', 'Logo, colors and white-label options'],
+    storage: ['Storage', 'Storage used per clinic and limits'],
+    backups: ['Backups', 'Backup history and restore points'],
+    'system-health': ['System Health', 'API, database and runtime status'],
+    'error-logs': ['Error Logs', 'Application and API errors'],
+    maintenance: ['Maintenance', 'Maintenance mode and scheduled windows'],
+    admins: ['Super Admin Users', 'Platform staff accounts'],
     account: ['Profile', 'Your super admin account'],
   };
 
   function renderNav() {
     const nav = el('nav');
-    nav.innerHTML = NAV.map((g, gi) => {
+    nav.innerHTML = NAV.map((g) => {
       const items = g.items.map((it) => {
         const active = currentRoute() === it.id ? 'active' : '';
-        const soon = IMPLEMENTED.includes(it.id) ? '' : ' <span class="text-[9px] uppercase tracking-wide text-slate-500 ml-auto">soon</span>';
-        return `<a href="#/${it.id}" class="nav-item ${active} flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-white/10 cursor-pointer"><span class="w-5 text-center">${it.icon}</span><span class="flex-1">${esc(it.label)}</span>${soon}</a>`;
+        return '<a href="#/' + it.id + '" class="nav-item ' + active + ' flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 cursor-pointer">' +
+          '<span class="nav-ico w-5 h-5 text-slate-400">' + icon(it.icon, 'w-5 h-5') + '</span><span class="flex-1">' + esc(it.label) + '</span></a>';
       }).join('');
-      return `<div><div class="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">${esc(g.group || 'Overview')}</div><div class="space-y-0.5">${items}</div></div>`;
+      return '<div><div class="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">' + esc(g.group || 'Overview') + '</div><div class="space-y-0.5">' + items + '</div></div>';
     }).join('');
-    nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', (e) => {
+    nav.querySelectorAll('a.nav-item').forEach((a) => a.addEventListener('click', (e) => {
       const id = a.getAttribute('href').slice(2);
       if (id === 'logout') { e.preventDefault(); doLogout(true); }
     }));
@@ -210,7 +290,7 @@
   // ── modal / confirm ─────────────────────────────────────────────────────
   function openModal(html, wide) {
     const m = el('modal');
-    m.innerHTML = `<div class="bg-white rounded-2xl shadow-2xl w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[90vh] overflow-y-auto fade-in">${html}</div>`;
+    m.innerHTML = '<div class="bg-white rounded-2xl shadow-2xl w-full ' + (wide ? 'max-w-3xl' : 'max-w-lg') + ' max-h-[90vh] overflow-y-auto fade-in">' + html + '</div>';
     m.classList.remove('hidden'); m.classList.add('flex');
     m.onclick = (e) => { if (e.target === m) closeModal(); };
   }
@@ -219,125 +299,141 @@
 
   function confirmDialog(title, message, danger) {
     return new Promise((resolve) => {
-      openModal(`
-        <div class="p-6">
-          <h3 class="text-lg font-bold text-slate-800">${esc(title)}</h3>
-          <p class="text-sm text-slate-500 mt-2">${message}</p>
-          <div class="flex justify-end gap-2 mt-6">
-            <button id="cf_no" class="rounded-lg border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50">Cancel</button>
-            <button id="cf_yes" class="rounded-lg ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white px-4 py-2 text-sm font-semibold">Confirm</button>
-          </div>
-        </div>`);
+      openModal(
+        '<div class="p-6">' +
+          '<h3 class="text-lg font-bold text-slate-800">' + esc(title) + '</h3>' +
+          '<p class="text-sm text-slate-500 mt-2">' + message + '</p>' +
+          '<div class="flex justify-end gap-2 mt-6">' +
+            '<button id="cf_no" class="btn btn-ghost">Cancel</button>' +
+            '<button id="cf_yes" class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '">Confirm</button>' +
+          '</div></div>');
       el('cf_no').onclick = () => { closeModal(); resolve(false); };
       el('cf_yes').onclick = () => { closeModal(); resolve(true); };
     });
   }
 
   function statusBadge(s) {
-    const map = { active: 'bg-emerald-50 text-emerald-700 border-emerald-200', trial: 'bg-sky-50 text-sky-700 border-sky-200', suspended: 'bg-amber-50 text-amber-700 border-amber-200', disabled: 'bg-red-50 text-red-700 border-red-200' };
-    return `<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${map[s] || 'bg-slate-50 text-slate-600 border-slate-200'}">${esc(s || 'unknown')}</span>`;
+    const map = {
+      active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      trial: 'bg-brand-50 text-brand-950 border-brand-300',
+      expired: 'bg-red-50 text-red-700 border-red-200',
+      expiring: 'bg-amber-50 text-amber-700 border-amber-200',
+      suspended: 'bg-amber-50 text-amber-700 border-amber-200',
+      cancelled: 'bg-slate-100 text-slate-600 border-slate-200',
+      disabled: 'bg-red-50 text-red-700 border-red-200',
+      true: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      false: 'bg-slate-100 text-slate-600 border-slate-200',
+      paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      pending: 'bg-amber-50 text-amber-700 border-amber-200',
+      overdue: 'bg-red-50 text-red-700 border-red-200',
+      failed: 'bg-red-50 text-red-700 border-red-200',
+      success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      open: 'bg-brand-50 text-brand-950 border-brand-300',
+      closed: 'bg-slate-100 text-slate-600 border-slate-200',
+      healthy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      degraded: 'bg-amber-50 text-amber-700 border-amber-200',
+      high: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      medium: 'bg-amber-50 text-amber-700 border-amber-200',
+      low: 'bg-red-50 text-red-700 border-red-200',
+      never: 'bg-slate-100 text-slate-600 border-slate-200',
+      paid_: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    };
+    const label = s === true ? 'true' : s === false ? 'false' : (s || 'unknown');
+    return '<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ' + (map[String(s)] || 'bg-slate-50 text-slate-600 border-slate-200') + '">' + esc(label) + '</span>';
   }
 
-  // ── views ───────────────────────────────────────────────────────────────
+  function spinner() {
+    return '<div class="flex items-center justify-center py-16 text-slate-400"><svg class="animate-spin h-6 w-6 mr-2 text-brand-700" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Loading…</div>';
+  }
+  function cardBox(label, value, sub, tone) {
+    return '<div class="card p-5"><div class="text-xs font-semibold uppercase tracking-wide text-slate-400">' + esc(label) + '</div>' +
+      '<div class="text-2xl font-bold text-slate-800 mt-1">' + value + '</div>' +
+      (sub ? '<div class="text-xs mt-1 ' + (tone || 'text-slate-400') + '">' + sub + '</div>' : '') + '</div>';
+  }
+  function emptyRow(cols, msg) { return '<tr><td colspan="' + cols + '" class="td text-center text-slate-400 py-10">' + esc(msg || 'Nothing here yet.') + '</td></tr>'; }
+  function toolbar(inner) { return '<div class="flex flex-wrap items-center gap-2 mb-4">' + inner + '</div>'; }
+  function searchInput(id, value, ph) {
+    return '<div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">' + icon('search', 'w-4 h-4') + '</span>' +
+      '<input id="' + id + '" value="' + esc(value || '') + '" placeholder="' + esc(ph || 'Search…') + '" class="inp pl-9 w-72" /></div>';
+  }
+  function table(headers, rows) {
+    return '<div class="card overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-400"><tr>' +
+      headers.map((h) => '<th class="th ' + (h.align === 'right' ? 'text-right' : h.align === 'center' ? 'text-center' : '') + '">' + esc(h.label) + '</th>').join('') +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+  }
+
+  // ── dashboard ───────────────────────────────────────────────────────────
   let charts = [];
 
   async function viewDashboard() {
     el('view').innerHTML = spinner();
     const s = await api('/stats');
     const c = s.cards;
-    const card = (label, value, tone, sub) => `
-      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">${esc(label)}</div>
-        <div class="text-2xl font-bold text-slate-800 mt-1">${value}</div>
-        ${sub ? `<div class="text-xs mt-1 ${tone || 'text-slate-400'}">${sub}</div>` : ''}
-      </div>`;
-    el('view').innerHTML = `
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        ${card('Total Clinics', num(c.totalClinics), '', 'All time')}
-        ${card('Active Clinics', num(c.activeClinics), 'text-emerald-500', 'Billing normally')}
-        ${card('Trial Clinics', num(c.trialClinics), 'text-sky-500', 'On free trial')}
-        ${card('Suspended', num(c.suspendedClinics), 'text-amber-500', 'Suspended / disabled')}
-      </div>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        ${card('Total Users', num(c.totalUsers))}
-        ${card('Total Patients', num(c.totalPatients))}
-        ${card('Appointments', num(c.totalAppointments))}
-        ${card('MRR', money(c.mrr), 'text-indigo-500', 'Monthly recurring revenue')}
-      </div>
-      <div class="grid lg:grid-cols-2 gap-4 mt-4">
-        <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-          <div class="font-semibold text-slate-700 mb-3">Clinic Growth</div>
-          <canvas id="chGrowth" height="120"></canvas>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-          <div class="font-semibold text-slate-700 mb-3">Revenue Growth (MRR)</div>
-          <canvas id="chRevenue" height="120"></canvas>
-        </div>
-      </div>
-      <div class="grid lg:grid-cols-2 gap-4 mt-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Recent Clinics</div>
-          ${simpleClinicTable(s.recentClinics)}
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Expiring Subscriptions <span class="text-xs text-slate-400">(30 days)</span></div>
-          ${simpleClinicTable(s.expiringSubscriptions, true)}
-        </div>
-      </div>
-      <div class="grid lg:grid-cols-2 gap-4 mt-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">System Alerts</div>
-          ${s.systemAlerts && s.systemAlerts.length
-            ? '<ul class="divide-y divide-slate-100">' + s.systemAlerts.map((a) => `<li class="px-5 py-3 flex items-center justify-between text-sm"><span>${esc(a.clinicName)}</span>${statusBadge(a.status)}</li>`).join('') + '</ul>'
-            : '<div class="px-5 py-6 text-sm text-slate-400">No alerts. All clinics healthy.</div>'}
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Quick Actions</div>
-          <div class="p-5 flex flex-wrap gap-2">
-            <a href="#/clinics" class="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2">Manage Clinics</a>
-            <a href="#/audit-logs" class="rounded-lg border border-slate-200 text-sm px-4 py-2 hover:bg-slate-50">Audit Logs</a>
-            <a href="#/plans" class="rounded-lg border border-slate-200 text-sm px-4 py-2 hover:bg-slate-50">Plans</a>
-          </div>
-        </div>
-      </div>`;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">' +
+        cardBox('Total Clinics', num(c.totalClinics), 'All time') +
+        cardBox('Active Clinics', num(c.activeClinics), 'Billing normally', 'text-emerald-500') +
+        cardBox('Trial Clinics', num(c.trialClinics), 'On free trial', 'text-brand-900') +
+        cardBox('Suspended', num(c.suspendedClinics), 'Suspended / disabled', 'text-amber-500') +
+      '</div>' +
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">' +
+        cardBox('Total Users', num(c.totalUsers)) +
+        cardBox('Total Patients', num(c.totalPatients)) +
+        cardBox('Appointments', num(c.totalAppointments)) +
+        cardBox('MRR', money(c.mrr), 'Monthly recurring revenue', 'text-brand-950') +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4 mt-4">' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Clinic Growth</div><canvas id="chGrowth" height="120"></canvas></div>' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Revenue Growth (MRR)</div><canvas id="chRevenue" height="120"></canvas></div>' +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4 mt-4">' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Recent Clinics</div>' + simpleClinicTable(s.recentClinics) + '</div>' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Expiring Subscriptions <span class="text-xs text-slate-400">(30 days)</span></div>' + simpleClinicTable(s.expiringSubscriptions, true) + '</div>' +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4 mt-4">' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">System Alerts</div>' +
+          (s.systemAlerts && s.systemAlerts.length
+            ? '<ul class="divide-y divide-slate-100">' + s.systemAlerts.map((a) => '<li class="px-5 py-3 flex items-center justify-between text-sm"><span>' + esc(a.clinicName) + '</span>' + statusBadge(a.status) + '</li>').join('') + '</ul>'
+            : '<div class="px-5 py-6 text-sm text-slate-400">No alerts. All clinics healthy.</div>') + '</div>' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Quick Actions</div>' +
+          '<div class="p-5 flex flex-wrap gap-2">' +
+            '<a href="#/clinics" class="btn btn-primary">Manage Clinics</a>' +
+            '<a href="#/subscriptions" class="btn btn-ghost">Subscriptions</a>' +
+            '<a href="#/audit-logs" class="btn btn-ghost">Audit Logs</a>' +
+            '<a href="#/plans" class="btn btn-ghost">Plans</a>' +
+          '</div></div>' +
+      '</div>';
 
     charts.forEach((ch) => { try { ch.destroy(); } catch (_) {} });
     charts = [];
     const g = s.charts.clinicGrowth, rv = s.charts.revenueGrowth;
     const baseOpts = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } };
-    charts.push(new Chart(el('chGrowth'), { type: 'line', data: { labels: g.map((x) => x.month), datasets: [{ data: g.map((x) => x.count), borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.12)', fill: true, tension: .35, pointRadius: 2 }] }, options: baseOpts }));
-    charts.push(new Chart(el('chRevenue'), { type: 'bar', data: { labels: rv.map((x) => x.month), datasets: [{ data: rv.map((x) => x.amount), backgroundColor: '#10b981', borderRadius: 6 }] }, options: baseOpts }));
+    charts.push(new Chart(el('chGrowth'), { type: 'line', data: { labels: g.map((x) => x.month), datasets: [{ data: g.map((x) => x.count), borderColor: '#92CAED', backgroundColor: 'rgba(146,202,237,.25)', fill: true, tension: .35, pointRadius: 2 }] }, options: baseOpts }));
+    charts.push(new Chart(el('chRevenue'), { type: 'bar', data: { labels: rv.map((x) => x.month), datasets: [{ data: rv.map((x) => x.amount), backgroundColor: '#55ace2', borderRadius: 6 }] }, options: baseOpts }));
   }
 
   function simpleClinicTable(rows, showExpiry) {
     if (!rows || !rows.length) return '<div class="px-5 py-6 text-sm text-slate-400">Nothing here yet.</div>';
-    return `<table class="w-full text-sm"><tbody>` + rows.map((r) => `
-      <tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 cursor-pointer" onclick="location.hash='#/clinics';setTimeout(()=>window.__openClinic(${r.id}),350)">
-        <td class="px-5 py-3">
-          <div class="font-semibold text-slate-700">${esc(r.clinicName)}</div>
-          <div class="text-xs text-slate-400">${esc(r.ownerName || r.ownerEmail || 'No owner')}</div>
-        </td>
-        <td class="px-5 py-3 text-right">${showExpiry ? `<div class="text-xs text-slate-500">${dateFmt(r.subscriptionExpiry)}</div>${statusBadge(r.status)}` : statusBadge(r.status)}</td>
-      </tr>`).join('') + '</tbody></table>';
+    return '<table class="w-full text-sm"><tbody>' + rows.map((r) =>
+      '<tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 cursor-pointer" onclick="location.hash=\'#/clinics\';setTimeout(()=>window.__openClinic(' + r.id + '),350)">' +
+        '<td class="px-5 py-3"><div class="font-semibold text-slate-700">' + esc(r.clinicName) + '</div><div class="text-xs text-slate-400">' + esc(r.ownerName || r.ownerEmail || 'No owner') + '</div></td>' +
+        '<td class="px-5 py-3 text-right">' + (showExpiry ? '<div class="text-xs text-slate-500">' + dateFmt(r.subscriptionExpiry) + '</div>' + statusBadge(r.status) : statusBadge(r.status)) + '</td>' +
+      '</tr>').join('') + '</tbody></table>';
   }
 
   // ── clinics ─────────────────────────────────────────────────────────────
   let clinicsState = { page: 1, search: '', status: '', plan: '', total: 0, pageSize: 20 };
 
   async function viewClinics() {
-    el('view').innerHTML = `
-      <div class="flex flex-wrap items-center gap-2 mb-4">
-        <input id="cl_search" value="${esc(clinicsState.search)}" placeholder="Search clinic, owner, email…" class="w-72 rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
-        <select id="cl_status" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-          <option value="">All statuses</option>
-          ${['active', 'trial', 'suspended', 'disabled'].map((s) => `<option value="${s}" ${clinicsState.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-        <button id="cl_new" class="ml-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2">+ Add Clinic</button>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div id="cl_table">${spinner()}</div>
-      </div>
-      <div id="cl_pager" class="flex items-center justify-between mt-4 text-sm text-slate-500"></div>`;
+    el('view').innerHTML =
+      toolbar(
+        searchInput('cl_search', clinicsState.search, 'Search clinic, owner, email…') +
+        '<select id="cl_status" class="inp w-40"><option value="">All statuses</option>' +
+          ['active', 'trial', 'suspended', 'disabled'].map((s) => '<option value="' + s + '"' + (clinicsState.status === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>' +
+        '<button id="cl_new" class="btn btn-primary ml-auto">' + icon('plus', 'w-4 h-4') + ' Add Clinic</button>'
+      ) +
+      '<div id="cl_table">' + spinner() + '</div>' +
+      '<div id="cl_pager" class="flex items-center justify-between mt-4 text-sm text-slate-500"></div>';
     el('cl_search').addEventListener('keydown', (e) => { if (e.key === 'Enter') { clinicsState.search = e.target.value; clinicsState.page = 1; loadClinics(); } });
     el('cl_status').addEventListener('change', (e) => { clinicsState.status = e.target.value; clinicsState.page = 1; loadClinics(); });
     el('cl_new').addEventListener('click', openClinicForm);
@@ -348,41 +444,31 @@
     const q = new URLSearchParams({ page: clinicsState.page, pageSize: clinicsState.pageSize, search: clinicsState.search, status: clinicsState.status, plan: clinicsState.plan });
     const res = await api('/clinics?' + q.toString());
     clinicsState.total = res.total;
-    const rows = res.data.map((c) => `
-      <tr class="border-b border-slate-50 hover:bg-slate-50/60">
-        <td class="px-4 py-3">
-          <div class="font-semibold text-slate-700">${esc(c.clinicName)}</div>
-          <div class="text-xs text-slate-400">#${c.id} · ${esc(c.ownerName || '—')}</div>
-        </td>
-        <td class="px-4 py-3 text-xs text-slate-500">
-          <div>${esc(c.ownerEmail || '—')}</div><div>${esc(c.ownerPhone || '')}</div>
-        </td>
-        <td class="px-4 py-3 text-center text-slate-600">${num(c.clientsCount)}</td>
-        <td class="px-4 py-3 text-center text-slate-600">${num(c.patientsCount)}</td>
-        <td class="px-4 py-3 text-sm"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">${esc(c.plan)}</span></td>
-        <td class="px-4 py-3 text-xs text-slate-500">${dateFmt(c.subscriptionExpiry)}</td>
-        <td class="px-4 py-3">${statusBadge(c.status)}</td>
-        <td class="px-4 py-3 text-right whitespace-nowrap">
-          <button data-id="${c.id}" class="cl-view rounded-lg border border-slate-200 px-3 py-1 text-xs hover:bg-slate-100">Manage</button>
-          <button data-id="${c.id}" class="cl-imp rounded-lg border border-indigo-200 text-indigo-600 px-3 py-1 text-xs hover:bg-indigo-50">Login as</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">No clinics found.</td></tr>';
-    el('cl_table').innerHTML = `<table class="w-full text-sm">
-      <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
-        <tr>
-          <th class="text-left px-4 py-3">Clinic</th><th class="text-left px-4 py-3">Contact</th>
-          <th class="px-4 py-3">Clients</th><th class="px-4 py-3">Patients</th>
-          <th class="text-left px-4 py-3">Plan</th><th class="text-left px-4 py-3">Expiry</th>
-          <th class="text-left px-4 py-3">Status</th><th class="text-right px-4 py-3">Actions</th>
-        </tr>
-      </thead><tbody>${rows}</tbody></table>`;
+    const rows = res.data.map((c) =>
+      '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+        '<td class="td"><div class="font-semibold text-slate-700">' + esc(c.clinicName) + '</div><div class="text-xs text-slate-400">#' + c.id + ' · ' + esc(c.ownerName || '—') + '</div></td>' +
+        '<td class="td text-xs text-slate-500"><div>' + esc(c.ownerEmail || '—') + '</div><div>' + esc(c.ownerPhone || '') + '</div></td>' +
+        '<td class="td text-center text-slate-600">' + num(c.clientsCount) + '</td>' +
+        '<td class="td text-center text-slate-600">' + num(c.patientsCount) + '</td>' +
+        '<td class="td text-sm"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">' + esc(c.plan) + '</span></td>' +
+        '<td class="td text-xs text-slate-500">' + dateFmt(c.subscriptionExpiry) + '</td>' +
+        '<td class="td">' + statusBadge(c.status) + '</td>' +
+        '<td class="td text-right whitespace-nowrap">' +
+          '<button data-id="' + c.id + '" class="cl-view btn btn-ghost !py-1 !px-3 text-xs">Manage</button> ' +
+          '<button data-id="' + c.id + '" class="cl-imp btn btn-ghost !py-1 !px-3 text-xs !border-brand-300 !text-brand-950">Login as</button>' +
+        '</td>' +
+      '</tr>').join('') || emptyRow(8, 'No clinics found.');
+    el('cl_table').innerHTML = table([
+      { label: 'Clinic' }, { label: 'Contact' }, { label: 'Clients', align: 'center' }, { label: 'Patients', align: 'center' },
+      { label: 'Plan' }, { label: 'Expiry' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+    ], rows);
     el('cl_table').querySelectorAll('.cl-view').forEach((b) => b.onclick = () => openClinic(Number(b.dataset.id)));
     el('cl_table').querySelectorAll('.cl-imp').forEach((b) => b.onclick = () => impersonate(Number(b.dataset.id)));
     const tp = res.totalPages || 1;
-    el('cl_pager').innerHTML = `<div>Showing ${num((clinicsState.page - 1) * clinicsState.pageSize + 1)}–${num(Math.min(clinicsState.page * clinicsState.pageSize, res.total))} of ${num(res.total)}</div>
-      <div class="flex gap-2"><button id="pg_prev" class="rounded-lg border border-slate-200 px-3 py-1 ${clinicsState.page <= 1 ? 'opacity-40 pointer-events-none' : ''}">Prev</button>
-      <span class="px-2 py-1">${clinicsState.page} / ${tp}</span>
-      <button id="pg_next" class="rounded-lg border border-slate-200 px-3 py-1 ${clinicsState.page >= tp ? 'opacity-40 pointer-events-none' : ''}">Next</button></div>`;
+    el('cl_pager').innerHTML = '<div>Showing ' + num((clinicsState.page - 1) * clinicsState.pageSize + 1) + '–' + num(Math.min(clinicsState.page * clinicsState.pageSize, res.total)) + ' of ' + num(res.total) + '</div>' +
+      '<div class="flex gap-2"><button id="pg_prev" class="btn btn-ghost !py-1 ' + (clinicsState.page <= 1 ? 'opacity-40 pointer-events-none' : '') + '">Prev</button>' +
+      '<span class="px-2 py-1">' + clinicsState.page + ' / ' + tp + '</span>' +
+      '<button id="pg_next" class="btn btn-ghost !py-1 ' + (clinicsState.page >= tp ? 'opacity-40 pointer-events-none' : '') + '">Next</button></div>';
     el('pg_prev').onclick = () => { clinicsState.page--; loadClinics(); };
     el('pg_next').onclick = () => { clinicsState.page++; loadClinics(); };
   }
@@ -390,28 +476,26 @@
   async function openClinicForm() {
     let plans = [];
     try { plans = (await api('/plans')).data; } catch (_) {}
-    openModal(`
-      <div class="p-6">
-        <h3 class="text-lg font-bold text-slate-800 mb-4">Add Clinic</h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-2"><label class="lbl">Clinic name *</label><input id="f_clinic" class="inp" /></div>
-          <div><label class="lbl">Owner name</label><input id="f_owner" class="inp" /></div>
-          <div><label class="lbl">Owner username *</label><input id="f_user" class="inp" /></div>
-          <div><label class="lbl">Owner email</label><input id="f_email" class="inp" /></div>
-          <div><label class="lbl">Owner phone</label><input id="f_phone" class="inp" /></div>
-          <div><label class="lbl">Plan</label><select id="f_plan" class="inp">${plans.map((p) => `<option value="${esc(p.code)}" ${p.code === 'trial' ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
-          <div><label class="lbl">Status</label><select id="f_status" class="inp"><option value="trial" selected>trial</option><option value="active">active</option></select></div>
-          <div class="col-span-2"><label class="lbl">Address</label><input id="f_addr" class="inp" /></div>
-          <div><label class="lbl">City</label><input id="f_city" class="inp" /></div>
-          <div><label class="lbl">Country</label><input id="f_country" class="inp" /></div>
-          <div class="col-span-2 text-xs text-slate-400">Owner password is auto-generated if left blank (shown once after creation).</div>
-        </div>
-        <div id="f_err" class="hidden text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-3"></div>
-        <div class="flex justify-end gap-2 mt-5">
-          <button onclick="__closeModal()" class="rounded-lg border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50">Cancel</button>
-          <button id="f_save" class="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold">Create clinic</button>
-        </div>
-      </div>`);
+    openModal(
+      '<div class="p-6">' +
+        '<h3 class="text-lg font-bold text-slate-800 mb-4">Add Clinic</h3>' +
+        '<div class="grid grid-cols-2 gap-3">' +
+          '<div class="col-span-2"><label class="lbl">Clinic name *</label><input id="f_clinic" class="inp" /></div>' +
+          '<div><label class="lbl">Owner name</label><input id="f_owner" class="inp" /></div>' +
+          '<div><label class="lbl">Owner username *</label><input id="f_user" class="inp" /></div>' +
+          '<div><label class="lbl">Owner email</label><input id="f_email" class="inp" /></div>' +
+          '<div><label class="lbl">Owner phone</label><input id="f_phone" class="inp" /></div>' +
+          '<div><label class="lbl">Plan</label><select id="f_plan" class="inp">' + plans.map((p) => '<option value="' + esc(p.code) + '"' + (p.code === 'trial' ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('') + '</select></div>' +
+          '<div><label class="lbl">Status</label><select id="f_status" class="inp"><option value="trial" selected>trial</option><option value="active">active</option></select></div>' +
+          '<div class="col-span-2"><label class="lbl">Address</label><input id="f_addr" class="inp" /></div>' +
+          '<div><label class="lbl">City</label><input id="f_city" class="inp" /></div>' +
+          '<div><label class="lbl">Country</label><input id="f_country" class="inp" /></div>' +
+          '<div class="col-span-2 text-xs text-slate-400">Owner password is auto-generated if left blank (shown once after creation).</div>' +
+        '</div>' +
+        '<div id="f_err" class="hidden text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-3"></div>' +
+        '<div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="btn btn-ghost">Cancel</button>' +
+          '<button id="f_save" class="btn btn-primary">Create clinic</button></div>' +
+      '</div>');
     el('f_save').onclick = async () => {
       const payload = {
         clinicName: el('f_clinic').value.trim(), ownerName: el('f_owner').value.trim(),
@@ -425,16 +509,13 @@
         const r = await api('/clinics', { method: 'POST', body: payload });
         closeModal();
         if (r.owner && r.owner.password) {
-          openModal(`<div class="p-6">
-            <h3 class="text-lg font-bold text-slate-800">Clinic created</h3>
-            <p class="text-sm text-slate-500 mt-2">Share these credentials with the clinic owner. The password is shown only once.</p>
-            <div class="mt-4 rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm">
-              <div>URL: <span class="text-emerald-400">/app</span></div>
-              <div>username: <span class="text-emerald-400">${esc(r.owner.username)}</span></div>
-              <div>password: <span class="text-emerald-400">${esc(r.owner.password)}</span></div>
-            </div>
-            <div class="flex justify-end mt-5"><button onclick="__closeModal()" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Done</button></div>
-          </div>`);
+          openModal('<div class="p-6"><h3 class="text-lg font-bold text-slate-800">Clinic created</h3>' +
+            '<p class="text-sm text-slate-500 mt-2">Share these credentials with the clinic owner. The password is shown only once.</p>' +
+            '<div class="mt-4 rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm">' +
+              '<div>URL: <span class="text-brand-400">/app</span></div>' +
+              '<div>username: <span class="text-brand-400">' + esc(r.owner.username) + '</span></div>' +
+              '<div>password: <span class="text-brand-400">' + esc(r.owner.password) + '</span></div></div>' +
+            '<div class="flex justify-end mt-5"><button onclick="__closeModal()" class="btn btn-primary">Done</button></div></div>');
         } else toast('Clinic created');
         clinicsState.page = 1; loadClinics();
       } catch (e) { el('f_err').textContent = e.message; el('f_err').classList.remove('hidden'); }
@@ -443,99 +524,84 @@
   }
 
   window.__openClinic = async function (id) {
-    el('view').innerHTML = `<div id="cl_detail">${spinner()}</div>`;
+    el('view').innerHTML = '<div id="cl_detail">' + spinner() + '</div>';
     try {
       const d = await api('/clinics/' + id);
       const c = d.clinic;
-      el('cl_detail').innerHTML = `
-        <button onclick="location.hash='#/clinics'" class="text-sm text-indigo-600 mb-3">← Back to clinics</button>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <div class="flex items-start justify-between flex-wrap gap-3">
-            <div>
-              <div class="flex items-center gap-3">
-                <h3 class="text-xl font-bold text-slate-800">${esc(c.clinicName)}</h3>
-                ${statusBadge(c.status)}
-                <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">${esc(c.plan)}</span>
-              </div>
-              <div class="text-sm text-slate-400 mt-1">Clinic #${c.id} · registered ${dateFmt(c.registrationDate)}</div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button id="d_extend" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50">Extend +30d</button>
-              <button id="d_reset" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50">Reset admin password</button>
-              <button id="d_imp" class="rounded-lg border border-indigo-200 text-indigo-600 px-3 py-1.5 text-sm hover:bg-indigo-50">Login as Clinic Admin</button>
-              ${c.status === 'suspended' || c.status === 'disabled'
-                ? '<button id="d_activate" class="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-sm font-semibold">Reactivate</button>'
-                : '<button id="d_suspend" class="rounded-lg bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 text-sm font-semibold">Suspend</button>'}
-            </div>
-          </div>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            ${statBox('Clients', num(c.clients))}${statBox('Patients', num(c.patients))}${statBox('Appointments', num(c.appointments))}${statBox('Employees', num(c.employees))}
-          </div>
-          <div class="grid lg:grid-cols-2 gap-6 mt-6">
-            <div>
-              <h4 class="font-semibold text-slate-700 mb-2">Details</h4>
-              <dl class="text-sm space-y-1.5">
-                ${row('Owner', c.ownerName)}${row('Email', c.ownerEmail)}${row('Phone', c.ownerPhone)}
-                ${row('Address', c.address)}${row('City / Country', [c.city, c.country].filter(Boolean).join(', '))}
-                ${row('Subscription start', dateFmt(c.subscriptionStart))}${row('Subscription expiry', dateFmt(c.subscriptionExpiry))}
-                ${row('Branches', num(c.branches))}${row('Last login', dtFmt(c.lastLogin))}
-              </dl>
-              <button id="d_edit" class="mt-4 rounded-lg border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50">Edit details</button>
-            </div>
-            <div>
-              <h4 class="font-semibold text-slate-700 mb-2">Clinic users <span class="text-xs text-slate-400">(${d.users.length})</span></h4>
-              <div class="border border-slate-100 rounded-xl overflow-hidden">
-                <table class="w-full text-sm"><tbody>
-                  ${(d.users.length ? d.users : []).map((u) => `<tr class="border-b border-slate-50 last:border-0"><td class="px-3 py-2"><div class="font-medium">${esc(u.name || u.username)}</div><div class="text-xs text-slate-400">${esc(u.email || '')}</div></td><td class="px-3 py-2 text-right text-xs">${esc(u.role || '')}</td></tr>`).join('') || '<tr><td class="px-3 py-3 text-slate-400 text-xs">No users.</td></tr>'}
-                </tbody></table>
-              </div>
-            </div>
-          </div>
-        </div>`;
+      el('cl_detail').innerHTML =
+        '<button onclick="location.hash=\'#/clinics\'" class="text-sm text-brand-950 mb-3 inline-flex items-center gap-1">&larr; Back to clinics</button>' +
+        '<div class="card p-6">' +
+          '<div class="flex items-start justify-between flex-wrap gap-3">' +
+            '<div><div class="flex items-center gap-3"><h3 class="text-xl font-bold text-slate-800">' + esc(c.clinicName) + '</h3>' + statusBadge(c.status) +
+              '<span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">' + esc(c.plan) + '</span></div>' +
+              '<div class="text-sm text-slate-400 mt-1">Clinic #' + c.id + ' · registered ' + dateFmt(c.registrationDate) + '</div></div>' +
+            '<div class="flex flex-wrap gap-2">' +
+              '<button id="d_extend" class="btn btn-ghost">Extend +30d</button>' +
+              '<button id="d_reset" class="btn btn-ghost">Reset admin password</button>' +
+              '<button id="d_imp" class="btn btn-ghost !border-brand-300 !text-brand-950">Login as Clinic Admin</button>' +
+              (c.status === 'suspended' || c.status === 'disabled'
+                ? '<button id="d_activate" class="btn btn-primary">Reactivate</button>'
+                : '<button id="d_suspend" class="btn btn-ghost !border-amber-300 !text-amber-700">Suspend</button>') +
+            '</div>' +
+          '</div>' +
+          '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">' +
+            statBox('Clients', num(c.clients)) + statBox('Patients', num(c.patients)) + statBox('Appointments', num(c.appointments)) + statBox('Employees', num(c.employees)) +
+          '</div>' +
+          '<div class="grid lg:grid-cols-2 gap-6 mt-6">' +
+            '<div><h4 class="font-semibold text-slate-700 mb-2">Details</h4><dl class="text-sm space-y-1.5">' +
+              row('Owner', c.ownerName) + row('Email', c.ownerEmail) + row('Phone', c.ownerPhone) +
+              row('Address', c.address) + row('City / Country', [c.city, c.country].filter(Boolean).join(', ')) +
+              row('Subscription start', dateFmt(c.subscriptionStart)) + row('Subscription expiry', dateFmt(c.subscriptionExpiry)) +
+              row('Branches', num(c.branches)) + row('Last login', dtFmt(c.lastLogin)) +
+            '</dl><button id="d_edit" class="mt-4 btn btn-ghost">Edit details</button></div>' +
+            '<div><h4 class="font-semibold text-slate-700 mb-2">Clinic users <span class="text-xs text-slate-400">(' + d.users.length + ')</span></h4>' +
+              '<div class="border border-slate-100 rounded-xl overflow-hidden"><table class="w-full text-sm"><tbody>' +
+                (d.users.length ? d.users.map((u) => '<tr class="border-b border-slate-50 last:border-0"><td class="px-3 py-2"><div class="font-medium">' + esc(u.name || u.username) + '</div><div class="text-xs text-slate-400">' + esc(u.email || '') + '</div></td><td class="px-3 py-2 text-right text-xs">' + esc(u.role || '') + '</td></tr>').join('') : '<tr><td class="px-3 py-3 text-slate-400 text-xs">No users.</td></tr>') +
+              '</tbody></table></div></div>' +
+          '</div>' +
+        '</div>';
       el('d_extend').onclick = () => clinicAction(id, 'extend', { days: 30 }, 'Subscription extended by 30 days');
       el('d_reset').onclick = async () => {
         if (!(await confirmDialog('Reset admin password', 'A new password will be generated for this clinic\'s admin user.', false))) return;
-        try { const r = await api(`/clinics/${id}/reset-admin-password`, { method: 'POST', body: {} });
-          openModal(`<div class="p-6"><h3 class="text-lg font-bold">New password</h3>
-            <div class="mt-3 rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm"><div>user: <span class="text-emerald-400">${esc(r.user.username)}</span></div><div>password: <span class="text-emerald-400">${esc(r.password || '(unchanged)')}</span></div></div>
-            <div class="flex justify-end mt-4"><button onclick="__closeModal()" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Done</button></div></div>`);
+        try { const r = await api('/clinics/' + id + '/reset-admin-password', { method: 'POST', body: {} });
+          openModal('<div class="p-6"><h3 class="text-lg font-bold">New password</h3>' +
+            '<div class="mt-3 rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm"><div>user: <span class="text-brand-400">' + esc(r.user.username) + '</span></div><div>password: <span class="text-brand-400">' + esc(r.password || '(unchanged)') + '</span></div></div>' +
+            '<div class="flex justify-end mt-4"><button onclick="__closeModal()" class="btn btn-primary">Done</button></div></div>');
         } catch (e) { toast(e.message, 'error'); }
       };
       el('d_imp').onclick = () => impersonate(id);
       if (el('d_suspend')) el('d_suspend').onclick = () => clinicAction(id, 'status', { status: 'suspended' }, 'Clinic suspended');
       if (el('d_activate')) el('d_activate').onclick = () => clinicAction(id, 'status', { status: 'active' }, 'Clinic reactivated');
       el('d_edit').onclick = () => openClinicEdit(c);
-    } catch (e) { el('cl_detail').innerHTML = `<div class="text-red-600">${esc(e.message)}</div>`; }
+    } catch (e) { el('cl_detail').innerHTML = '<div class="text-red-600">' + esc(e.message) + '</div>'; }
   };
 
   function statBox(label, value) {
-    return `<div class="rounded-xl bg-slate-50 border border-slate-100 p-4"><div class="text-xs uppercase tracking-wide text-slate-400">${label}</div><div class="text-xl font-bold text-slate-800">${value}</div></div>`;
+    return '<div class="rounded-xl bg-slate-50 border border-slate-100 p-4"><div class="text-xs uppercase tracking-wide text-slate-400">' + label + '</div><div class="text-xl font-bold text-slate-800">' + value + '</div></div>';
   }
   function row(label, value) {
-    return `<div class="flex justify-between gap-4"><dt class="text-slate-400">${esc(label)}</dt><dd class="text-slate-700 text-right">${esc(value || '—')}</dd></div>`;
+    return '<div class="flex justify-between gap-4"><dt class="text-slate-400">' + esc(label) + '</dt><dd class="text-slate-700 text-right">' + esc(value || '—') + '</dd></div>';
   }
 
   async function clinicAction(id, action, body, msg) {
-    try { await api(`/clinics/${id}/${action}`, { method: 'POST', body }); toast(msg); window.__openClinic(id); }
+    try { await api('/clinics/' + id + '/' + action, { method: 'POST', body }); toast(msg); window.__openClinic(id); }
     catch (e) { toast(e.message, 'error'); }
   }
 
   function openClinicEdit(c) {
-    openModal(`<div class="p-6">
-      <h3 class="text-lg font-bold text-slate-800 mb-4">Edit Clinic #${c.id}</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="col-span-2"><label class="lbl">Clinic name</label><input id="e_name" class="inp" value="${esc(c.clinicName)}" /></div>
-        <div><label class="lbl">Owner name</label><input id="e_owner" class="inp" value="${esc(c.ownerName || '')}" /></div>
-        <div><label class="lbl">Owner email</label><input id="e_email" class="inp" value="${esc(c.ownerEmail || '')}" /></div>
-        <div><label class="lbl">Owner phone</label><input id="e_phone" class="inp" value="${esc(c.ownerPhone || '')}" /></div>
-        <div><label class="lbl">Subscription expiry</label><input id="e_exp" type="date" class="inp" value="${c.subscriptionExpiry ? String(c.subscriptionExpiry).slice(0,10) : ''}" /></div>
-        <div class="col-span-2"><label class="lbl">Address</label><input id="e_addr" class="inp" value="${esc(c.address || '')}" /></div>
-        <div><label class="lbl">City</label><input id="e_city" class="inp" value="${esc(c.city || '')}" /></div>
-        <div><label class="lbl">Country</label><input id="e_country" class="inp" value="${esc(c.country || '')}" /></div>
-      </div>
-      <div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="rounded-lg border border-slate-200 px-4 py-2 text-sm">Cancel</button>
-        <button id="e_save" class="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold">Save</button></div>
-    </div>`);
+    openModal('<div class="p-6"><h3 class="text-lg font-bold text-slate-800 mb-4">Edit Clinic #' + c.id + '</h3>' +
+      '<div class="grid grid-cols-2 gap-3">' +
+        '<div class="col-span-2"><label class="lbl">Clinic name</label><input id="e_name" class="inp" value="' + esc(c.clinicName) + '" /></div>' +
+        '<div><label class="lbl">Owner name</label><input id="e_owner" class="inp" value="' + esc(c.ownerName || '') + '" /></div>' +
+        '<div><label class="lbl">Owner email</label><input id="e_email" class="inp" value="' + esc(c.ownerEmail || '') + '" /></div>' +
+        '<div><label class="lbl">Owner phone</label><input id="e_phone" class="inp" value="' + esc(c.ownerPhone || '') + '" /></div>' +
+        '<div><label class="lbl">Subscription expiry</label><input id="e_exp" type="date" class="inp" value="' + (c.subscriptionExpiry ? String(c.subscriptionExpiry).slice(0, 10) : '') + '" /></div>' +
+        '<div class="col-span-2"><label class="lbl">Address</label><input id="e_addr" class="inp" value="' + esc(c.address || '') + '" /></div>' +
+        '<div><label class="lbl">City</label><input id="e_city" class="inp" value="' + esc(c.city || '') + '" /></div>' +
+        '<div><label class="lbl">Country</label><input id="e_country" class="inp" value="' + esc(c.country || '') + '" /></div>' +
+      '</div>' +
+      '<div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="btn btn-ghost">Cancel</button>' +
+        '<button id="e_save" class="btn btn-primary">Save</button></div></div>');
     el('e_save').onclick = async () => {
       try {
         await api('/clinics/' + c.id, { method: 'PATCH', body: {
@@ -551,7 +617,7 @@
   async function impersonate(id) {
     if (!(await confirmDialog('Login as Clinic Admin', 'You will be signed into this clinic\'s admin panel in a new tab.<br><b>This action is recorded in the audit log.</b>', false))) return;
     try {
-      const r = await api(`/clinics/${id}/impersonate`, { method: 'POST', body: {} });
+      const r = await api('/clinics/' + id + '/impersonate', { method: 'POST', body: {} });
       if (r.accessToken) {
         localStorage.setItem(SESS_KEY, JSON.stringify({
           user: Object.assign({}, r.user, { isPlatformAdmin: false }),
@@ -563,77 +629,489 @@
     } catch (e) { toast(e.message, 'error'); }
   }
 
-  // ── plans ───────────────────────────────────────────────────────────────
-  async function viewPlans() {
+  // ── branches ────────────────────────────────────────────────────────────
+  let branchState = { search: '', clinicId: '' };
+  async function viewBranches() {
     el('view').innerHTML = spinner();
-    const d = await api('/plans');
-    el('view').innerHTML = `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <table class="w-full text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-400"><tr>
-        <th class="text-left px-4 py-3">Plan</th><th class="text-left px-4 py-3">Code</th>
-        <th class="px-4 py-3">Monthly</th><th class="px-4 py-3">Yearly</th>
-        <th class="px-4 py-3">Employees</th><th class="px-4 py-3">Branches</th><th class="px-4 py-3">Patients</th><th class="px-4 py-3">Storage</th>
-      </tr></thead><tbody>
-      ${d.data.map((p) => `<tr class="border-b border-slate-50">
-        <td class="px-4 py-3 font-semibold text-slate-700">${esc(p.name)}</td>
-        <td class="px-4 py-3"><code class="text-xs bg-slate-100 rounded px-2 py-0.5">${esc(p.code)}</code></td>
-        <td class="px-4 py-3 text-center">${money(p.monthlyPrice)}</td>
-        <td class="px-4 py-3 text-center">${money(p.yearlyPrice)}</td>
-        <td class="px-4 py-3 text-center">${p.maxEmployees == null ? '∞' : num(p.maxEmployees)}</td>
-        <td class="px-4 py-3 text-center">${p.maxBranches == null ? '∞' : num(p.maxBranches)}</td>
-        <td class="px-4 py-3 text-center">${p.maxPatients == null ? '∞' : num(p.maxPatients)}</td>
-        <td class="px-4 py-3 text-center">${p.storageLimitMb == null ? '∞' : num(p.storageLimitMb) + ' MB'}</td>
-      </tr>`).join('')}</tbody></table></div>
-      <p class="text-xs text-slate-400 mt-3">Editing plans is available in the Subscriptions milestone.</p>`;
+    const res = await api('/branches' + (branchState.search || branchState.clinicId ? ('?' + new URLSearchParams({ search: branchState.search, clinicId: branchState.clinicId })) : ''));
+    el('view').innerHTML =
+      toolbar(
+        searchInput('br_search', branchState.search, 'Search branch, city, manager…') +
+        '<select id="br_clinic" class="inp w-56"><option value="">All clinics</option>' + res.clinics.map((c) => '<option value="' + c.id + '"' + (String(branchState.clinicId) === String(c.id) ? ' selected' : '') + '>' + esc(c.clinicName) + '</option>').join('') + '</select>' +
+        '<span class="ml-auto text-sm text-slate-500">' + num(res.total) + ' branch' + (res.total === 1 ? '' : 'es') + '</span>'
+      ) +
+      table([
+        { label: 'Clinic' }, { label: 'Branch' }, { label: 'Manager' }, { label: 'City' }, { label: 'Phone' }, { label: 'Status' },
+      ], res.data.length ? res.data.map((b) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td text-slate-500">' + esc(b.clinicName) + '</td>' +
+          '<td class="td font-semibold text-slate-700">' + esc(b.name || b.branch_name || ('Branch #' + b.branchId)) + '</td>' +
+          '<td class="td">' + esc(b.manager || b.manager_name || '—') + '</td>' +
+          '<td class="td">' + esc(b.city || '—') + '</td>' +
+          '<td class="td">' + esc(b.phone || b.contact || '—') + '</td>' +
+          '<td class="td">' + statusBadge(b.status || (b.is_active === 0 ? 'disabled' : 'active')) + '</td>' +
+        '</tr>').join('') : emptyRow(6, 'No branches found.'));
+    const run = () => { branchState.search = el('br_search').value; branchState.clinicId = el('br_clinic').value; viewBranches(); };
+    el('br_search').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    el('br_clinic').addEventListener('change', run);
   }
 
-  // ── roles & permissions ─────────────────────────────────────────────────
+  // ── users ───────────────────────────────────────────────────────────────
+  let usersState = { search: '', clinicId: '' };
+  async function viewUsers() {
+    el('view').innerHTML = spinner();
+    const res = await api('/users?' + new URLSearchParams({ search: usersState.search, clinicId: usersState.clinicId, limit: 200 }));
+    let clinics = [];
+    try { clinics = (await api('/clinics?pageSize=200')).data; } catch (_) {}
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total Users', num(s.total)) + cardBox('Active', num(s.active), '', 'text-emerald-500') +
+        cardBox('Inactive', num(s.inactive), '', 'text-amber-500') + cardBox('Owners', num(s.owners)) +
+      '</div>' +
+      toolbar(
+        searchInput('us_search', usersState.search, 'Search name, username, email…') +
+        '<select id="us_clinic" class="inp w-56"><option value="">All clinics</option>' + clinics.map((c) => '<option value="' + c.id + '"' + (String(usersState.clinicId) === String(c.id) ? ' selected' : '') + '>' + esc(c.clinicName) + '</option>').join('') + '</select>'
+      ) +
+      table([
+        { label: 'User' }, { label: 'Role' }, { label: 'Clinic' }, { label: 'Last login' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((u) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td"><div class="font-semibold text-slate-700">' + esc(u.name || u.username) + '</div><div class="text-xs text-slate-400">' + esc(u.username) + ' · ' + esc(u.email || '—') + '</div></td>' +
+          '<td class="td"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">' + esc(u.role || '') + '</span></td>' +
+          '<td class="td text-slate-500">' + esc(u.clinicName || ('Clinic #' + u.clinic_id)) + '</td>' +
+          '<td class="td text-xs text-slate-500">' + dtFmt(u.last_login) + '</td>' +
+          '<td class="td">' + statusBadge(u.is_active ? 'active' : 'disabled') + '</td>' +
+          '<td class="td text-right whitespace-nowrap">' +
+            '<button data-id="' + u.id + '" data-a="' + (u.is_active ? '0' : '1') + '" class="u-toggle btn btn-ghost !py-1 !px-3 text-xs">' + (u.is_active ? 'Deactivate' : 'Activate') + '</button> ' +
+            '<button data-id="' + u.id + '" class="u-reset btn btn-ghost !py-1 !px-3 text-xs">Reset password</button> ' +
+            '<button data-id="' + u.id + '" class="u-logout btn btn-ghost !py-1 !px-3 text-xs">Force logout</button>' +
+          '</td>' +
+        '</tr>').join('') : emptyRow(6, 'No users found.'));
+    const run = () => { usersState.search = el('us_search').value; usersState.clinicId = el('us_clinic').value; viewUsers(); };
+    el('us_search').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    el('us_clinic').addEventListener('change', run);
+    el('view').querySelectorAll('.u-toggle').forEach((b) => b.onclick = async () => {
+      try { await api('/users/' + b.dataset.id + '/status', { method: 'POST', body: { is_active: b.dataset.a === '1' } }); toast('Updated'); viewUsers(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+    el('view').querySelectorAll('.u-reset').forEach((b) => b.onclick = async () => {
+      if (!(await confirmDialog('Reset password', 'A new temporary password will be generated.', false))) return;
+      try { const r = await api('/users/' + b.dataset.id + '/reset-password', { method: 'POST', body: {} });
+        openModal('<div class="p-6"><h3 class="text-lg font-bold">New password</h3><div class="mt-3 rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm"><div>password: <span class="text-brand-400">' + esc(r.password) + '</span></div></div><div class="flex justify-end mt-4"><button onclick="__closeModal()" class="btn btn-primary">Done</button></div></div>');
+      } catch (e) { toast(e.message, 'error'); }
+    });
+    el('view').querySelectorAll('.u-logout').forEach((b) => b.onclick = async () => {
+      try { await api('/users/' + b.dataset.id + '/force-logout', { method: 'POST', body: {} }); toast('User signed out'); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  // ── subscriptions ───────────────────────────────────────────────────────
+  async function viewSubscriptions() {
+    el('view').innerHTML = spinner();
+    const res = await api('/subscriptions');
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Active', num(s.active), 'of ' + num(s.total) + ' clinics', 'text-emerald-500') +
+        cardBox('Expiring soon', num(s.expiringSoon), 'within 7 days', 'text-amber-500') +
+        cardBox('Expired', num(s.expired), 'need renewal', 'text-red-500') +
+        cardBox('MRR', money(s.mrr), 'ARR ' + money(s.arr)) +
+      '</div>' +
+      table([
+        { label: 'Clinic' }, { label: 'Plan' }, { label: 'Billing' }, { label: 'Expiry' }, { label: 'Days left' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((r) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td"><div class="font-semibold text-slate-700">' + esc(r.clinicName) + '</div><div class="text-xs text-slate-400">#' + r.id + '</div></td>' +
+          '<td class="td"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase">' + esc(r.planName) + '</span></td>' +
+          '<td class="td">' + money(r.monthlyPrice) + '<span class="text-xs text-slate-400">/mo</span></td>' +
+          '<td class="td text-xs text-slate-500">' + dateFmt(r.subscriptionExpiry) + '</td>' +
+          '<td class="td text-center">' + (r.daysLeft === null ? '—' : num(r.daysLeft)) + '</td>' +
+          '<td class="td">' + statusBadge(r.status) + ' ' + (r.expiryState === 'expired' ? statusBadge('expired') : r.expiryState === 'expiring' ? statusBadge('expiring') : '') + '</td>' +
+          '<td class="td text-right whitespace-nowrap">' +
+            '<button data-id="' + r.id + '" data-p="' + esc(r.plan) + '" class="su-plan btn btn-ghost !py-1 !px-3 text-xs">Change plan</button> ' +
+            '<button data-id="' + r.id + '" class="su-renew btn btn-ghost !py-1 !px-3 text-xs">Renew +30d</button> ' +
+            (r.status === 'active'
+              ? '<button data-id="' + r.id + '" data-s="suspended" class="su-status btn btn-ghost !py-1 !px-3 text-xs !border-amber-300 !text-amber-700">Suspend</button>'
+              : '<button data-id="' + r.id + '" data-s="active" class="su-status btn btn-ghost !py-1 !px-3 text-xs">Reactivate</button>') +
+          '</td>' +
+        '</tr>').join('') : emptyRow(7, 'No subscriptions.'));
+    let plans = [];
+    try { plans = (await api('/plans')).data; } catch (_) {}
+    el('view').querySelectorAll('.su-plan').forEach((b) => b.onclick = () => {
+      openModal('<div class="p-6"><h3 class="text-lg font-bold mb-4">Change plan</h3>' +
+        '<label class="lbl">Plan</label><select id="sp_plan" class="inp">' + plans.map((p) => '<option value="' + esc(p.code) + '"' + (p.code === b.dataset.p ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('') + '</select>' +
+        '<div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="btn btn-ghost">Cancel</button><button id="sp_save" class="btn btn-primary">Save</button></div></div>');
+      el('sp_save').onclick = async () => {
+        try { await api('/subscriptions/' + b.dataset.id + '/plan', { method: 'POST', body: { plan: el('sp_plan').value } }); closeModal(); toast('Plan updated'); viewSubscriptions(); }
+        catch (e) { toast(e.message, 'error'); }
+      };
+    });
+    el('view').querySelectorAll('.su-renew').forEach((b) => b.onclick = async () => {
+      try { await api('/subscriptions/' + b.dataset.id + '/renew', { method: 'POST', body: { days: 30 } }); toast('Renewed +30 days'); viewSubscriptions(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+    el('view').querySelectorAll('.su-status').forEach((b) => b.onclick = async () => {
+      try { await api('/subscriptions/' + b.dataset.id + '/status', { method: 'POST', body: { status: b.dataset.s } }); toast('Updated'); viewSubscriptions(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  // ── generic records (coupons, features, integrations, templates, announcements, support, feedback) ──
+  const RECORDS = {
+    coupons: { singular: 'Coupon', title: 'Coupons', columns: ['code', 'type', 'value', 'usedCount', 'status', 'expiresAt'],
+      fields: [{ k: 'code', l: 'Code', req: true }, { k: 'type', l: 'Type', t: 'select', o: ['percentage', 'fixed'] }, { k: 'value', l: 'Value', t: 'number' }, { k: 'usedCount', l: 'Times used', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: ['active', 'inactive'] }, { k: 'expiresAt', l: 'Expires on', t: 'date' }] },
+    features: { singular: 'Feature', title: 'Features', columns: ['name', 'key', 'plans', 'beta', 'enabled'],
+      fields: [{ k: 'name', l: 'Feature name', req: true }, { k: 'key', l: 'Key', req: true }, { k: 'plans', l: 'Available on plans', ph: 'trial, pro, enterprise' }, { k: 'beta', l: 'Beta', t: 'bool' }, { k: 'enabled', l: 'Enabled', t: 'bool', d: true }] },
+    integrations: { singular: 'Integration', title: 'Integrations', columns: ['name', 'provider', 'status', 'apiKey', 'lastSync'],
+      fields: [{ k: 'name', l: 'Name', req: true }, { k: 'provider', l: 'Provider', t: 'select', o: ['stripe', 'paypal', 'sendgrid', 'twilio', 'whatsapp', 'slack', 'webhook'] }, { k: 'status', l: 'Status', t: 'select', o: ['connected', 'disconnected', 'error'] }, { k: 'apiKey', l: 'API key / token' }, { k: 'webhookUrl', l: 'Webhook URL' }] },
+    templates: { singular: 'Template', title: 'Templates', columns: ['name', 'channel', 'subject', 'status'],
+      fields: [{ k: 'name', l: 'Template name', req: true }, { k: 'channel', l: 'Channel', t: 'select', o: ['email', 'sms', 'whatsapp', 'in-app'] }, { k: 'subject', l: 'Subject' }, { k: 'body', l: 'Body', t: 'textarea' }, { k: 'status', l: 'Status', t: 'select', o: ['active', 'inactive'], d: 'active' }] },
+    announcements: { singular: 'Announcement', title: 'Announcements', columns: ['title', 'audience', 'publishAt', 'status'],
+      fields: [{ k: 'title', l: 'Title', req: true }, { k: 'audience', l: 'Audience', t: 'select', o: ['all', 'plan:pro', 'plan:enterprise', 'specific-clinics'] }, { k: 'message', l: 'Message', t: 'textarea' }, { k: 'publishAt', l: 'Publish at', t: 'datetime' }, { k: 'status', l: 'Status', t: 'select', o: ['draft', 'scheduled', 'published'], d: 'draft' }] },
+    support: { singular: 'Ticket', title: 'Support Tickets', columns: ['subject', 'clinicName', 'priority', 'status', 'createdAt'],
+      fields: [{ k: 'subject', l: 'Subject', req: true }, { k: 'clinicName', l: 'Clinic' }, { k: 'priority', l: 'Priority', t: 'select', o: ['low', 'medium', 'high', 'urgent'], d: 'medium' }, { k: 'status', l: 'Status', t: 'select', o: ['open', 'pending', 'resolved', 'closed'], d: 'open' }, { k: 'message', l: 'Description', t: 'textarea' }] },
+    feedback: { singular: 'Feedback', title: 'Feedback', columns: ['clinicName', 'rating', 'category', 'status', 'createdAt'],
+      fields: [{ k: 'clinicName', l: 'Clinic' }, { k: 'rating', l: 'Rating (1-5)', t: 'number' }, { k: 'category', l: 'Category', t: 'select', o: ['bug', 'feature-request', 'praise', 'other'] }, { k: 'status', l: 'Status', t: 'select', o: ['new', 'reviewed', 'actioned'], d: 'new' }, { k: 'message', l: 'Feedback', t: 'textarea' }] },
+    invoices: { singular: 'Invoice', title: 'Invoices', columns: ['number', 'clinicName', 'amount', 'status', 'issuedAt', 'dueDate'],
+      fields: [{ k: 'number', l: 'Invoice #', req: true }, { k: 'clinicName', l: 'Clinic' }, { k: 'amount', l: 'Amount', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: ['pending', 'paid', 'overdue', 'refunded'], d: 'pending' }, { k: 'issuedAt', l: 'Issued', t: 'date' }, { k: 'dueDate', l: 'Due', t: 'date' }] },
+    transactions: { singular: 'Transaction', title: 'Transactions', columns: ['reference', 'clinicName', 'amount', 'method', 'status', 'date'],
+      fields: [{ k: 'reference', l: 'Reference', req: true }, { k: 'clinicName', l: 'Clinic' }, { k: 'amount', l: 'Amount', t: 'number' }, { k: 'method', l: 'Method', t: 'select', o: ['card', 'bank-transfer', 'paypal', 'stripe', 'cash'] }, { k: 'status', l: 'Status', t: 'select', o: ['success', 'pending', 'failed', 'refunded'], d: 'success' }, { k: 'date', l: 'Date', t: 'datetime' }] },
+  };
+
+  function cellValue(key, v) {
+    if (v === undefined || v === null || v === '') return '—';
+    if (typeof v === 'boolean') return statusBadge(v ? 'active' : 'disabled');
+    if (/^(status|priority|level|engagement|expiryState)$/.test(key)) return statusBadge(v);
+    if (/amount|price|value|mrr|arr|total/i.test(key) && !isNaN(Number(v))) return money(v);
+    if (/At$|Date|date|Expiry|expiry/.test(key)) { const d = new Date(v); return isNaN(d) ? esc(v) : dateFmt(v); }
+    return esc(v);
+  }
+
+  async function viewRecords(col) {
+    const cfg = RECORDS[col];
+    el('view').innerHTML = toolbar('<button id="rec_new" class="btn btn-primary ml-auto">' + icon('plus', 'w-4 h-4') + ' New ' + esc(cfg.singular) + '</button>') + '<div id="rec_table">' + spinner() + '</div>';
+    el('rec_new').onclick = () => recordForm(col, null);
+    const res = await api('/records/' + col);
+    const rows = res.data.map((r) =>
+      '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+        cfg.columns.map((c) => '<td class="td">' + cellValue(c, r[c]) + '</td>').join('') +
+        '<td class="td text-right whitespace-nowrap">' +
+          '<button data-id="' + r.id + '" class="rec-edit btn btn-ghost !py-1 !px-2 text-xs" title="Edit">' + icon('pencil', 'w-3.5 h-3.5') + '</button> ' +
+          '<button data-id="' + r.id + '" class="rec-del btn btn-ghost !py-1 !px-2 text-xs !border-red-200 !text-red-600" title="Delete">' + icon('trash', 'w-3.5 h-3.5') + '</button>' +
+        '</td></tr>').join('') || emptyRow(cfg.columns.length + 1, 'No ' + cfg.title.toLowerCase() + ' yet. Click “New ' + cfg.singular + '”.');
+    el('rec_table').innerHTML = table(cfg.columns.map((c) => ({ label: titleCase(c) })).concat([{ label: 'Actions', align: 'right' }]), rows);
+    el('rec_table').querySelectorAll('.rec-edit').forEach((b) => b.onclick = () => recordForm(col, res.data.find((x) => String(x.id) === b.dataset.id)));
+    el('rec_table').querySelectorAll('.rec-del').forEach((b) => b.onclick = async () => {
+      if (!(await confirmDialog('Delete ' + cfg.singular, 'This cannot be undone.', true))) return;
+      try { await api('/records/' + col + '/' + b.dataset.id, { method: 'DELETE' }); toast('Deleted'); viewRecords(col); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  function recordForm(col, rec) {
+    const cfg = RECORDS[col];
+    const isEdit = !!rec;
+    const fieldHtml = cfg.fields.map((f) => {
+      const val = rec ? rec[f.k] : (f.d !== undefined ? f.d : '');
+      if (f.t === 'textarea') return '<div class="col-span-2"><label class="lbl">' + esc(f.l) + '</label><textarea data-k="' + f.k + '" rows="3" class="inp">' + esc(val || '') + '</textarea></div>';
+      if (f.t === 'select') return '<div><label class="lbl">' + esc(f.l) + '</label><select data-k="' + f.k + '" class="inp">' + (f.o || []).map((o) => '<option value="' + esc(o) + '"' + (String(val) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select></div>';
+      if (f.t === 'bool') return '<div class="flex items-center gap-2 pt-5"><input type="checkbox" data-k="' + f.k + '" data-bool="1" ' + (val ? 'checked' : '') + ' class="rounded border-slate-300" /><label class="text-sm text-slate-600">' + esc(f.l) + '</label></div>';
+      const type = f.t === 'number' ? 'number' : f.t === 'date' ? 'date' : f.t === 'datetime' ? 'datetime-local' : 'text';
+      const v = f.t === 'datetime' && val ? String(val).slice(0, 16) : val;
+      return '<div><label class="lbl">' + esc(f.l) + (f.req ? ' *' : '') + '</label><input data-k="' + f.k + '" type="' + type + '" value="' + esc(v || '') + '" placeholder="' + esc(f.ph || '') + '" class="inp" /></div>';
+    }).join('');
+    openModal('<div class="p-6"><h3 class="text-lg font-bold text-slate-800 mb-4">' + (isEdit ? 'Edit' : 'New') + ' ' + esc(cfg.singular) + '</h3>' +
+      '<div class="grid grid-cols-2 gap-3" id="rf">' + fieldHtml + '</div>' +
+      '<div id="rf_err" class="hidden text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-3"></div>' +
+      '<div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="btn btn-ghost">Cancel</button><button id="rf_save" class="btn btn-primary">' + (isEdit ? 'Save' : 'Create') + '</button></div></div>');
+    el('rf_save').onclick = async () => {
+      const body = {};
+      el('rf').querySelectorAll('[data-k]').forEach((inp) => {
+        const k = inp.dataset.k;
+        if (inp.dataset.bool) body[k] = inp.checked;
+        else if (inp.type === 'number') body[k] = inp.value === '' ? null : Number(inp.value);
+        else body[k] = inp.value.trim();
+      });
+      const missing = cfg.fields.find((f) => f.req && (body[f.k] === '' || body[f.k] == null));
+      if (missing) { el('rf_err').textContent = missing.l + ' is required.'; el('rf_err').classList.remove('hidden'); return; }
+      try {
+        if (isEdit) await api('/records/' + col + '/' + rec.id, { method: 'PUT', body });
+        else await api('/records/' + col, { method: 'POST', body });
+        closeModal(); toast(isEdit ? 'Updated' : 'Created'); viewRecords(col);
+      } catch (e) { el('rf_err').textContent = e.message; el('rf_err').classList.remove('hidden'); }
+    };
+  }
+
+  // ── billing ─────────────────────────────────────────────────────────────
+  async function viewBilling() {
+    el('view').innerHTML = spinner();
+    const res = await api('/billing');
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total billed', money(s.totalBilled), num(s.count) + ' invoices') +
+        cardBox('Paid', money(s.totalPaid), num(s.paidCount) + ' invoices', 'text-emerald-500') +
+        cardBox('Pending', money(s.totalPending), num(s.pendingCount) + ' invoices', 'text-amber-500') +
+        cardBox('Overdue', money(s.totalOverdue), num(s.overdueCount) + ' invoices', 'text-red-500') +
+      '</div>' +
+      toolbar('<button id="bi_new" class="btn btn-primary ml-auto">' + icon('plus', 'w-4 h-4') + ' New Invoice</button>') +
+      table([
+        { label: 'Invoice' }, { label: 'Clinic' }, { label: 'Amount' }, { label: 'Issued' }, { label: 'Due' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((r) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td font-semibold text-slate-700">' + esc(r.number || ('INV-' + r.id)) + '</td>' +
+          '<td class="td text-slate-500">' + esc(r.clinicName || '—') + '</td>' +
+          '<td class="td">' + money(r.amount) + '</td>' +
+          '<td class="td text-xs text-slate-500">' + dateFmt(r.issuedAt) + '</td>' +
+          '<td class="td text-xs text-slate-500">' + dateFmt(r.dueDate) + '</td>' +
+          '<td class="td">' + statusBadge(r.computedStatus) + '</td>' +
+          '<td class="td text-right whitespace-nowrap">' +
+            (r.computedStatus !== 'paid' ? '<button data-id="' + r.id + '" class="bi-paid btn btn-ghost !py-1 !px-3 text-xs !border-emerald-300 !text-emerald-700">Mark paid</button> ' : '') +
+            '<button data-id="' + r.id + '" class="bi-edit btn btn-ghost !py-1 !px-2 text-xs">' + icon('pencil', 'w-3.5 h-3.5') + '</button> ' +
+            '<button data-id="' + r.id + '" class="bi-del btn btn-ghost !py-1 !px-2 text-xs !border-red-200 !text-red-600">' + icon('trash', 'w-3.5 h-3.5') + '</button>' +
+          '</td></tr>').join('') : emptyRow(7, 'No invoices yet.'));
+    el('bi_new').onclick = () => recordForm('invoices', null);
+    el('view').querySelectorAll('.bi-paid').forEach((b) => b.onclick = async () => {
+      const inv = res.data.find((x) => String(x.id) === b.dataset.id);
+      try { await api('/records/invoices/' + b.dataset.id, { method: 'PUT', body: Object.assign({}, stripMeta(inv), { status: 'paid' }) }); toast('Marked paid'); viewBilling(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+    el('view').querySelectorAll('.bi-edit').forEach((b) => b.onclick = () => { recordForm('invoices', res.data.find((x) => String(x.id) === b.dataset.id)); });
+    el('view').querySelectorAll('.bi-del').forEach((b) => b.onclick = async () => {
+      if (!(await confirmDialog('Delete invoice', 'This cannot be undone.', true))) return;
+      try { await api('/records/invoices/' + b.dataset.id, { method: 'DELETE' }); toast('Deleted'); viewBilling(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+  function stripMeta(o) { const c = Object.assign({}, o); delete c.id; delete c.collection; delete c.createdAt; delete c.updatedAt; delete c.computedStatus; return c; }
+
+  // ── transactions ────────────────────────────────────────────────────────
+  async function viewTransactions() {
+    el('view').innerHTML = spinner();
+    const res = await api('/transactions');
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Transactions', num(s.count)) + cardBox('Total value', money(s.total)) +
+        cardBox('Successful', num((s.byStatus.success || {}).count || 0), money((s.byStatus.success || {}).amount || 0), 'text-emerald-500') +
+        cardBox('Failed', num((s.byStatus.failed || {}).count || 0), money((s.byStatus.failed || {}).amount || 0), 'text-red-500') +
+      '</div>' +
+      toolbar('<button id="tx_new" class="btn btn-primary ml-auto">' + icon('plus', 'w-4 h-4') + ' New Transaction</button>') +
+      table([
+        { label: 'Reference' }, { label: 'Clinic' }, { label: 'Amount' }, { label: 'Method' }, { label: 'Date' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((r) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td font-semibold text-slate-700">' + esc(r.reference || ('TX-' + r.id)) + '</td>' +
+          '<td class="td text-slate-500">' + esc(r.clinicName || '—') + '</td>' +
+          '<td class="td">' + money(r.amount) + '</td>' +
+          '<td class="td text-slate-500">' + esc(r.method || '—') + '</td>' +
+          '<td class="td text-xs text-slate-500">' + dtFmt(r.date) + '</td>' +
+          '<td class="td">' + statusBadge(r.status || 'success') + '</td>' +
+          '<td class="td text-right whitespace-nowrap">' +
+            '<button data-id="' + r.id + '" class="tx-edit btn btn-ghost !py-1 !px-2 text-xs">' + icon('pencil', 'w-3.5 h-3.5') + '</button> ' +
+            '<button data-id="' + r.id + '" class="tx-del btn btn-ghost !py-1 !px-2 text-xs !border-red-200 !text-red-600">' + icon('trash', 'w-3.5 h-3.5') + '</button>' +
+          '</td></tr>').join('') : emptyRow(7, 'No transactions yet.'));
+    el('tx_new').onclick = () => recordForm('transactions', null);
+    el('view').querySelectorAll('.tx-edit').forEach((b) => b.onclick = () => recordForm('transactions', res.data.find((x) => String(x.id) === b.dataset.id)));
+    el('view').querySelectorAll('.tx-del').forEach((b) => b.onclick = async () => {
+      if (!(await confirmDialog('Delete transaction', 'This cannot be undone.', true))) return;
+      try { await api('/records/transactions/' + b.dataset.id, { method: 'DELETE' }); toast('Deleted'); viewTransactions(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  // ── analytics ───────────────────────────────────────────────────────────
+  let analyticsCharts = [];
+  function destroyCharts() { analyticsCharts.forEach((c) => { try { c.destroy(); } catch (_) {} }); analyticsCharts = []; }
+  function drawChart(id, type, labels, data, color) {
+    const node = el(id); if (!node) return;
+    analyticsCharts.push(new Chart(node, { type: type, data: { labels: labels, datasets: [{ data: data, borderColor: color, backgroundColor: color + '55', fill: true, tension: .35, pointRadius: 2, borderRadius: 6 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } }));
+  }
+
+  async function viewUsageAnalytics() {
+    destroyCharts(); el('view').innerHTML = spinner();
+    const d = await api('/analytics/usage');
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Clinics', num((d.stats.cards || {}).totalClinics)) + cardBox('Users', num((d.stats.cards || {}).totalUsers)) +
+        cardBox('Patients', num((d.stats.cards || {}).totalPatients)) + cardBox('Appointments', num((d.stats.cards || {}).totalAppointments)) +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4">' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">User growth (12 months)</div><canvas id="ua_growth" height="120"></canvas></div>' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Clinics by plan</div><canvas id="ua_plan" height="120"></canvas></div>' +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4 mt-4">' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Usage by clinic</div>' +
+          table([{ label: 'Clinic' }, { label: 'Clients', align: 'center' }, { label: 'Patients', align: 'center' }, { label: 'Appointments', align: 'center' }, { label: 'Employees', align: 'center' }, { label: 'Branches', align: 'center' }],
+            d.usage.length ? d.usage.map((u) => '<tr class="border-b border-slate-50"><td class="td">Clinic #' + u.clinicId + '</td><td class="td text-center">' + num(u.clients) + '</td><td class="td text-center">' + num(u.patients) + '</td><td class="td text-center">' + num(u.appointments) + '</td><td class="td text-center">' + num(u.employees) + '</td><td class="td text-center">' + num(u.branches) + '</td></tr>').join('') : emptyRow(6)) + '</div>' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Users per clinic</div>' +
+          table([{ label: 'Clinic' }, { label: 'Users', align: 'right' }], d.usersByClinic.length ? d.usersByClinic.map((u) => '<tr class="border-b border-slate-50"><td class="td">' + esc(u.clinicName) + '</td><td class="td text-right">' + num(u.users) + '</td></tr>').join('') : emptyRow(2)) + '</div>' +
+      '</div>';
+    drawChart('ua_growth', 'line', d.growth.map((x) => x.month), d.growth.map((x) => x.count), '#92CAED');
+    drawChart('ua_plan', 'doughnut', d.byPlan.map((x) => x.plan), d.byPlan.map((x) => x.count), '#55ace2');
+  }
+
+  async function viewRevenueAnalytics() {
+    destroyCharts(); el('view').innerHTML = spinner();
+    const d = await api('/analytics/revenue');
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('MRR', money(d.mrr), 'Monthly recurring') + cardBox('ARR', money(d.arr), 'Annual run-rate') +
+        cardBox('ARPC', money(d.arpc), 'Avg per clinic') + cardBox('Outstanding', money(d.outstanding), 'Unpaid invoices', 'text-amber-500') +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4">' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Cumulative clinics</div><canvas id="ra_growth" height="120"></canvas></div>' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">MRR by plan</div><canvas id="ra_plan" height="120"></canvas></div>' +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4 mt-4">' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Revenue by plan</div>' +
+          table([{ label: 'Plan' }, { label: 'Clinics', align: 'center' }, { label: 'Active', align: 'center' }, { label: 'MRR', align: 'right' }], d.byPlan.length ? d.byPlan.map((p) => '<tr class="border-b border-slate-50"><td class="td font-semibold text-slate-700">' + esc(p.name) + '</td><td class="td text-center">' + num(p.clinics) + '</td><td class="td text-center">' + num(p.active) + '</td><td class="td text-right">' + money(p.mrr) + '</td></tr>').join('') : emptyRow(4)) + '</div>' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Revenue by clinic</div>' +
+          table([{ label: 'Clinic' }, { label: 'Plan' }, { label: 'MRR', align: 'right' }, { label: 'Status' }], d.byClinic.length ? d.byClinic.map((c) => '<tr class="border-b border-slate-50"><td class="td">' + esc(c.clinicName) + '</td><td class="td uppercase text-xs">' + esc(c.plan) + '</td><td class="td text-right">' + money(c.mrr) + '</td><td class="td">' + statusBadge(c.status) + '</td></tr>').join('') : emptyRow(4)) + '</div>' +
+      '</div>' +
+      (d.churn.length ? '<div class="card mt-4 p-5"><div class="font-semibold text-slate-700 mb-2">Churn / suspended</div><div class="flex flex-wrap gap-2">' + d.churn.map((c) => '<span class="rounded-full border border-amber-200 bg-amber-50 text-amber-700 px-3 py-1 text-xs">' + esc(c.clinicName) + '</span>').join('') + '</div></div>' : '');
+    drawChart('ra_growth', 'line', d.growth.map((x) => x.month), d.growth.map((x) => x.cumulative), '#92CAED');
+    drawChart('ra_plan', 'bar', d.byPlan.map((x) => x.plan), d.byPlan.map((x) => x.mrr), '#3b9fde');
+  }
+
+  async function viewClinicAnalytics() {
+    destroyCharts(); el('view').innerHTML = spinner();
+    const d = await api('/analytics/clinics');
+    const s = d.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total clinics', num(s.total)) + cardBox('Active', num(s.active), '', 'text-emerald-500') +
+        cardBox('Trial', num(s.trial), '', 'text-brand-900') + cardBox('Suspended', num(s.suspended), '', 'text-amber-500') +
+      '</div>' +
+      table([
+        { label: 'Clinic' }, { label: 'Plan' }, { label: 'Patients', align: 'center' }, { label: 'Clients', align: 'center' },
+        { label: 'Appointments', align: 'center' }, { label: 'Users', align: 'center' }, { label: 'Last login' }, { label: 'Engagement' }, { label: 'Status' },
+      ], d.data.length ? d.data.map((c) =>
+        '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+          '<td class="td"><div class="font-semibold text-slate-700">' + esc(c.clinicName) + '</div><div class="text-xs text-slate-400">#' + c.id + '</div></td>' +
+          '<td class="td uppercase text-xs">' + esc(c.plan) + '</td>' +
+          '<td class="td text-center">' + num(c.patients) + '</td><td class="td text-center">' + num(c.clients) + '</td>' +
+          '<td class="td text-center">' + num(c.appointments) + '</td><td class="td text-center">' + num(c.users) + '</td>' +
+          '<td class="td text-xs text-slate-500">' + (c.daysSinceLogin === null ? '—' : num(c.daysSinceLogin) + 'd ago') + '</td>' +
+          '<td class="td">' + statusBadge(c.engagement) + '</td>' +
+          '<td class="td">' + statusBadge(c.status) + '</td>' +
+        '</tr>').join('') : emptyRow(9, 'No clinics.'));
+  }
+
+  // ── reports ─────────────────────────────────────────────────────────────
+  let reportCharts = [];
+  async function viewReports() {
+    reportCharts.forEach((c) => { try { c.destroy(); } catch (_) {} }); reportCharts = [];
+    el('view').innerHTML = spinner();
+    const d = await api('/reports/overview');
+    const s = d.stats.cards || {};
+    el('view').innerHTML =
+      toolbar(
+        '<select id="rp_type" class="inp w-48"><option value="clinics">Clinics</option><option value="users">Users</option><option value="subscriptions">Subscriptions</option></select>' +
+        '<button id="rp_export" class="btn btn-ghost">' + icon('download', 'w-4 h-4') + ' Export CSV</button>' +
+        '<span class="ml-auto text-xs text-slate-400">Generated ' + dtFmt(d.generatedAt) + '</span>'
+      ) +
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Clinics', num(s.totalClinics)) + cardBox('Users', num(s.totalUsers)) +
+        cardBox('MRR', money(d.revenue.mrr)) + cardBox('ARR', money(d.revenue.arr)) +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4">' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Clinic growth</div><canvas id="rp_clinics" height="120"></canvas></div>' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">User growth</div><canvas id="rp_users" height="120"></canvas></div>' +
+      '</div>' +
+      '<div class="grid lg:grid-cols-3 gap-4 mt-4">' +
+        '<div class="card overflow-hidden"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">By status</div>' +
+          table([{ label: 'Status' }, { label: 'Clinics', align: 'right' }], d.clinicsByStatus.map((x) => '<tr class="border-b border-slate-50"><td class="td">' + statusBadge(x.status) + '</td><td class="td text-right">' + num(x.count) + '</td></tr>').join('')) + '</div>' +
+        '<div class="card overflow-hidden lg:col-span-2"><div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-700">Top clinics by patients</div>' +
+          table([{ label: 'Clinic' }, { label: 'Plan' }, { label: 'Patients', align: 'right' }, { label: 'Clients', align: 'right' }, { label: 'Appts', align: 'right' }],
+            d.topClinics.length ? d.topClinics.map((c) => '<tr class="border-b border-slate-50"><td class="td font-semibold text-slate-700">' + esc(c.clinicName) + '</td><td class="td uppercase text-xs">' + esc(c.plan) + '</td><td class="td text-right">' + num(c.patients) + '</td><td class="td text-right">' + num(c.clients) + '</td><td class="td text-right">' + num(c.appointments) + '</td></tr>').join('') : emptyRow(5)) + '</div>' +
+      '</div>';
+    const mk = (id, labels, data, color) => { const node = el(id); if (node) reportCharts.push(new Chart(node, { type: 'line', data: { labels: labels, datasets: [{ data: data, borderColor: color, backgroundColor: color + '55', fill: true, tension: .35, pointRadius: 2 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } })); };
+    mk('rp_clinics', d.growth.clinics.map((x) => x.month), d.growth.clinics.map((x) => x.count), '#92CAED');
+    mk('rp_users', d.growth.users.map((x) => x.month), d.growth.users.map((x) => x.count), '#55ace2');
+    el('rp_export').onclick = () => window.open('/api/super-admin/reports/export?type=' + el('rp_type').value + '&token=' + encodeURIComponent(token), '_blank');
+  }
+
+  // ── platform admins ─────────────────────────────────────────────────────
+  async function viewAdmins() {
+    el('view').innerHTML = spinner();
+    const d = await api('/admins');
+    el('view').innerHTML =
+      toolbar('<button id="a_new" class="btn btn-primary ml-auto">' + icon('plus', 'w-4 h-4') + ' Add Super Admin</button>') +
+      table([
+        { label: 'Name' }, { label: 'Username' }, { label: 'Email' }, { label: 'Role' }, { label: 'Last login' }, { label: 'Status', align: 'right' },
+      ], d.data.map((a) =>
+        '<tr class="border-b border-slate-50">' +
+          '<td class="td font-semibold text-slate-700">' + esc(a.name) + '</td>' +
+          '<td class="td">' + esc(a.username) + '</td>' +
+          '<td class="td text-slate-500">' + esc(a.email || '—') + '</td>' +
+          '<td class="td"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs uppercase">' + esc(a.role) + '</span></td>' +
+          '<td class="td text-xs text-slate-500">' + dtFmt(a.lastLogin) + '</td>' +
+          '<td class="td text-right"><button data-id="' + a.id + '" class="a_toggle btn btn-ghost !py-1 !px-3 text-xs">Toggle</button></td>' +
+        '</tr>').join(''));
+    el('a_new').onclick = openAdminForm;
+    el('view').querySelectorAll('.a_toggle').forEach((b) => b.onclick = async () => {
+      try { await api('/admins/' + b.dataset.id + '/toggle', { method: 'POST', body: {} }); toast('Updated'); viewAdmins(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  function openAdminForm() {
+    openModal('<div class="p-6"><h3 class="text-lg font-bold text-slate-800 mb-4">Add Super Admin</h3>' +
+      '<div class="grid grid-cols-2 gap-3">' +
+        '<div><label class="lbl">Name *</label><input id="a_name" class="inp" /></div>' +
+        '<div><label class="lbl">Username *</label><input id="a_user" class="inp" /></div>' +
+        '<div><label class="lbl">Email</label><input id="a_email" class="inp" /></div>' +
+        '<div><label class="lbl">Role</label><select id="a_role" class="inp"><option value="support_admin">support_admin</option><option value="super_admin">super_admin</option><option value="root_super_admin">root_super_admin</option></select></div>' +
+        '<div class="col-span-2"><label class="lbl">Password *</label><input id="a_pass" class="inp" /></div>' +
+      '</div>' +
+      '<div id="a_err" class="hidden text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-3"></div>' +
+      '<div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="btn btn-ghost">Cancel</button><button id="a_save" class="btn btn-primary">Create</button></div></div>');
+    el('a_save').onclick = async () => {
+      try {
+        await api('/admins', { method: 'POST', body: { name: el('a_name').value.trim(), username: el('a_user').value.trim(), email: el('a_email').value.trim(), password: el('a_pass').value, role: el('a_role').value } });
+        closeModal(); toast('Super admin created'); viewAdmins();
+      } catch (e) { el('a_err').textContent = e.message; el('a_err').classList.remove('hidden'); }
+    };
+  }
+
+  // ── roles ───────────────────────────────────────────────────────────────
   async function viewRoles() {
     el('view').innerHTML = spinner();
     const d = await api('/roles');
-    el('view').innerHTML = `
-      <div class="grid lg:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-          <div class="flex items-center justify-between mb-3"><h3 class="font-semibold text-slate-700">Roles</h3>
-            <button id="r_new" class="text-xs rounded-lg bg-indigo-600 text-white px-3 py-1.5">+ Role</button></div>
-          <div id="r_list" class="space-y-1">
-            ${d.data.map((r) => `<button data-id="${r.id}" class="r-item w-full text-left rounded-lg px-3 py-2 text-sm hover:bg-slate-50 flex items-center justify-between">
-              <span>${esc(r.name)}</span>${r.isSystem ? '<span class="text-[10px] uppercase text-slate-400">system</span>' : '<span class="text-[10px] uppercase text-indigo-500">custom</span>'}</button>`).join('')}
-          </div>
-        </div>
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 id="r_title" class="font-semibold text-slate-700">Select a role</h3>
-            <button id="r_save" class="text-xs rounded-lg bg-indigo-600 text-white px-3 py-1.5 hidden">Save permissions</button>
-          </div>
-          <div id="r_matrix" class="text-sm text-slate-400">Choose a role to edit its module permissions.</div>
-        </div>
-      </div>`;
+    el('view').innerHTML =
+      '<div class="grid lg:grid-cols-3 gap-4">' +
+        '<div class="card p-4"><div class="flex items-center justify-between mb-3"><h3 class="font-semibold text-slate-700">Roles</h3>' +
+          '<button id="r_new" class="btn btn-primary !py-1.5 !px-3 text-xs">' + icon('plus', 'w-3.5 h-3.5') + ' Role</button></div>' +
+          '<div id="r_list" class="space-y-1">' + d.data.map((r) => '<button data-id="' + r.id + '" class="r-item w-full text-left rounded-lg px-3 py-2 text-sm hover:bg-slate-50 flex items-center justify-between"><span>' + esc(r.name) + '</span>' + (r.isSystem ? '<span class="text-[10px] uppercase text-slate-400">system</span>' : '<span class="text-[10px] uppercase text-brand-950">custom</span>') + '</button>').join('') + '</div></div>' +
+        '<div class="lg:col-span-2 card p-4"><div class="flex items-center justify-between mb-3">' +
+          '<h3 id="r_title" class="font-semibold text-slate-700">Select a role</h3>' +
+          '<button id="r_save" class="btn btn-primary !py-1.5 !px-3 text-xs hidden">Save permissions</button></div>' +
+          '<div id="r_matrix" class="text-sm text-slate-400">Choose a role to edit its module permissions.</div></div>' +
+      '</div>';
     let current = null;
     function selectRole(id) {
-      el('r_list').querySelectorAll('.r-item').forEach((b) => b.classList.toggle('bg-indigo-50', Number(b.dataset.id) === id));
+      el('r_list').querySelectorAll('.r-item').forEach((b) => b.classList.toggle('bg-brand-500', Number(b.dataset.id) === id));
       api('/roles/' + id + '/permissions').then((p) => {
         const role = d.data.find((r) => r.id === id);
         el('r_title').textContent = role.name;
         el('r_save').classList.remove('hidden');
-        el('r_matrix').innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm">
-          <thead class="text-xs uppercase text-slate-400"><tr><th class="text-left py-2">Module</th>
-          ${['view', 'create', 'edit', 'delete', 'export'].map((k) => `<th class="py-2 px-2">${k}</th>`).join('')}</tr></thead>
-          <tbody>${p.modules.map((m) => {
-            const perm = p.permissions[m] || {};
-            return `<tr class="border-t border-slate-50"><td class="py-2 capitalize">${esc(m.replace(/_/g, ' '))}</td>
-              ${['view', 'create', 'edit', 'delete', 'export'].map((k) => `<td class="text-center"><input type="checkbox" data-module="${m}" data-perm="${k}" ${perm[k] ? 'checked' : ''} class="rounded text-indigo-600" /></td>`).join('')}</tr>`;
-          }).join('')}</tbody></table></div>`;
+        el('r_matrix').innerHTML = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-xs uppercase text-slate-400"><tr><th class="th">Module</th>' +
+          ['view', 'create', 'edit', 'delete', 'export'].map((k) => '<th class="th text-center">' + k + '</th>').join('') + '</tr></thead><tbody>' +
+          p.modules.map((m) => { const perm = p.permissions[m] || {};
+            return '<tr class="border-t border-slate-50"><td class="td capitalize">' + esc(m.replace(/_/g, ' ')) + '</td>' +
+              ['view', 'create', 'edit', 'delete', 'export'].map((k) => '<td class="td text-center"><input type="checkbox" data-module="' + m + '" data-perm="' + k + '" ' + (perm[k] ? 'checked' : '') + ' class="rounded border-slate-300" /></td>').join('') + '</tr>';
+          }).join('') + '</tbody></table></div>';
         current = id;
       }).catch((e) => toast(e.message, 'error'));
     }
     el('r_list').querySelectorAll('.r-item').forEach((b) => b.onclick = () => selectRole(Number(b.dataset.id)));
     el('r_save').onclick = async () => {
       const permissions = {};
-      el('r_matrix').querySelectorAll('input[type=checkbox]').forEach((cb) => {
-        const m = cb.dataset.module;
-        permissions[m] = permissions[m] || {};
-        permissions[m][cb.dataset.perm] = cb.checked;
-      });
+      el('r_matrix').querySelectorAll('input[type=checkbox]').forEach((cb) => { const m = cb.dataset.module; permissions[m] = permissions[m] || {}; permissions[m][cb.dataset.perm] = cb.checked; });
       try { await api('/roles/' + current + '/permissions', { method: 'PUT', body: { permissions } }); toast('Permissions saved'); }
       catch (e) { toast(e.message, 'error'); }
     };
@@ -644,105 +1122,314 @@
     };
   }
 
-  // ── platform admins ─────────────────────────────────────────────────────
-  async function viewAdmins() {
+  // ── plans ───────────────────────────────────────────────────────────────
+  async function viewPlans() {
     el('view').innerHTML = spinner();
-    const d = await api('/admins');
-    el('view').innerHTML = `
-      <div class="flex justify-end mb-4"><button id="a_new" class="rounded-xl bg-indigo-600 text-white text-sm font-semibold px-4 py-2">+ Add Super Admin</button></div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <table class="w-full text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-400"><tr>
-          <th class="text-left px-4 py-3">Name</th><th class="text-left px-4 py-3">Username</th><th class="text-left px-4 py-3">Email</th>
-          <th class="text-left px-4 py-3">Role</th><th class="text-left px-4 py-3">Last login</th><th class="text-right px-4 py-3">Status</th>
-        </tr></thead><tbody>
-        ${d.data.map((a) => `<tr class="border-b border-slate-50">
-          <td class="px-4 py-3 font-semibold text-slate-700">${esc(a.name)}</td>
-          <td class="px-4 py-3">${esc(a.username)}</td>
-          <td class="px-4 py-3 text-slate-500">${esc(a.email || '—')}</td>
-          <td class="px-4 py-3"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs uppercase">${esc(a.role)}</span></td>
-          <td class="px-4 py-3 text-xs text-slate-500">${dtFmt(a.lastLogin)}</td>
-          <td class="px-4 py-3 text-right"><button data-id="${a.id}" class="a_toggle rounded-lg border border-slate-200 px-3 py-1 text-xs hover:bg-slate-100">Toggle</button></td>
-        </tr>`).join('')}</tbody></table>
-      </div>`;
-    el('a_new').onclick = openAdminForm;
-    el('view').querySelectorAll('.a_toggle').forEach((b) => b.onclick = async () => {
-      try { await api(`/admins/${b.dataset.id}/toggle`, { method: 'POST', body: {} }); toast('Updated'); viewAdmins(); }
-      catch (e) { toast(e.message, 'error'); }
-    });
-  }
-
-  function openAdminForm() {
-    openModal(`<div class="p-6">
-      <h3 class="text-lg font-bold text-slate-800 mb-4">Add Super Admin</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Name *</label><input id="a_name" class="inp" /></div>
-        <div><label class="lbl">Username *</label><input id="a_user" class="inp" /></div>
-        <div><label class="lbl">Email</label><input id="a_email" class="inp" /></div>
-        <div><label class="lbl">Role</label><select id="a_role" class="inp"><option value="support_admin">support_admin</option><option value="super_admin">super_admin</option><option value="root_super_admin">root_super_admin</option></select></div>
-        <div class="col-span-2"><label class="lbl">Password *</label><input id="a_pass" class="inp" /></div>
-      </div>
-      <div id="a_err" class="hidden text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-3"></div>
-      <div class="flex justify-end gap-2 mt-5"><button onclick="__closeModal()" class="rounded-lg border border-slate-200 px-4 py-2 text-sm">Cancel</button>
-        <button id="a_save" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Create</button></div>
-    </div>`);
-    el('a_save').onclick = async () => {
-      try {
-        await api('/admins', { method: 'POST', body: { name: el('a_name').value.trim(), username: el('a_user').value.trim(), email: el('a_email').value.trim(), password: el('a_pass').value, role: el('a_role').value } });
-        closeModal(); toast('Super admin created'); viewAdmins();
-      } catch (e) { el('a_err').textContent = e.message; el('a_err').classList.remove('hidden'); }
-    };
+    const d = await api('/plans');
+    el('view').innerHTML = table([
+      { label: 'Plan' }, { label: 'Code' }, { label: 'Monthly', align: 'center' }, { label: 'Yearly', align: 'center' },
+      { label: 'Employees', align: 'center' }, { label: 'Branches', align: 'center' }, { label: 'Patients', align: 'center' }, { label: 'Storage', align: 'center' },
+    ], d.data.map((p) => '<tr class="border-b border-slate-50"><td class="td font-semibold text-slate-700">' + esc(p.name) + '</td>' +
+      '<td class="td"><code class="text-xs bg-slate-100 rounded px-2 py-0.5">' + esc(p.code) + '</code></td>' +
+      '<td class="td text-center">' + money(p.monthlyPrice) + '</td><td class="td text-center">' + money(p.yearlyPrice) + '</td>' +
+      '<td class="td text-center">' + (p.maxEmployees == null ? '∞' : num(p.maxEmployees)) + '</td>' +
+      '<td class="td text-center">' + (p.maxBranches == null ? '∞' : num(p.maxBranches)) + '</td>' +
+      '<td class="td text-center">' + (p.maxPatients == null ? '∞' : num(p.maxPatients)) + '</td>' +
+      '<td class="td text-center">' + (p.storageLimitMb == null ? '∞' : num(p.storageLimitMb) + ' MB') + '</td></tr>').join(''));
   }
 
   // ── audit logs ──────────────────────────────────────────────────────────
   let auditState = { page: 1, search: '' };
   async function viewAudit() {
-    el('view').innerHTML = `
-      <div class="flex items-center gap-2 mb-4">
-        <input id="au_search" value="${esc(auditState.search)}" placeholder="Search admin, action, module…" class="w-80 rounded-xl border border-slate-200 px-4 py-2 text-sm" />
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"><div id="au_table">${spinner()}</div></div>
-      <div id="au_pager" class="flex items-center justify-between mt-4 text-sm text-slate-500"></div>`;
+    el('view').innerHTML = toolbar(searchInput('au_search', auditState.search, 'Search admin, action, module…')) + '<div id="au_table">' + spinner() + '</div><div id="au_pager" class="flex items-center justify-between mt-4 text-sm text-slate-500"></div>';
     el('au_search').addEventListener('keydown', (e) => { if (e.key === 'Enter') { auditState.search = e.target.value; auditState.page = 1; loadAudit(); } });
     loadAudit();
   }
   async function loadAudit() {
-    const q = new URLSearchParams({ page: auditState.page, pageSize: 25, search: auditState.search });
-    const res = await api('/audit-logs?' + q);
-    el('au_table').innerHTML = `<table class="w-full text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-400"><tr>
-      <th class="text-left px-4 py-3">When</th><th class="text-left px-4 py-3">Admin</th><th class="text-left px-4 py-3">Action</th>
-      <th class="text-left px-4 py-3">Module</th><th class="text-left px-4 py-3">Target</th><th class="text-left px-4 py-3">IP</th>
-    </tr></thead><tbody>${res.data.map((r) => `<tr class="border-b border-slate-50">
-      <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">${dtFmt(r.created_at)}</td>
-      <td class="px-4 py-3">${esc(r.admin_name || '—')}</td>
-      <td class="px-4 py-3"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs">${esc(r.action)}</span></td>
-      <td class="px-4 py-3 text-slate-500">${esc(r.module || '')}</td>
-      <td class="px-4 py-3 text-slate-500">${r.target_type ? esc(r.target_type) + ' #' + esc(r.target_id || '') : (r.clinic_id ? 'clinic #' + r.clinic_id : '—')}</td>
-      <td class="px-4 py-3 text-xs text-slate-400">${esc(r.ip || '')}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="px-4 py-10 text-center text-slate-400">No logs.</td></tr>'}</tbody></table>`;
+    const res = await api('/audit-logs?' + new URLSearchParams({ page: auditState.page, pageSize: 25, search: auditState.search }));
+    el('au_table').innerHTML = table([
+      { label: 'When' }, { label: 'Admin' }, { label: 'Action' }, { label: 'Module' }, { label: 'Target' }, { label: 'IP' },
+    ], res.data.length ? res.data.map((r) => '<tr class="border-b border-slate-50">' +
+      '<td class="td text-xs text-slate-500 whitespace-nowrap">' + dtFmt(r.created_at) + '</td>' +
+      '<td class="td">' + esc(r.admin_name || '—') + '</td>' +
+      '<td class="td"><span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs">' + esc(r.action) + '</span></td>' +
+      '<td class="td text-slate-500">' + esc(r.module || '') + '</td>' +
+      '<td class="td text-slate-500">' + (r.target_type ? esc(r.target_type) + ' #' + esc(r.target_id || '') : (r.clinic_id ? 'clinic #' + r.clinic_id : '—')) + '</td>' +
+      '<td class="td text-xs text-slate-400">' + esc(r.ip || '') + '</td></tr>').join('') : emptyRow(6, 'No logs.'));
     const tp = res.totalPages || 1;
-    el('au_pager').innerHTML = `<div>Page ${auditState.page} of ${tp} · ${num(res.total)} entries</div>
-      <div class="flex gap-2"><button id="ap_prev" class="rounded-lg border border-slate-200 px-3 py-1 ${auditState.page <= 1 ? 'opacity-40 pointer-events-none' : ''}">Prev</button>
-      <button id="ap_next" class="rounded-lg border border-slate-200 px-3 py-1 ${auditState.page >= tp ? 'opacity-40 pointer-events-none' : ''}">Next</button></div>`;
+    el('au_pager').innerHTML = '<div>Page ' + auditState.page + ' of ' + tp + ' · ' + num(res.total) + ' entries</div>' +
+      '<div class="flex gap-2"><button id="ap_prev" class="btn btn-ghost !py-1 ' + (auditState.page <= 1 ? 'opacity-40 pointer-events-none' : '') + '">Prev</button>' +
+      '<button id="ap_next" class="btn btn-ghost !py-1 ' + (auditState.page >= tp ? 'opacity-40 pointer-events-none' : '') + '">Next</button></div>';
     el('ap_prev').onclick = () => { auditState.page--; loadAudit(); };
     el('ap_next').onclick = () => { auditState.page++; loadAudit(); };
   }
 
+  // ── login logs ──────────────────────────────────────────────────────────
+  let loginLogState = { search: '', success: '' };
+  async function viewLoginLogs() {
+    el('view').innerHTML = spinner();
+    const res = await api('/login-logs?' + new URLSearchParams({ search: loginLogState.search, success: loginLogState.success, limit: 200 }));
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total logins', num((res.summary.success || 0) + (res.summary.failed || 0))) +
+        cardBox('Successful', num(res.summary.success), '', 'text-emerald-500') +
+        cardBox('Failed', num(res.summary.failed), '', 'text-red-500') +
+        cardBox('Shown', num(res.data.length)) +
+      '</div>' +
+      toolbar(
+        searchInput('ll_search', loginLogState.search, 'Search user, name, IP…') +
+        '<select id="ll_success" class="inp w-40"><option value="">All results</option><option value="1"' + (loginLogState.success === '1' ? ' selected' : '') + '>Successful</option><option value="0"' + (loginLogState.success === '0' ? ' selected' : '') + '>Failed</option></select>' +
+        '<button id="ll_clear" class="btn btn-ghost ml-auto !border-red-200 !text-red-600">' + icon('trash', 'w-4 h-4') + ' Clear logs</button>'
+      ) +
+      table([
+        { label: 'When' }, { label: 'Admin' }, { label: 'Username' }, { label: 'Result' }, { label: 'IP' }, { label: 'Device' },
+      ], res.data.length ? res.data.map((r) => '<tr class="border-b border-slate-50">' +
+        '<td class="td text-xs text-slate-500 whitespace-nowrap">' + dtFmt(r.createdAt) + '</td>' +
+        '<td class="td">' + esc(r.adminName || '—') + '</td>' +
+        '<td class="td">' + esc(r.username || '—') + '</td>' +
+        '<td class="td">' + statusBadge(r.success ? 'success' : 'failed') + '</td>' +
+        '<td class="td text-xs text-slate-500">' + esc(r.ip || '—') + '</td>' +
+        '<td class="td text-xs text-slate-400 truncate max-w-[16rem]">' + esc(r.userAgent || '—') + '</td></tr>').join('') : emptyRow(6, 'No login activity.'));
+    const run = () => { loginLogState.search = el('ll_search').value; loginLogState.success = el('ll_success').value; viewLoginLogs(); };
+    el('ll_search').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    el('ll_success').addEventListener('change', run);
+    el('ll_clear').onclick = async () => {
+      if (!(await confirmDialog('Clear login logs', 'All login history will be deleted.', true))) return;
+      try { await api('/login-logs', { method: 'DELETE' }); toast('Cleared'); viewLoginLogs(); } catch (e) { toast(e.message, 'error'); }
+    };
+  }
+
+  // ── sessions ────────────────────────────────────────────────────────────
+  async function viewSessions() {
+    el('view').innerHTML = spinner();
+    const res = await api('/sessions');
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total sessions', num(res.summary.total)) + cardBox('Active', num(res.summary.active), '', 'text-emerald-500') +
+        cardBox('Revoked', num(res.summary.revoked), '', 'text-slate-500') +
+        cardBox('This device', res.data.some((s) => s.current) ? 'Yes' : 'No') +
+      '</div>' +
+      toolbar('<button id="se_revoke_all" class="btn btn-ghost ml-auto !border-red-200 !text-red-600">' + icon('logout', 'w-4 h-4') + ' Revoke all other sessions</button>') +
+      table([
+        { label: 'Admin' }, { label: 'IP' }, { label: 'Device' }, { label: 'Created' }, { label: 'Last seen' }, { label: 'Status' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((s) => '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+        '<td class="td font-semibold text-slate-700">' + esc(s.adminName || '—') + (s.current ? ' <span class="text-[10px] uppercase text-brand-950">this device</span>' : '') + '</td>' +
+        '<td class="td text-xs text-slate-500">' + esc(s.ip || '—') + '</td>' +
+        '<td class="td text-xs text-slate-400 truncate max-w-[16rem]">' + esc(s.userAgent || '—') + '</td>' +
+        '<td class="td text-xs text-slate-500">' + dtFmt(s.createdAt) + '</td>' +
+        '<td class="td text-xs text-slate-500">' + dtFmt(s.lastSeen) + '</td>' +
+        '<td class="td">' + statusBadge(s.revoked ? 'disabled' : 'active') + '</td>' +
+        '<td class="td text-right">' + (s.revoked ? '' : '<button data-id="' + esc(s.id) + '" class="se_revoke btn btn-ghost !py-1 !px-3 text-xs !border-red-200 !text-red-600">Revoke</button>') + '</td></tr>').join('') : emptyRow(7, 'No sessions.'));
+    el('se_revoke_all').onclick = async () => {
+      if (!(await confirmDialog('Revoke sessions', 'All other devices will be signed out.', true))) return;
+      try { await api('/sessions/revoke-all', { method: 'POST', body: {} }); toast('Other sessions revoked'); viewSessions(); } catch (e) { toast(e.message, 'error'); }
+    };
+    el('view').querySelectorAll('.se_revoke').forEach((b) => b.onclick = async () => {
+      try { await api('/sessions/' + b.dataset.id + '/revoke', { method: 'POST', body: {} }); toast('Session revoked'); viewSessions(); } catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  // ── storage ─────────────────────────────────────────────────────────────
+  async function viewStorage() {
+    destroyCharts(); el('view').innerHTML = spinner();
+    const res = await api('/storage');
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Database size', s.dbSizeMb + ' MB') + cardBox('Allocated', s.totalUsedMb + ' MB') +
+        cardBox('Capacity', s.totalLimitMb + ' MB') + cardBox('Over limit', num(s.overLimit), 'clinics', s.overLimit ? 'text-red-500' : 'text-emerald-500') +
+      '</div>' +
+      table([
+        { label: 'Clinic' }, { label: 'Plan' }, { label: 'Used (MB)', align: 'right' }, { label: 'Limit (MB)', align: 'right' }, { label: 'Usage' },
+      ], res.data.length ? res.data.map((r) => '<tr class="border-b border-slate-50">' +
+        '<td class="td font-semibold text-slate-700">' + esc(r.clinicName) + '</td>' +
+        '<td class="td uppercase text-xs">' + esc(r.plan) + '</td>' +
+        '<td class="td text-right">' + num(r.usedMb) + '</td><td class="td text-right">' + num(r.limitMb) + '</td>' +
+        '<td class="td"><div class="flex items-center gap-2"><div class="w-40 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="h-full ' + (r.percent >= 100 ? 'bg-red-500' : r.percent >= 80 ? 'bg-amber-500' : 'bg-brand-500') + '" style="width:' + Math.min(r.percent, 100) + '%"></div></div><span class="text-xs text-slate-500">' + r.percent + '%</span></div></td></tr>').join('') : emptyRow(5));
+  }
+
+  // ── backups ─────────────────────────────────────────────────────────────
+  async function viewBackups() {
+    el('view').innerHTML = spinner();
+    const res = await api('/backups');
+    const s = res.summary;
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Backups', num(s.total)) + cardBox('Total size', bytesFmt(s.totalBytes)) +
+        cardBox('Last backup', s.lastAt ? dateFmt(s.lastAt) : 'Never') + cardBox('Status', 'Automated', 'Schema + platform tables') +
+      '</div>' +
+      toolbar('<button id="bk_new" class="btn btn-primary ml-auto">' + icon('backup', 'w-4 h-4') + ' Backup now</button>') +
+      table([
+        { label: 'File' }, { label: 'Size' }, { label: 'Status' }, { label: 'Created by' }, { label: 'When' }, { label: 'Actions', align: 'right' },
+      ], res.data.length ? res.data.map((b) => '<tr class="border-b border-slate-50 hover:bg-slate-50/60">' +
+        '<td class="td font-mono text-xs text-slate-700">' + esc(b.filename) + '</td>' +
+        '<td class="td">' + bytesFmt(b.sizeBytes) + '</td>' +
+        '<td class="td">' + statusBadge(b.status === 'completed' ? 'active' : 'pending') + '</td>' +
+        '<td class="td text-slate-500">' + esc(b.createdBy || '—') + '</td>' +
+        '<td class="td text-xs text-slate-500">' + dtFmt(b.createdAt) + '</td>' +
+        '<td class="td text-right"><button data-id="' + b.id + '" class="bk_del btn btn-ghost !py-1 !px-2 text-xs !border-red-200 !text-red-600">' + icon('trash', 'w-3.5 h-3.5') + '</button></td></tr>').join('') : emptyRow(6, 'No backups yet.'));
+    el('bk_new').onclick = async () => {
+      try { await api('/backups', { method: 'POST', body: { note: 'Manual backup from console' } }); toast('Backup created'); viewBackups(); } catch (e) { toast(e.message, 'error'); }
+    };
+    el('view').querySelectorAll('.bk_del').forEach((b) => b.onclick = async () => {
+      if (!(await confirmDialog('Delete backup', 'Remove this backup record?', true))) return;
+      try { await api('/backups/' + b.dataset.id, { method: 'DELETE' }); toast('Deleted'); viewBackups(); } catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  // ── system health ───────────────────────────────────────────────────────
+  async function viewSystemHealth() {
+    el('view').innerHTML = spinner();
+    const d = await api('/system-health');
+    const up = d.uptimeSeconds;
+    const upStr = Math.floor(up / 86400) + 'd ' + Math.floor((up % 86400) / 3600) + 'h ' + Math.floor((up % 3600) / 60) + 'm';
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Overall', statusBadge(d.status), 'DB ' + (d.db.connected ? 'connected' : 'unreachable'), d.status === 'healthy' ? 'text-emerald-500' : 'text-amber-500') +
+        cardBox('Uptime', upStr) + cardBox('Memory (RSS)', d.memory.rssMb + ' MB', 'Heap ' + d.memory.heapUsedMb + '/' + d.memory.heapTotalMb + ' MB') +
+        cardBox('Errors (24h)', num(d.errors24h), '', d.errors24h ? 'text-red-500' : 'text-emerald-500') +
+      '</div>' +
+      '<div class="grid lg:grid-cols-2 gap-4">' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Functions</div>' +
+          healthRow('Database', d.db.connected ? 'Healthy' + (d.db.name ? ' · ' + d.db.name : '') : ('Error: ' + d.db.error), d.db.connected) +
+          healthRow('API server', 'Responding', true) +
+          healthRow('Auth sessions', 'HMAC tokens active', true) +
+          healthRow('Runtime', 'Node ' + d.runtime.node + ' · ' + d.runtime.platform, true) +
+          healthRow('Process', 'PID ' + d.runtime.pid + ' · ' + d.runtime.env, true) +
+        '</div>' +
+        '<div class="card p-5"><div class="font-semibold text-slate-700 mb-3">Data counts</div>' +
+          Object.keys(d.counts).map((k) => '<div class="flex justify-between border-b border-slate-50 py-2 text-sm"><span class="text-slate-500 capitalize">' + esc(titleCase(k)) + '</span><span class="font-semibold text-slate-700">' + num(d.counts[k]) + '</span></div>').join('') +
+          '<div class="text-xs text-slate-400 mt-3">Checked ' + dtFmt(d.checkedAt) + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function healthRow(label, value, ok) {
+    return '<div class="flex items-center justify-between border-b border-slate-50 py-2 text-sm"><span class="text-slate-500">' + esc(label) + '</span>' +
+      '<span class="flex items-center gap-2">' + (ok ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : '<span class="w-2 h-2 rounded-full bg-red-500"></span>') + '<span class="text-slate-700">' + esc(value) + '</span></span></div>';
+  }
+
+  // ── error logs ──────────────────────────────────────────────────────────
+  async function viewErrorLogs() {
+    el('view').innerHTML = spinner();
+    const res = await api('/error-logs');
+    el('view').innerHTML =
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">' +
+        cardBox('Total errors', num(res.summary.total)) + cardBox('Last 24h', num(res.summary.last24h), '', res.summary.last24h ? 'text-red-500' : 'text-emerald-500') +
+        cardBox('Level', 'error') + cardBox('Source', 'API + app') +
+      '</div>' +
+      toolbar('<button id="er_clear" class="btn btn-ghost ml-auto !border-red-200 !text-red-600">' + icon('trash', 'w-4 h-4') + ' Clear errors</button>') +
+      table([
+        { label: 'When' }, { label: 'Level' }, { label: 'Source' }, { label: 'Message' },
+      ], res.data.length ? res.data.map((e) => '<tr class="border-b border-slate-50">' +
+        '<td class="td text-xs text-slate-500 whitespace-nowrap">' + dtFmt(e.createdAt) + '</td>' +
+        '<td class="td">' + statusBadge('failed') + '</td>' +
+        '<td class="td text-slate-500">' + esc(e.source || '—') + '</td>' +
+        '<td class="td text-slate-700">' + esc(e.message || '') + '</td></tr>').join('') : emptyRow(4, 'No errors. Everything is running smoothly.'));
+    el('er_clear').onclick = async () => {
+      if (!(await confirmDialog('Clear error logs', 'All error records will be deleted.', true))) return;
+      try { await api('/error-logs', { method: 'DELETE' }); toast('Cleared'); viewErrorLogs(); } catch (e) { toast(e.message, 'error'); }
+    };
+  }
+
+  // ── settings family ─────────────────────────────────────────────────────
+  const SETTINGS_SCHEMA = {
+    general: [
+      { k: 'platformName', l: 'Platform name', d: 'PodVet' },
+      { k: 'supportEmail', l: 'Support email', d: 'support@podvet.biztrack.uk' },
+      { k: 'currency', l: 'Currency', t: 'select', o: ['GBP', 'USD', 'EUR', 'INR', 'PKR', 'AED'], d: 'GBP' },
+      { k: 'timezone', l: 'Timezone', d: 'Europe/London' },
+      { k: 'dateFormat', l: 'Date format', t: 'select', o: ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'], d: 'DD/MM/YYYY' },
+      { k: 'invoicePrefix', l: 'Invoice prefix', d: 'INV-' },
+      { k: 'taxPercent', l: 'Default tax / VAT %', t: 'number', d: 20 },
+      { k: 'clinicSignup', l: 'Allow public clinic signup', t: 'bool', d: true },
+    ],
+    branding: [
+      { k: 'appName', l: 'App name', d: 'PodVet' },
+      { k: 'primaryColor', l: 'Primary color', d: '#92CAED' },
+      { k: 'logoUrl', l: 'Logo URL', d: '' },
+      { k: 'faviconUrl', l: 'Favicon URL', d: '' },
+      { k: 'loginTagline', l: 'Login tagline', d: 'Veterinary practice management, simplified.' },
+      { k: 'customDomain', l: 'Custom domain', d: 'podvet.biztrack.uk' },
+      { k: 'whiteLabel', l: 'White-label mode', t: 'bool', d: false },
+    ],
+    security: [
+      { k: 'minPasswordLength', l: 'Minimum password length', t: 'number', d: 8 },
+      { k: 'requireUppercase', l: 'Require uppercase letter', t: 'bool', d: true },
+      { k: 'requireNumber', l: 'Require number', t: 'bool', d: true },
+      { k: 'requireSymbol', l: 'Require symbol', t: 'bool', d: false },
+      { k: 'sessionTimeoutMinutes', l: 'Session timeout (minutes)', t: 'number', d: 720 },
+      { k: 'maxFailedLogins', l: 'Max failed logins before lockout', t: 'number', d: 5 },
+      { k: 'twoFactor', l: 'Require 2FA for platform staff', t: 'bool', d: false },
+      { k: 'ipAllowlist', l: 'IP allowlist (comma separated)', d: '' },
+    ],
+    notifications: [
+      { k: 'emailEnabled', l: 'Email notifications', t: 'bool', d: true },
+      { k: 'smsEnabled', l: 'SMS notifications', t: 'bool', d: false },
+      { k: 'whatsappEnabled', l: 'WhatsApp notifications', t: 'bool', d: false },
+      { k: 'inAppEnabled', l: 'In-app notifications', t: 'bool', d: true },
+      { k: 'pushEnabled', l: 'Push notifications', t: 'bool', d: false },
+      { k: 'senderName', l: 'Sender name', d: 'PodVet' },
+      { k: 'senderEmail', l: 'Sender email', d: 'no-reply@podvet.biztrack.uk' },
+      { k: 'notifyOnNewClinic', l: 'Notify on new clinic signup', t: 'bool', d: true },
+    ],
+    maintenance: [
+      { k: 'enabled', l: 'Maintenance mode', t: 'bool', d: false },
+      { k: 'message', l: 'Maintenance message', t: 'textarea', d: 'PodVet is undergoing scheduled maintenance. We will be back shortly.' },
+      { k: 'scheduledStart', l: 'Scheduled start', t: 'datetime', d: '' },
+      { k: 'scheduledEnd', l: 'Scheduled end', t: 'datetime', d: '' },
+      { k: 'allowSuperAdmin', l: 'Allow super admins during maintenance', t: 'bool', d: true },
+      { k: 'bannerEnabled', l: 'Show platform-wide banner', t: 'bool', d: false },
+      { k: 'bannerText', l: 'Banner text', d: '' },
+    ],
+  };
+
+  async function viewSettings(key) {
+    el('view').innerHTML = spinner();
+    const res = await api('/settings');
+    const schema = SETTINGS_SCHEMA[key] || [];
+    const current = res.data[key] || {};
+    el('view').innerHTML =
+      '<div class="card p-6 max-w-3xl"><div class="grid grid-cols-2 gap-4" id="st_form">' +
+        schema.map((f) => {
+          const val = current[f.k] !== undefined ? current[f.k] : f.d;
+          if (f.t === 'bool') return '<div class="flex items-center gap-2 pt-5"><input type="checkbox" data-k="' + f.k + '" data-bool="1" ' + (val ? 'checked' : '') + ' class="rounded border-slate-300" /><label class="text-sm text-slate-600">' + esc(f.l) + '</label></div>';
+          if (f.t === 'textarea') return '<div class="col-span-2"><label class="lbl">' + esc(f.l) + '</label><textarea data-k="' + f.k + '" rows="3" class="inp">' + esc(val || '') + '</textarea></div>';
+          if (f.t === 'select') return '<div><label class="lbl">' + esc(f.l) + '</label><select data-k="' + f.k + '" class="inp">' + (f.o || []).map((o) => '<option value="' + esc(o) + '"' + (String(val) === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select></div>';
+          const type = f.t === 'number' ? 'number' : f.t === 'datetime' ? 'datetime-local' : 'text';
+          const v = f.t === 'datetime' && val ? String(val).slice(0, 16) : val;
+          return '<div><label class="lbl">' + esc(f.l) + '</label><input data-k="' + f.k + '" type="' + type + '" value="' + esc(v || '') + '" class="inp" /></div>';
+        }).join('') +
+      '</div>' +
+      '<div class="flex items-center justify-between mt-6">' +
+        '<span class="text-xs text-slate-400">' + (res.updatedAt && res.updatedAt[key] ? 'Last updated ' + dtFmt(res.updatedAt[key]) : 'Not configured yet') + '</span>' +
+        '<button id="st_save" class="btn btn-primary">Save settings</button>' +
+      '</div></div>';
+    el('st_save').onclick = async () => {
+      const body = {};
+      el('st_form').querySelectorAll('[data-k]').forEach((inp) => {
+        const k = inp.dataset.k;
+        if (inp.dataset.bool) body[k] = inp.checked;
+        else if (inp.type === 'number') body[k] = inp.value === '' ? null : Number(inp.value);
+        else body[k] = inp.value.trim();
+      });
+      try { await api('/settings', { method: 'PUT', body: { [key]: body } }); toast('Settings saved'); viewSettings(key); }
+      catch (e) { toast(e.message, 'error'); }
+    };
+  }
+
   // ── account ─────────────────────────────────────────────────────────────
   async function viewAccount() {
-    el('view').innerHTML = `
-      <div class="max-w-lg">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <h3 class="font-semibold text-slate-700 mb-1">${esc(admin.name)}</h3>
-          <p class="text-sm text-slate-400 mb-4">${esc(admin.username)} · ${esc(admin.role)}</p>
-          <h4 class="font-semibold text-slate-700 mt-4 mb-2">Change password</h4>
-          <div class="space-y-3">
-            <input id="p_cur" type="password" class="inp" placeholder="Current password" />
-            <input id="p_new" type="password" class="inp" placeholder="New password (min 8 chars)" />
-            <div id="p_err" class="hidden text-sm text-red-600"></div>
-            <button id="p_save" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Update password</button>
-          </div>
-        </div>
-      </div>`;
+    el('view').innerHTML =
+      '<div class="max-w-lg card p-6">' +
+        '<h3 class="font-semibold text-slate-700 mb-1">' + esc(admin.name) + '</h3>' +
+        '<p class="text-sm text-slate-400 mb-4">' + esc(admin.username) + ' · ' + esc(admin.role) + '</p>' +
+        '<h4 class="font-semibold text-slate-700 mt-4 mb-2">Change password</h4>' +
+        '<div class="space-y-3">' +
+          '<input id="p_cur" type="password" class="inp" placeholder="Current password" />' +
+          '<input id="p_new" type="password" class="inp" placeholder="New password (min 8 chars)" />' +
+          '<div id="p_err" class="hidden text-sm text-red-600"></div>' +
+          '<button id="p_save" class="btn btn-primary">Update password</button>' +
+        '</div></div>';
     el('p_save').onclick = async () => {
       try {
         await api('/change-password', { method: 'POST', body: { currentPassword: el('p_cur').value, newPassword: el('p_new').value } });
@@ -751,51 +1438,25 @@
     };
   }
 
-  function placeholder(id) {
-    const title = (TITLES[id] || [id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())])[0];
-    const planned = {
-      branches: ['Per-branch management for multi-location clinics', 'Branch name, manager, address, contact', 'Employees, patients, appointments, revenue per branch'],
-      subscriptions: ['Clinic → plan assignment', 'Renewals, upgrades, downgrades, pause/cancel', 'Trial extension and payment history'],
-      billing: ['SaaS subscription invoices', 'Outstanding and failed payments, refunds', 'Tax/VAT and discounts'],
-      transactions: ['Payment gateway transactions', 'MRR / ARR and revenue by plan or clinic'],
-      coupons: ['Promo codes with fixed/percentage discount', 'Usage limits and eligible plans'],
-      features: ['Global feature on/off', 'Plan-based availability', 'Per-clinic overrides and beta access'],
-      integrations: ['API keys and webhooks', 'Payment, email, SMS, WhatsApp providers', 'Status, test connection and sync logs'],
-      notifications: ['Email / SMS / WhatsApp / in-app / push', 'Global notification configuration'],
-      templates: ['Email, SMS and WhatsApp templates', 'Variables, preview, test send, enable/disable'],
-      announcements: ['Broadcast to all clinics, a plan or specific users', 'Scheduled announcements and maintenance notices'],
-      reports: ['Revenue, subscription, growth and churn reports', 'Export CSV / Excel / PDF'],
-      'usage-analytics': ['Feature usage and plan usage', 'Clinic and user growth'],
-      'revenue-analytics': ['MRR / ARR, revenue by plan and clinic', 'Failed payment report'],
-      'clinic-analytics': ['Clinic-wise clients, patients and appointments', 'Inactive clinics and churn'],
-      support: ['Clinic-raised support tickets', 'Priority, assignment, internal notes, response history'],
-      feedback: ['Platform feedback from clinics', 'Triage and follow-up'],
-      'login-logs': ['Successful and failed logins', 'IP, device and suspicious activity'],
-      sessions: ['Active device/session management', 'Force logout and revoke sessions'],
-      'security-settings': ['2FA, password rules, session timeout', 'Failed login lockout, IP restrictions, rate limits'],
-      settings: ['Platform name, logo, currency, timezone', 'Tax, invoice prefix, support email, maintenance mode'],
-      branding: ['White-label logo, colors, custom domain', 'Login, email and invoice branding'],
-      storage: ['Storage used per clinic and file type', 'Limits, cleanup and large files'],
-      backups: ['Backup now, history and restore points', 'Automatic backup configuration, DB health'],
-      'system-health': ['API, database, email and queue status', 'Storage, CPU/RAM and failed jobs'],
-      'error-logs': ['Application, API and payment errors', 'Email, SMS and integration failures'],
-      maintenance: ['Maintenance mode and scheduled windows', 'Platform-wide notices'],
-      users: ['All user types across clinics', 'Search, activate/deactivate, reset password, force logout, login history'],
-    }[id] || [];
-    el('view').innerHTML = `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-10 text-center">
-      <div class="text-4xl mb-3">🚧</div>
-      <h3 class="text-xl font-bold text-slate-800">${esc(title)}</h3>
-      <p class="text-slate-400 mt-1">Planned for an upcoming milestone.</p>
-      ${planned.length ? `<ul class="mt-5 inline-block text-left text-sm text-slate-500 space-y-1.5">${planned.map((p) => `<li class="flex gap-2"><span class="text-indigo-500">•</span><span>${esc(p)}</span></li>`).join('')}</ul>` : ''}
-      <div class="mt-6"><a href="#/dashboard" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Back to dashboard</a></div>
-    </div>`;
-  }
-
-  function spinner() {
-    return '<div class="flex items-center justify-center py-16 text-slate-400"><svg class="animate-spin h-6 w-6 mr-2 text-indigo-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Loading…</div>';
-  }
-
   // ── router ──────────────────────────────────────────────────────────────
+  const VIEWS = {
+    dashboard: viewDashboard, clinics: viewClinics, plans: viewPlans, roles: viewRoles,
+    admins: viewAdmins, 'audit-logs': viewAudit, account: viewAccount,
+    branches: viewBranches, users: viewUsers, subscriptions: viewSubscriptions,
+    billing: viewBilling, transactions: viewTransactions,
+    coupons: () => viewRecords('coupons'), features: () => viewRecords('features'),
+    integrations: () => viewRecords('integrations'), templates: () => viewRecords('templates'),
+    announcements: () => viewRecords('announcements'), support: () => viewRecords('support'),
+    feedback: () => viewRecords('feedback'),
+    reports: viewReports, 'usage-analytics': viewUsageAnalytics,
+    'revenue-analytics': viewRevenueAnalytics, 'clinic-analytics': viewClinicAnalytics,
+    'login-logs': viewLoginLogs, sessions: viewSessions, storage: viewStorage,
+    backups: viewBackups, 'system-health': viewSystemHealth, 'error-logs': viewErrorLogs,
+    settings: () => viewSettings('general'), branding: () => viewSettings('branding'),
+    'security-settings': () => viewSettings('security'), notifications: () => viewSettings('notifications'),
+    maintenance: () => viewSettings('maintenance'),
+  };
+
   async function render() {
     const route = currentRoute();
     renderNav();
@@ -803,17 +1464,11 @@
     el('pageTitle').textContent = t[0];
     el('pageSub').textContent = t[1] || '';
     try {
-      if (route === 'dashboard') return await viewDashboard();
-      if (route === 'clinics') return await viewClinics();
-      if (route === 'plans') return await viewPlans();
-      if (route === 'roles') return await viewRoles();
-      if (route === 'admins') return await viewAdmins();
-      if (route === 'audit-logs') return await viewAudit();
-      if (route === 'account') return await viewAccount();
       if (route === 'logout') { doLogout(true); return; }
-      return placeholder(route);
+      const fn = VIEWS[route] || viewDashboard;
+      return await fn();
     } catch (e) {
-      el('view').innerHTML = `<div class="bg-red-50 border border-red-100 text-red-700 rounded-xl p-4">${esc(e.message)}</div>`;
+      el('view').innerHTML = '<div class="bg-red-50 border border-red-100 text-red-700 rounded-xl p-4">' + esc(e.message) + '</div>';
     }
   }
 
@@ -825,7 +1480,9 @@
   function showApp() {
     el('app').classList.remove('hidden');
     el('avatar').textContent = (admin.name || 'S').charAt(0).toUpperCase();
-    el('who').innerHTML = `<div class="font-semibold text-slate-200">${esc(admin.name)}</div><div>${esc(admin.role)}</div>`;
+    el('brandMark').innerHTML = icon('userCog', 'w-5 h-5');
+    el('refreshBtn').innerHTML = icon('refresh', 'w-4 h-4');
+    el('who').innerHTML = '<div class="font-semibold text-slate-700 text-sm">' + esc(admin.name) + '</div><div class="text-xs text-slate-400">' + esc(admin.role) + '</div>';
   }
   function doLogout(hitServer) {
     if (hitServer && token) { api('/logout', { method: 'POST', body: {} }).catch(() => {}); }

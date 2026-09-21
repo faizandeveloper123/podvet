@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const { AsyncLocalStorage } = require('async_hooks');
 const { ensureSuperAdminSchema, bootstrapSuperAdmin, registerSuperAdmin, authenticatePlatformAdmin } = require('./lib/superAdmin');
+const { registerSuperAdminExt } = require('./lib/superAdminExt');
 
 const app = express();
 app.set('query parser', 'extended');
@@ -353,7 +354,7 @@ app.post('/api/auth/login', async (req, res) => {
     const { identifier, password } = req.body;
     // Platform staff sign in through the same clinic login screen: detect them
     // first and hand back a marker the app turns into a /super-admin hand-off.
-    const platform = await authenticatePlatformAdmin(platConn, bcrypt, identifier, password);
+    const platform = await authenticatePlatformAdmin(platConn, bcrypt, identifier, password, req);
     if (platform) {
       if (platform.blocked) {
         const code = platform.blocked === 'Invalid credentials' ? 401 : 403;
@@ -2242,9 +2243,22 @@ app.get('/api/time-format', authMiddleware, (req, res) => res.json({ use12Hour: 
 
 // â”€â”€â”€ CATCH-ALL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // â”€â”€â”€ PLATFORM SUPER ADMIN (registered before the /api catch-all) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-registerSuperAdmin(app, {
+const superAdminApi = registerSuperAdmin(app, {
   platConn, getClinicConn, createClinicDatabase, bcrypt, makeToken, okClinicSession,
   DB_NAME, CLINIC_PREFIX,
+});
+
+// Extended console screens (subscriptions, billing, users, analytics, reports,
+// storage, health, settings, logs, backups…). Reuses the base auth + helpers so
+// every navigation item in the Super Admin console is backed by a real API.
+registerSuperAdminExt(app, {
+  platConn, getClinicConn, bcrypt, DB_NAME, CLINIC_PREFIX,
+  superAuth: superAdminApi.superAuth,
+  audit: superAdminApi.audit,
+  collectStats: superAdminApi.collectStats,
+  clinicCounts: superAdminApi.clinicCounts,
+  toRow: superAdminApi.toRow,
+  clinicRow: superAdminApi.clinicRow,
 });
 
 app.all('/api/{*splat}', (req, res) => {
