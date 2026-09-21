@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PodVet - Editable Loyalty & Discount Card</title>
+    <title>PodVet - Referral & Loyalty Card</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -47,19 +47,19 @@
 
     <style>
         :root {
-            --brand-50: 246 251 254;
-            --brand-100: 246 251 254;
-            --brand-200: 242 249 253;
-            --brand-300: 220 238 249;
-            --brand-400: 194 225 245;
-            --brand-500: 146 202 237;
-            --brand-600: 111 185 231;
-            --brand-700: 85 172 226;
-            --brand-800: 59 159 222;
-            --brand-900: 36 146 214;
-            --brand-950: 31 125 183;
-            --brand-dark: 27 110 161;
-            --brand-surface: 242 249 253;
+            --brand-50: 240 253 250;
+            --brand-100: 204 251 241;
+            --brand-200: 153 246 228;
+            --brand-300: 94 234 212;
+            --brand-400: 45 212 191;
+            --brand-500: 20 184 166;
+            --brand-600: 13 148 136;
+            --brand-700: 15 118 110;
+            --brand-800: 17 94 89;
+            --brand-900: 19 78 74;
+            --brand-950: 4 47 46;
+            --brand-dark: 13 148 136;
+            --brand-surface: 240 253 250;
         }
         /* Custom card styling & flip effects */
         .card-container {
@@ -124,123 +124,129 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
-    <!-- Navbar Header -->
-    <header class="bg-slate-800/80 border-b border-slate-700/60 sticky top-0 z-50 backdrop-blur-md">
+    <!-- Navbar Header (hidden when embedded inside the app) -->
+    <header id="pageHeader" class="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-md no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-brand-400 flex items-center justify-center text-slate-900 font-black text-xl shadow-lg shadow-brand-500/20">
+                <div class="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-teal-500/20">
                     <i class="fa-solid fa-paw"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold font-display tracking-tight text-white flex items-center gap-2">
-                        PodVet <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-medium border border-brand-500/30">Loyalty & Discount Card</span>
+                    <h1 class="text-xl font-bold font-display tracking-tight text-gray-800 flex items-center gap-2">
+                        PodVet <span class="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 font-medium border border-teal-200">Referral & Loyalty Card</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Customizable Pet Care Discount & Referral Pass</p>
+                    <p class="text-xs text-gray-400">Customizable Pet Care Referral & Discount Pass</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="applyPreset('discount')" class="text-xs bg-slate-700/80 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-600 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-tag text-brand-400"></i>
-                    <span>Discount Pass</span>
-                </button>
-                <button onclick="applyPreset('referral')" class="text-xs bg-slate-700/80 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-600 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-users text-amber-400"></i>
+                <button onclick="applyPreset('referral')" class="text-xs bg-teal-500 hover:bg-teal-400 text-white px-3 py-1.5 rounded-lg border border-teal-600 transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-users"></i>
                     <span>Referral Card</span>
                 </button>
-                <button onclick="applyPreset('vip')" class="text-xs bg-slate-700/80 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-600 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-crown text-amber-300"></i>
+                <button onclick="applyPreset('discount')" class="text-xs bg-white hover:bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-tag text-teal-500"></i>
+                    <span>Discount Pass</span>
+                </button>
+                <button onclick="applyPreset('vip')" class="text-xs bg-white hover:bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-crown text-amber-500"></i>
                     <span>VIP Member</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
         <!-- Left Panel: Form Controls (5 columns on desktop) -->
-        <section class="lg:col-span-5 bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
-            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
-                <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-brand-400"></i>
+        <section class="lg:col-span-5 bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-6">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-teal-500"></i>
                     Card Customization
                 </h2>
-                <span class="text-xs text-slate-400">Real-time live editor</span>
+                <span class="text-xs text-gray-400">Real-time live editor</span>
             </div>
 
             <!-- Form Content Tabs / Accordions -->
             <div class="space-y-4 text-sm">
 
                 <!-- 1. Theme & Style selection -->
-                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50 space-y-3">
-                    <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">1. Color Theme & Background</label>
+                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">1. Color Theme & Background</label>
                     <div class="grid grid-cols-5 gap-2">
-                        <button onclick="setTheme('emerald')" class="h-9 rounded-lg bg-gradient-to-br from-brand-600 to-brand-800 border-2 border-brand-400/50 hover:scale-105 transition flex items-center justify-center text-white" title="PodVet Emerald"></button>
+                        <button onclick="setTheme('emerald')" class="h-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-800 border-2 border-teal-400/60 hover:scale-105 transition flex items-center justify-center text-white" title="PodVet Emerald"></button>
                         <button onclick="setTheme('gold')" class="h-9 rounded-lg bg-gradient-to-br from-amber-600 to-yellow-800 border-2 border-amber-400/50 hover:scale-105 transition flex items-center justify-center text-white" title="VIP Gold"></button>
                         <button onclick="setTheme('ocean')" class="h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-900 border-2 border-blue-400/50 hover:scale-105 transition flex items-center justify-center text-white" title="Ocean Blue"></button>
                         <button onclick="setTheme('purple')" class="h-9 rounded-lg bg-gradient-to-br from-purple-600 to-slate-900 border-2 border-purple-400/50 hover:scale-105 transition flex items-center justify-center text-white" title="Royal Purple"></button>
-                        <button onclick="setTheme('dark')" class="h-9 rounded-lg bg-gradient-to-br from-slate-800 to-zinc-950 border-2 border-slate-600 hover:scale-105 transition flex items-center justify-center text-white" title="Stealth Dark"></button>
+                        <button onclick="setTheme('dark')" class="h-9 rounded-lg bg-gradient-to-br from-slate-700 to-zinc-950 border-2 border-slate-500 hover:scale-105 transition flex items-center justify-center text-white" title="Stealth Dark"></button>
                     </div>
                 </div>
 
                 <!-- 2. Main Offer & Discount Details -->
-                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50 space-y-3">
-                    <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">2. Discount & Offer Details</label>
-                    
+                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">2. Discount & Offer Details</label>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Card Title Header</label>
-                            <input type="text" id="inputCardTitle" value="PODVET PET PASS" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Card Title Header</label>
+                            <input type="text" id="inputCardTitle" value="PODVET REFERRAL CARD" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Discount Text / Badge</label>
-                            <input type="text" id="inputDiscount" value="20% OFF" oninput="updateCard()" class="w-full bg-slate-800 border border-brand-500/80 rounded-lg px-3 py-1.5 text-xs text-brand-300 font-bold focus:outline-none">
+                            <label class="text-xs text-gray-500 mb-1 block">Discount Text / Badge</label>
+                            <input type="text" id="inputDiscount" value="20% OFF" readonly class="w-full bg-gray-100 border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-teal-600 font-bold focus:outline-none cursor-not-allowed select-none">
                         </div>
                     </div>
 
+                    <div class="flex items-center gap-2">
+                        <p class="text-[11px] text-teal-600 bg-teal-50 border border-teal-200 rounded-lg px-2.5 py-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-lock"></i> Fixed 20% discount on the Referral Card — this field is not editable.
+                        </p>
+                    </div>
+
                     <div>
-                        <label class="text-xs text-slate-400 mb-1 block">Main Offer Description</label>
-                        <input type="text" id="inputOfferDesc" value="Special Referral Discount on First Vet Consultation & Grooming" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                        <label class="text-xs text-gray-500 mb-1 block">Main Offer Description</label>
+                        <input type="text" id="inputOfferDesc" value="Refer a friend & both get 20% off on Grooming!" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                     </div>
                 </div>
 
                 <!-- 3. Customer & Pet Info -->
-                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50 space-y-3">
-                    <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">3. Member & Pet Details</label>
-                    
+                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">3. Member & Pet Details</label>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Owner Name</label>
-                            <input type="text" id="inputOwnerName" value="Sara Ahmed" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Owner Name</label>
+                            <input type="text" id="inputOwnerName" value="Ayesha Khan" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Pet Name & Type</label>
-                            <input type="text" id="inputPetInfo" value="Milo (Persian Cat)" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Pet Name & Type</label>
+                            <input type="text" id="inputPetInfo" value="Rocky (German Shepherd)" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Card / Member ID</label>
-                            <input type="text" id="inputCardId" value="PV-2026-889" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Card / Member ID</label>
+                            <input type="text" id="inputCardId" value="PV-REF-994" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Referral Code / Doctor</label>
-                            <input type="text" id="inputRefCode" value="REF-DR-ALI" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Referral Code / Doctor</label>
+                            <input type="text" id="inputRefCode" value="DR-AHMED-REF" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                     </div>
                 </div>
 
                 <!-- 4. Loyalty Stamps & Validity -->
-                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50 space-y-3">
-                    <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">4. Loyalty Stamps & Validity</label>
-                    
+                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">4. Loyalty Stamps & Validity</label>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Completed Visit Stamps</label>
-                            <select id="inputStamps" onchange="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none">
+                            <label class="text-xs text-gray-500 mb-1 block">Completed Visit Stamps</label>
+                            <select id="inputStamps" onchange="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none">
                                 <option value="0">0 Stamps (New Member)</option>
                                 <option value="1">1 Stamp</option>
                                 <option value="2">2 Stamps</option>
@@ -250,19 +256,19 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">Valid Until / Expiry</label>
-                            <input type="text" id="inputExpiry" value="31 DEC 2026" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <label class="text-xs text-gray-500 mb-1 block">Valid Until / Expiry</label>
+                            <input type="text" id="inputExpiry" value="30 NOV 2026" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-xs text-slate-400 mb-1 block">Clinic Contact & Location</label>
-                        <input type="text" id="inputContact" value="+92 300 1234567 | PodVet Care Clinic & Pet Store" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                        <label class="text-xs text-gray-500 mb-1 block">Clinic Contact & Location</label>
+                        <input type="text" id="inputContact" value="+92 300 1234567 | PodVet Care Clinic & Pet Store" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
                     </div>
 
                     <div>
-                        <label class="text-xs text-slate-400 mb-1 block">Back Side Terms & Conditions</label>
-                        <textarea id="inputTerms" rows="2" oninput="updateCard()" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand-500">1. Discount applies to vet consultation & pet grooming. 2. Present card at clinic counter. 3. Non-transferable.</textarea>
+                        <label class="text-xs text-gray-500 mb-1 block">Back Side Terms & Conditions</label>
+                        <textarea id="inputTerms" rows="2" oninput="updateCard()" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-800 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">1. 20% discount applies to vet consultation & pet grooming. 2. Present card at clinic counter. 3. Non-transferable.</textarea>
                     </div>
                 </div>
 
@@ -274,17 +280,17 @@
         <section class="lg:col-span-7 flex flex-col items-center justify-center space-y-6">
 
             <!-- Card Controls (Flip, View Switcher) -->
-            <div class="w-full max-w-md flex items-center justify-between bg-slate-800/80 p-2 rounded-xl border border-slate-700/80">
+            <div class="w-full max-w-md flex items-center justify-between bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
                 <div class="flex items-center gap-1">
-                    <button id="btnFrontTab" onclick="showSide('front')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-500 text-slate-900 transition flex items-center gap-1">
+                    <button id="btnFrontTab" onclick="showSide('front')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-500 text-white transition flex items-center gap-1 shadow-sm">
                         <i class="fa-solid fa-id-card"></i> Front View
                     </button>
-                    <button id="btnBackTab" onclick="showSide('back')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1">
+                    <button id="btnBackTab" onclick="showSide('back')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-gray-800 transition flex items-center gap-1">
                         <i class="fa-solid fa-rotate"></i> Back View
                     </button>
                 </div>
 
-                <button onclick="toggleFlip()" class="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1 font-medium bg-brand-500/10 px-2.5 py-1.5 rounded-lg border border-brand-500/20">
+                <button onclick="toggleFlip()" class="text-xs text-teal-600 hover:text-teal-500 flex items-center gap-1 font-medium bg-teal-50 px-2.5 py-1.5 rounded-lg border border-teal-200">
                     <i class="fa-solid fa-repeat"></i> Flip Card 3D
                 </button>
             </div>
@@ -296,7 +302,7 @@
 
                     <!-- ==================== FRONT SIDE OF CARD ==================== -->
                     <div id="cardFront" class="card-front absolute inset-0 rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-2xl border border-white/20 bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white">
-                        
+
                         <!-- Background Decorative Paw Prints & Gloss -->
                         <div class="absolute inset-0 paw-pattern opacity-30 pointer-events-none"></div>
                         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
@@ -310,13 +316,13 @@
                                 </div>
                                 <div>
                                     <h3 class="font-extrabold tracking-wider font-display text-lg uppercase leading-tight text-white drop-shadow">PODVET</h3>
-                                    <p id="previewCardTitle" class="text-[10px] tracking-widest uppercase font-semibold text-brand-200">PODVET PET PASS</p>
+                                    <p id="previewCardTitle" class="text-[10px] tracking-widest uppercase font-semibold text-brand-200">PODVET REFERRAL CARD</p>
                                 </div>
                             </div>
 
                             <!-- DISCOUNT BADGE (PROMINENT UI DISPLAY) -->
                             <div class="glass-badge px-3 py-1.5 rounded-xl flex flex-col items-end shadow-lg border border-white/30 bg-amber-400/20">
-                                <span class="text-[9px] uppercase tracking-wider font-bold text-amber-200">PodVet Discount</span>
+                                <span class="text-[9px] uppercase tracking-wider font-bold text-amber-200">Fixed 20% Discount</span>
                                 <span id="previewDiscount" class="text-xl font-black text-amber-300 font-display drop-shadow">20% OFF</span>
                             </div>
                         </div>
@@ -324,17 +330,17 @@
                         <!-- Card Middle Body: Owner & Pet Info -->
                         <div class="relative z-10 my-auto py-2">
                             <p id="previewOfferDesc" class="text-xs font-medium text-brand-100 mb-3 bg-black/20 px-2.5 py-1 rounded-lg border border-white/10 inline-block max-w-full truncate">
-                                Special Referral Discount on First Vet Consultation
+                                Refer a friend & both get 20% off on Grooming!
                             </p>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <p class="text-[9px] uppercase tracking-wider text-brand-200/80 font-medium">Pet Owner Name</p>
-                                    <p id="previewOwnerName" class="text-sm font-bold text-white tracking-wide truncate">Sara Ahmed</p>
+                                    <p id="previewOwnerName" class="text-sm font-bold text-white tracking-wide truncate">Ayesha Khan</p>
                                 </div>
                                 <div>
                                     <p class="text-[9px] uppercase tracking-wider text-brand-200/80 font-medium">Pet Name & Breed</p>
-                                    <p id="previewPetInfo" class="text-sm font-bold text-brand-200 tracking-wide truncate">Milo (Persian Cat)</p>
+                                    <p id="previewPetInfo" class="text-sm font-bold text-brand-200 tracking-wide truncate">Rocky (German Shepherd)</p>
                                 </div>
                             </div>
                         </div>
@@ -345,11 +351,11 @@
                                 <div class="flex items-center gap-3">
                                     <div>
                                         <p class="text-[8px] uppercase tracking-wider text-brand-200/70">Card ID</p>
-                                        <p id="previewCardId" class="text-xs font-mono font-bold tracking-wider text-white">PV-2026-889</p>
+                                        <p id="previewCardId" class="text-xs font-mono font-bold tracking-wider text-white">PV-REF-994</p>
                                     </div>
                                     <div>
                                         <p class="text-[8px] uppercase tracking-wider text-amber-200/70">Ref Code</p>
-                                        <p id="previewRefCode" class="text-xs font-mono font-bold tracking-wider text-amber-300">REF-DR-ALI</p>
+                                        <p id="previewRefCode" class="text-xs font-mono font-bold tracking-wider text-amber-300">DR-AHMED-REF</p>
                                     </div>
                                 </div>
                             </div>
@@ -357,7 +363,7 @@
                             <div class="flex items-center gap-2">
                                 <div class="text-right">
                                     <p class="text-[8px] uppercase tracking-wider text-brand-200/70">Valid Thru</p>
-                                    <p id="previewExpiry" class="text-xs font-semibold text-white">31 DEC 2026</p>
+                                    <p id="previewExpiry" class="text-xs font-semibold text-white">30 NOV 2026</p>
                                 </div>
                                 <!-- Dynamic QR Code Container -->
                                 <div class="w-10 h-10 bg-white p-1 rounded-md shadow flex items-center justify-center overflow-hidden">
@@ -371,7 +377,7 @@
 
                     <!-- ==================== BACK SIDE OF CARD ==================== -->
                     <div id="cardBack" class="card-back absolute inset-0 rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-2xl border border-white/20 bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 text-white">
-                        
+
                         <div class="absolute inset-0 paw-pattern opacity-20 pointer-events-none"></div>
 
                         <!-- Top Header Back -->
@@ -386,7 +392,7 @@
                         <!-- Middle: Stamp Grid (5 Visits Tracker) -->
                         <div class="my-auto py-1">
                             <p class="text-[10px] text-slate-300 mb-2 font-medium">Collect 5 stamps to unlock an extra 30% discount or Free Grooming!</p>
-                            
+
                             <div class="grid grid-cols-5 gap-2" id="stampsGrid">
                                 <!-- Generated by JS -->
                             </div>
@@ -396,7 +402,7 @@
                         <div class="space-y-1.5 pt-2 border-t border-white/15">
                             <p class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Terms & Conditions</p>
                             <p id="previewTerms" class="text-[10px] text-slate-300 leading-tight">
-                                1. Discount applies to vet consultation & pet grooming. 2. Present card at clinic counter. 3. Non-transferable.
+                                1. 20% discount applies to vet consultation & pet grooming. 2. Present card at clinic counter. 3. Non-transferable.
                             </p>
                             <p id="previewContact" class="text-[9px] text-brand-300 font-mono pt-1">
                                 +92 300 1234567 | PodVet Care Clinic & Pet Store
@@ -410,22 +416,22 @@
 
 
             <div class="w-full max-w-md flex flex-wrap sm:flex-nowrap items-center gap-3">
-                <button onclick="downloadCardImage()" class="flex-1 bg-gradient-to-r from-brand-500 to-brand-500 hover:from-brand-400 hover:to-brand-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-brand-500/20 transition flex items-center justify-center gap-2 text-sm">
+                <button onclick="downloadCardImage()" class="flex-1 bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-teal-500/20 transition flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-download"></i> Download Card (PNG)
                 </button>
-                
-                <button onclick="printCard()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-print text-brand-400"></i> Print
+
+                <button onclick="printCard()" class="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-xl border border-gray-300 transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-print text-teal-500"></i> Print
                 </button>
             </div>
 
-            <!-- Helpful Hints for Pakistani / Global Users -->
-            <div class="w-full max-w-md bg-slate-800/50 p-3.5 rounded-xl border border-slate-700/50 text-xs text-slate-400 space-y-1">
-                <p class="font-semibold text-slate-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-info text-brand-400"></i> Quick Guide:
+            <!-- Helpful Hints -->
+            <div class="w-full max-w-md bg-white p-3.5 rounded-xl border border-gray-200 text-xs text-gray-500 space-y-1">
+                <p class="font-semibold text-gray-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-info text-teal-500"></i> Quick Guide:
                 </p>
-                <ul class="list-disc list-inside space-y-0.5 text-[11px] text-slate-400">
-                    <li>Is card par aap PodVet clinic ka custom discount or referral code likh saktay hain.</li>
+                <ul class="list-disc list-inside space-y-0.5 text-[11px] text-gray-500">
+                    <li>Referral Card par discount fixed 20% hai — change nahi ho sakta.</li>
                     <li>Front or Back dono sides live preview aur export ke liye tayyar hain.</li>
                     <li>Download button dabane se high quality image download ho jaye gi.</li>
                 </ul>
@@ -436,20 +442,26 @@
     </main>
 
     <script>
+        // Embed detection — when opened inside the app (sidebar), hide the
+        // standalone header so the page fills the app content area.
+        const IS_EMBED = new URLSearchParams(location.search).get('embed') === '1';
+
         // Global State & Presets
         let currentSide = 'front';
         let currentTheme = 'emerald';
         let qrCodeObj = null;
+        // Referral card discount is FIXED at 20% and can never be edited.
+        const FIXED_DISCOUNT = '20% OFF';
 
         const presets = {
             discount: {
                 title: 'PODVET DISCOUNT PASS',
-                discount: '25% OFF',
-                offer: '25% Discount on First Vaccination & Consultation',
+                discount: '20% OFF',
+                offer: '20% Discount on First Vaccination & Consultation',
                 owner: 'Usman Ghani',
                 pet: 'Bella (Golden Retriever)',
                 cardId: 'PV-DISC-102',
-                refCode: 'REF-POD25',
+                refCode: 'REF-POD20',
                 stamps: 2,
                 expiry: '31 DEC 2026',
                 terms: '1. Valid on all veterinary consultations and pet products. 2. Non-refundable.',
@@ -457,25 +469,25 @@
             },
             referral: {
                 title: 'PODVET REFERRAL CARD',
-                discount: 'RS. 500 OFF',
-                offer: 'Refer a friend & both get Rs. 500 discount on Grooming!',
+                discount: FIXED_DISCOUNT,
+                offer: 'Refer a friend & both get 20% off on Grooming!',
                 owner: 'Ayesha Khan',
                 pet: 'Rocky (German Shepherd)',
                 cardId: 'PV-REF-994',
                 refCode: 'DR-AHMED-REF',
-                stamps: 1,
+                stamps: 3,
                 expiry: '30 NOV 2026',
-                terms: '1. Applicable when referred friend completes first visit. 2. Show card at checkout.',
-                theme: 'gold'
+                terms: '1. 20% discount applies to vet consultation & pet grooming. 2. Present card at clinic counter. 3. Non-transferable.',
+                theme: 'emerald'
             },
             vip: {
                 title: 'PODVET VIP PET MEMBER',
-                discount: 'VIP 15% ALL',
-                offer: 'Exclusive 15% FLAT Discount on all Vet Visits & Boarding',
+                discount: '20% OFF',
+                offer: 'Exclusive flat discount on all Vet Visits & Boarding',
                 owner: 'Dr. Hamza',
                 pet: 'Coco (Shih Tzu)',
                 cardId: 'PV-VIP-001',
-                refCode: 'VIP-GOLD-MEMBER',
+                refCode: 'VIP-20-MEMBER',
                 stamps: 5,
                 expiry: 'PERPETUAL / 2027',
                 terms: '1. VIP Priority appointments included. 2. Unlimited emergency advice helpline access.',
@@ -491,12 +503,27 @@
             dark: 'bg-gradient-to-br from-slate-800 via-zinc-900 to-black'
         };
 
+        // Fix the discount field forever: always 20% OFF, never editable.
+        function lockDiscount() {
+            const field = document.getElementById('inputDiscount');
+            field.value = FIXED_DISCOUNT;
+            field.disabled = true;
+            field.readOnly = true;
+        }
+
         // Initialize QR code on load
         window.onload = function() {
+            if (IS_EMBED) {
+                const header = document.getElementById('pageHeader');
+                if (header) header.remove();
+            }
+
+            lockDiscount();
+
             const qrElem = document.getElementById('qrcode');
             if (qrElem) {
                 qrCodeObj = new QRCode(qrElem, {
-                    text: "https://podvet.example.com/card/PV-2026-889",
+                    text: "https://podvet.example.com/card/PV-REF-994",
                     width: 36,
                     height: 36,
                     colorDark : "#0f172a",
@@ -505,13 +532,13 @@
                 });
             }
 
-            updateCard();
+            applyPreset('referral');
         };
 
         // Update card text and elements from inputs
         function updateCard() {
-            const cardTitle = document.getElementById('inputCardTitle').value || 'PODVET PET PASS';
-            const discount = document.getElementById('inputDiscount').value || '20% OFF';
+            const cardTitle = document.getElementById('inputCardTitle').value || 'PODVET REFERRAL CARD';
+            const discount = FIXED_DISCOUNT; // always fixed
             const offerDesc = document.getElementById('inputOfferDesc').value || 'Special Referral Discount';
             const ownerName = document.getElementById('inputOwnerName').value || 'Pet Owner';
             const petInfo = document.getElementById('inputPetInfo').value || 'Pet Details';
@@ -583,12 +610,12 @@
 
             if (side === 'back') {
                 cardInner.classList.add('flipped');
-                btnBack.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-500 text-slate-900 transition flex items-center gap-1";
-                btnFront.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1";
+                btnBack.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-500 text-white transition flex items-center gap-1 shadow-sm";
+                btnFront.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-gray-800 transition flex items-center gap-1";
             } else {
                 cardInner.classList.remove('flipped');
-                btnFront.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-500 text-slate-900 transition flex items-center gap-1";
-                btnBack.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1";
+                btnFront.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-500 text-white transition flex items-center gap-1 shadow-sm";
+                btnBack.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-gray-800 transition flex items-center gap-1";
             }
         }
 
@@ -617,7 +644,6 @@
             if (!p) return;
 
             document.getElementById('inputCardTitle').value = p.title;
-            document.getElementById('inputDiscount').value = p.discount;
             document.getElementById('inputOfferDesc').value = p.offer;
             document.getElementById('inputOwnerName').value = p.owner;
             document.getElementById('inputPetInfo').value = p.pet;
@@ -626,6 +652,9 @@
             document.getElementById('inputStamps').value = p.stamps;
             document.getElementById('inputExpiry').value = p.expiry;
             document.getElementById('inputTerms').value = p.terms;
+
+            // Discount stays fixed — the field is permanently locked to 20% OFF.
+            lockDiscount();
 
             setTheme(p.theme);
             updateCard();
@@ -641,7 +670,7 @@
                 backgroundColor: null
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `PodVet_Loyalty_Card_${currentSide.toUpperCase()}.png`;
+                link.download = `PodVet_Referral_Card_${currentSide.toUpperCase()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(err => {
