@@ -253,9 +253,12 @@
         <!-- DASHBOARD PREVIEW WRAPPER -->
         <div class="max-w-6xl mx-auto px-4 relative z-20">
             <div class="rounded-2xl border border-brand-500/30 bg-white/10 p-2 sm:p-3 shadow-2xl backdrop-blur-xl">
+                <p id="hero-caption" class="text-center text-[11px] sm:text-xs font-medium text-brand-300 pb-2 pt-1 tracking-wide">Medical Records — SOAP exam notes, prescriptions and patient history</p>
                 
-                <!-- Main Dashboard Frame -->
+                <!-- Main Dashboard Frame (live PodVet interface) -->
                 <div id="dashboard-mockup" class="bg-white rounded-xl shadow-xl overflow-hidden text-gray-800 text-left border border-gray-100">
+                    <img id="hero-screenshot" src="/landing/records.png" alt="PodVet Medical Records screen" class="w-full h-auto block">
+                    <div class="hidden">
                     
                     <!-- Top App Header -->
                     <div class="bg-brand-900 text-white px-4 py-3 flex items-center justify-between border-b border-brand-800">
@@ -371,6 +374,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
     </section>
@@ -440,25 +444,9 @@
                     </div>
                 </div>
 
-                <!-- Right visual mockup snippet -->
+                <!-- Right visual: real Records screen -->
                 <div class="lg:col-span-6 bg-white/10 rounded-2xl p-3 border border-brand-400/20 backdrop-blur-md">
-                    <div class="bg-white rounded-xl p-4 text-gray-800 text-xs shadow-inner space-y-3">
-                        <div class="flex items-center justify-between border-b pb-2">
-                            <span class="font-bold text-brand-900">Exam Notes & Treatments</span>
-                            <span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded text-[10px] font-bold">Auto-Invoice Active</span>
-                        </div>
-                        <div class="p-2 bg-brand-50/50 rounded border border-brand-100 flex items-center justify-between">
-                            <div>
-                                <div class="font-semibold text-gray-800">Gastrointestinal Visit Package</div>
-                                <div class="text-[10px] text-gray-500">Includes Exam + Injection + Prescription</div>
-                            </div>
-                            <span class="font-bold text-brand-900">$85.00</span>
-                        </div>
-                        <div class="flex items-center justify-between text-gray-600 font-medium">
-                            <span>E-Invoice Status:</span>
-                            <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Ready to Send</span>
-                        </div>
-                    </div>
+                    <img src="/landing/records.png" alt="PodVet Medical Records screen" class="rounded-xl shadow-inner w-full h-auto">
                 </div>
 
             </div>
@@ -659,38 +647,9 @@
                     </div>
                 </div>
 
-                <!-- Visual Right: Pharmacy/Inventory Mockup -->
+                <!-- Visual Right: real Inventory screen -->
                 <div class="lg:col-span-6">
-                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-brand-100 space-y-4">
-                        <div class="flex items-center justify-between border-b pb-3">
-                            <span class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-boxes-stacked text-brand-600 mr-2"></i> Real-time Stock Tracking</span>
-                            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">Auto-Deducted</span>
-                        </div>
-                        
-                        <div class="space-y-2 text-xs">
-                            <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                                <div>
-                                    <div class="font-bold text-gray-800">Hypoallergenic Dog Kibble 10kg</div>
-                                    <div class="text-[10px] text-gray-400">SKU: PET-3902</div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-emerald-600 font-bold block">In Stock (18 units)</span>
-                                    <span class="text-[10px] text-gray-500">Margin: +42%</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between p-2.5 bg-amber-50 rounded-xl border border-amber-200">
-                                <div>
-                                    <div class="font-bold text-amber-900">Maropitant 10mg/ml Injectable</div>
-                                    <div class="text-[10px] text-amber-700"><i class="fa-solid fa-triangle-exclamation"></i> Minimum Stock Alert</div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-amber-700 font-bold block">3 Vials Remaining</span>
-                                    <button class="bg-amber-600 text-white text-[10px] px-2 py-0.5 rounded font-semibold mt-0.5">Reorder</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <img src="/landing/inventory.png" alt="PodVet inventory & stock tracking screen" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto">
                 </div>
 
             </div>
@@ -698,40 +657,9 @@
             <!-- ROW 4: CLINIC REPORTING & EARNINGS -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 
-                <!-- Visual Left -->
+                <!-- Visual Left: real Reports screen -->
                 <div class="lg:col-span-6 order-2 lg:order-1">
-                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-brand-100 space-y-4">
-                        <div class="flex items-center justify-between border-b pb-3">
-                            <span class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-chart-line text-brand-600 mr-2"></i> Clinic Performance Dashboard</span>
-                            <span class="text-xs bg-brand-100 text-brand-800 font-semibold px-2.5 py-0.5 rounded-full">Updated Live</span>
-                        </div>
-
-                        <!-- Bar Chart Simulation -->
-                        <div class="space-y-2 pt-2">
-                            <div class="flex items-center justify-between text-xs text-gray-600 font-semibold">
-                                <span>Weekly Clinic Revenue</span>
-                                <span class="text-brand-900 font-bold">$14,850.00 (+18%)</span>
-                            </div>
-                            <div class="flex items-end gap-2 h-28 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="flex-1 bg-brand-200 h-[40%] rounded-t"></div>
-                                <div class="flex-1 bg-brand-300 h-[65%] rounded-t"></div>
-                                <div class="flex-1 bg-brand-400 h-[50%] rounded-t"></div>
-                                <div class="flex-1 bg-brand-500 h-[80%] rounded-t"></div>
-                                <div class="flex-1 bg-brand-600 h-[95%] rounded-t"></div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="p-2.5 bg-brand-50 rounded-lg">
-                                <span class="text-[10px] text-gray-500 block">Most Profitable Service</span>
-                                <span class="font-bold text-brand-900">Vaccinations & Exams</span>
-                            </div>
-                            <div class="p-2.5 bg-brand-50 rounded-lg">
-                                <span class="text-[10px] text-gray-500 block">Vet Efficiency Avg</span>
-                                <span class="font-bold text-brand-900">94.2% On-Time</span>
-                            </div>
-                        </div>
-                    </div>
+                    <img src="/landing/reports.png" alt="PodVet reports & analytics dashboard" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto">
                 </div>
 
                 <!-- Text Right -->
@@ -1313,141 +1241,18 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Tab Content Data for Dashboard Preview
-        const tabContents = {
-            records: `
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-200 mb-4 gap-2">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            Exam Notes & Treatments 
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-medium">In Progress</span>
-                        </h3>
-                        <p class="text-xs text-gray-500">Patient: <strong class="text-gray-700">Leo (Golden Retriever)</strong> | Client: <span class="text-gray-700">Adam Jansone</span></p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button class="bg-brand-600 text-white text-xs px-3 py-1.5 rounded-md font-medium hover:bg-brand-700 transition flex items-center gap-1">
-                            <i class="fa-solid fa-paper-plane"></i> Send to Client
-                        </button>
-                        <button class="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-md font-medium hover:bg-gray-200">
-                            SOAP Templates
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-4">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg text-xs">
-                        <div>
-                            <span class="text-gray-400 block text-[10px]">Date</span>
-                            <span class="font-semibold text-gray-800">June 20, 2026 13:30</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-400 block text-[10px]">Reasons</span>
-                            <span class="inline-flex gap-1">
-                                <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Loss of appetite</span>
-                                <span class="bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded text-[10px] font-medium">Lethargy</span>
-                            </span>
-                        </div>
-                        <div>
-                            <span class="text-gray-400 block text-[10px]">Veterinarian</span>
-                            <span class="font-semibold text-gray-800">Dr. Eli Vile</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-400 block text-[10px]">Staff</span>
-                            <span class="font-semibold text-gray-800">Gurkan Uzunca</span>
-                        </div>
-                    </div>
-                    <div class="space-y-3 text-xs">
-                        <div>
-                            <h4 class="font-bold text-brand-900 mb-1 flex items-center gap-1">
-                                <i class="fa-solid fa-stethoscope text-brand-600"></i> Chief Complaint
-                            </h4>
-                            <p class="text-gray-600">Patient reported loss of appetite and lethargy for about 2 days, with vomiting continuing since last night.</p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-brand-900 mb-1">Clinical Findings</h4>
-                            <p class="text-gray-600">Mucous membrane color is normal, capillary refill time is 2 sec. Mild dehydration signs present.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            calendar: `
-                <div class="pb-4 border-b border-gray-200 mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">Vaccine & Appointment Calendar</h3>
-                    <p class="text-xs text-gray-500">Live scheduling conflicts checker active</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                    <div class="p-3 bg-brand-50 rounded-xl border border-brand-200">
-                        <div class="font-bold text-brand-900">09:00 AM - Dr. Eli Vile</div>
-                        <div class="text-gray-700 font-semibold mt-1">Bella (Persian Cat)</div>
-                        <div class="text-gray-500 text-[11px]">Annual Vaccination Booster</div>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
-                        <div class="font-bold text-blue-900">10:30 AM - Dr. Sarah Jenkins</div>
-                        <div class="text-gray-700 font-semibold mt-1">Max (German Shepherd)</div>
-                        <div class="text-gray-500 text-[11px]">Post-Surgery Checkup</div>
-                    </div>
-                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
-                        <div class="font-bold text-amber-900">01:30 PM - Dr. Eli Vile</div>
-                        <div class="text-gray-700 font-semibold mt-1">Leo (Golden Retriever)</div>
-                        <div class="text-gray-500 text-[11px]">Exam & Abdominal Palpation</div>
-                    </div>
-                </div>
-            `,
-            invoices: `
-                <div class="pb-4 border-b border-gray-200 mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">Invoices & E-Archive Payments</h3>
-                    <p class="text-xs text-gray-500">Instant revenue & POS checkout status</p>
-                </div>
-                <div class="space-y-2 text-xs">
-                    <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
-                        <div>
-                            <span class="font-bold text-gray-900 block">Invoice #INV-2026-089</span>
-                            <span class="text-gray-500 text-[10px]">Client: Adam Jansone</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-extrabold text-brand-900 text-sm">$142.50</span>
-                            <span class="block text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Paid via POS</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
-                        <div>
-                            <span class="font-bold text-gray-900 block">Invoice #INV-2026-090</span>
-                            <span class="text-gray-500 text-[10px]">Client: Sarah Connor</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-extrabold text-brand-900 text-sm">$89.00</span>
-                            <span class="block text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> E-Invoice Sent</span>
-                        </div>
-                    </div>
-                </div>
-            `,
-            reminders: `
-                <div class="pb-4 border-b border-gray-200 mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">Automated Patient Reminders</h3>
-                    <p class="text-xs text-gray-500">Multichannel delivery queue</p>
-                </div>
-                <div class="space-y-2 text-xs">
-                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-emerald-600 text-lg"></i>
-                            <div>
-                                <span class="font-bold text-emerald-950 block">WhatsApp Rabies Reminder</span>
-                                <span class="text-[10px] text-emerald-700">Sent to 42 clients today</span>
-                            </div>
-                        </div>
-                        <span class="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">100% Delivered</span>
-                    </div>
-                    <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-comment-sms text-brand-600 text-lg"></i>
-                            <div>
-                                <span class="font-bold text-brand-950 block">SMS Appointment Confirmations</span>
-                                <span class="text-[10px] text-brand-700">18 confirmations received</span>
-                            </div>
-                        </div>
-                        <span class="bg-brand-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">Active</span>
-                    </div>
-                </div>
-            `
+        // Hero screenshot switcher — real PodVet screen captures
+        const HERO_SHOTS = {
+            records: '/landing/records.png',
+            calendar: '/landing/appointments.png',
+            invoices: '/landing/payments.png',
+            reminders: '/landing/dashboard.png',
+        };
+        const HERO_CAPTIONS = {
+            records: 'Medical Records — SOAP exam notes, prescriptions and patient history',
+            calendar: 'Vaccines & Appointments — per-vet calendar, bookings and due vaccinations',
+            invoices: 'Invoices & Payments — e-invoice, e-receipt and POS checkout',
+            reminders: 'Dashboard — today\'s appointments, stock levels and automated reminders',
         };
 
         function switchTab(tabKey) {
@@ -1461,10 +1266,14 @@
                 activeBtn.className = 'hero-tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-brand-800/90 text-white border border-brand-400/50 shadow-md transition-all flex items-center gap-2';
             }
 
-            // Update content container
-            const container = document.getElementById('tab-content-container');
-            if (container && tabContents[tabKey]) {
-                container.innerHTML = tabContents[tabKey];
+            // Swap in the real PodVet screenshot for this tab
+            const img = document.getElementById('hero-screenshot');
+            if (img && HERO_SHOTS[tabKey]) {
+                img.src = HERO_SHOTS[tabKey];
+            }
+            const caption = document.getElementById('hero-caption');
+            if (caption && HERO_CAPTIONS[tabKey]) {
+                caption.textContent = HERO_CAPTIONS[tabKey];
             }
         }
 
