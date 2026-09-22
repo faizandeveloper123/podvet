@@ -123,7 +123,90 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+
+        /* Interactive demo hotspots on screenshots (no redirect) */
+        .demo-hotspot {
+            position: absolute;
+            z-index: 15;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 8px 0 6px;
+            border: 1px dashed transparent;
+            border-radius: 9px;
+            background: transparent;
+            cursor: pointer;
+            text-align: left;
+        }
+        .demo-hotspot .dot {
+            width: 12px;
+            height: 12px;
+            flex: none;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgb(var(--brand-600) / 0.65), 0 1px 4px rgba(0, 0, 0, 0.3);
+            animation: hotPulse 2s ease-in-out infinite;
+        }
+        .demo-hotspot .lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(15, 23, 42, 0.92);
+            padding: 3px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+        .demo-hotspot:hover,
+        .demo-hotspot:focus-visible {
+            background: rgb(var(--brand-600) / 0.14);
+            border-color: rgb(var(--brand-600) / 0.6);
+            outline: none;
+        }
+        .demo-hotspot:hover .lbl,
+        .demo-hotspot:focus-visible .lbl {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes hotPulse {
+            0%, 100% { box-shadow: 0 0 0 3px rgb(var(--brand-600) / 0.6), 0 1px 4px rgba(0, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 0 7px rgb(var(--brand-600) / 0.12), 0 1px 4px rgba(0, 0, 0, 0.3); }
+        }
+
+        /* Demo toast feedback */
+        #demo-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translate(-50%, 24px);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 90;
+            pointer-events: none;
+            background: #0f172a;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 11px 18px;
+            border-radius: 999px;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            max-width: 90vw;
+        }
+        #demo-toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
     </style>
+
+    <!-- Electron web shim: provides window.electronAPI for referral login -->
+    <script src="/web-preload.js"></script>
 </head>
 <body class="antialiased text-gray-900 selection:bg-brand-500 selection:text-white">
 
@@ -177,6 +260,9 @@
                     </button>
                     <button onclick="openModal('login')" class="text-white hover:text-brand-200 text-sm font-semibold transition px-2">
                         Log In
+                    </button>
+                    <button onclick="openModal('referral')" class="text-brand-300 hover:text-white text-sm font-medium transition px-2 border border-brand-500/60 rounded-full px-4 py-2">
+                        <i class="fa-solid fa-handshake mr-1"></i> Referral Login
                     </button>
                     <button onclick="openModal('signup')" class="bg-accent-yellow hover:bg-accent-yellowHover text-brand-dark font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full transition-all duration-200 shadow-md transform hover:-translate-y-0.5 active:translate-y-0">
                         Try for Free
@@ -255,16 +341,16 @@
             <div class="rounded-2xl border border-brand-500/30 bg-white/10 p-2 sm:p-3 shadow-2xl backdrop-blur-xl">
                 <p id="hero-caption" class="text-center text-[11px] sm:text-xs font-medium text-brand-300 pb-2 pt-1 tracking-wide">Medical Records — SOAP exam notes, prescriptions and patient history</p>
                 
-                // Main Dashboard Frame (live PodVet interface)
+                <!-- Main Dashboard Frame (live PodVet interface) -->
                 <div id="dashboard-mockup" class="bg-white rounded-xl shadow-xl overflow-hidden text-gray-800 text-left border border-gray-100">
-                    <a id="hero-screenshot-link" href="/app#/records" target="_blank" rel="noopener" class="group block relative">
+                    <div id="hero-screenshot-link" class="group block relative">
                         <img id="hero-screenshot" src="/landing/records.png" alt="PodVet Medical Records screen" class="w-full h-auto block">
-                        <span class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-brand-900/90 text-white text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-2 rounded-full inline-flex items-center gap-2 shadow-lg opacity-90 group-hover:opacity-100 transition">
-                            <i class="fa-solid fa-mouse-pointer text-brand-300"></i> Open this screen in the live app
-                            <i class="fa-solid fa-arrow-up-right-from-square text-brand-300"></i>
+                        <span class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-brand-900/90 text-white text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-2 rounded-full inline-flex items-center gap-2 shadow-lg opacity-90 transition pointer-events-none z-20">
+                            <i class="fa-solid fa-hand-pointer text-brand-300"></i> Interactive demo — click the options on the screen
                         </span>
-                        <span class="absolute inset-0 bg-brand-900/0 group-hover:bg-brand-950/10 transition-colors pointer-events-none"></span>
-                    </a>
+                        <!-- Clickable demo hotspots: options work in place, image does not redirect -->
+                        <div id="hero-hotspots" class="absolute inset-0 z-10 pointer-events-none"></div>
+                    </div>
                     <div class="hidden">
                     
                     <!-- Top App Header -->
@@ -453,9 +539,13 @@
 
                 <!-- Right visual: real Records screen -->
                 <div class="lg:col-span-6 bg-white/10 rounded-2xl p-3 border border-brand-400/20 backdrop-blur-md">
-                    <a href="/app#/records" target="_blank" rel="noopener" class="block group">
+                    <div class="relative block group">
                         <img src="/landing/records.png" alt="PodVet Medical Records screen" class="rounded-xl shadow-inner w-full h-auto group-hover:opacity-95 transition-opacity">
-                    </a>
+                        <span class="absolute top-3 left-3 z-20 bg-brand-950/85 text-white text-[10px] font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 pointer-events-none">
+                            <i class="fa-solid fa-hand-pointer text-brand-300"></i> Interactive demo
+                        </span>
+                        <div class="absolute inset-0 z-10" data-demo-hotspots="records"></div>
+                    </div>
                 </div>
 
             </div>
@@ -658,9 +748,13 @@
 
                 <!-- Visual Right: real Inventory screen -->
                 <div class="lg:col-span-6">
-                    <a href="/app#/inventory" target="_blank" rel="noopener" class="block group">
+                    <div class="relative block group">
                         <img src="/landing/inventory.png" alt="PodVet inventory & stock tracking screen" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto group-hover:opacity-95 transition-opacity">
-                    </a>
+                        <span class="absolute top-3 left-3 z-20 bg-brand-950/85 text-white text-[10px] font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 pointer-events-none">
+                            <i class="fa-solid fa-hand-pointer text-brand-300"></i> Interactive demo
+                        </span>
+                        <div class="absolute inset-0 z-10" data-demo-hotspots="inventory"></div>
+                    </div>
                 </div>
 
             </div>
@@ -670,9 +764,13 @@
                 
                 <!-- Visual Left: real Reports screen -->
                 <div class="lg:col-span-6 order-2 lg:order-1">
-                    <a href="/app#/reports" target="_blank" rel="noopener" class="block group">
+                    <div class="relative block group">
                         <img src="/landing/reports.png" alt="PodVet reports & analytics dashboard" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto group-hover:opacity-95 transition-opacity">
-                    </a>
+                        <span class="absolute top-3 left-3 z-20 bg-brand-950/85 text-white text-[10px] font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 pointer-events-none">
+                            <i class="fa-solid fa-hand-pointer text-brand-300"></i> Interactive demo
+                        </span>
+                        <div class="absolute inset-0 z-10" data-demo-hotspots="reports"></div>
+                    </div>
                 </div>
 
                 <!-- Text Right -->
@@ -1208,7 +1306,7 @@
         </div>
     </div>
 
-    <!-- MODAL FOR SIGNUP / LOGIN -->
+    <!-- MODAL: SIGNUP / LOGIN / REFERRAL LOGIN -->
     <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 relative shadow-2xl text-gray-800">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg">
@@ -1219,29 +1317,67 @@
                 <div class="w-12 h-12 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 text-2xl mx-auto mb-3">
                     <i class="fa-solid fa-cloud-meatball"></i>
                 </div>
-                <h3 id="modal-title" class="text-2xl font-bold text-gray-900">Try PodVet Free</h3>
-                <p class="text-xs text-gray-500 mt-1">Start your 14-day free trial. No credit card required.</p>
+                <h3 id="modal-title" class="text-2xl font-bold text-gray-900">Referral Login</h3>
+                <p id="modal-subtitle" class="text-xs text-gray-500 mt-1">Have a referral card from another clinic? Enter its code to open your clinic on PodVet.</p>
             </div>
 
-            <form onsubmit="event.preventDefault(); alert('Thank you for choosing PodVet! Your trial environment is ready.'); closeModal();" class="space-y-4 text-xs">
+            <!-- View switcher -->
+            <div class="flex items-center justify-center gap-2 mb-6 text-[11px] font-bold">
+                <button onclick="showModalView('referral')" id="view-btn-referral" class="px-4 py-2 rounded-full border border-brand-500 bg-brand-50 text-brand-900 transition">
+                    <i class="fa-solid fa-handshake mr-1"></i> Referral Code
+                </button>
+                <button onclick="window.location.href='/signup'" class="px-4 py-2 rounded-full border border-gray-300 text-gray-600 hover:border-brand-500 transition">
+                    New Clinic? Sign Up
+                </button>
+                <button onclick="window.location.href='/app'" class="px-4 py-2 rounded-full border border-gray-300 text-gray-600 hover:border-brand-500 transition">
+                    Log In
+                </button>
+            </div>
+
+            <!-- Referral login form -->
+            <form id="referral-form" onsubmit="return submitReferralLogin(event)" class="space-y-4 text-xs transition">
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Clinic Name</label>
-                    <input type="text" required placeholder="Happy Paws Veterinary Clinic" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-gray-700 mb-1">Referral Code <span class="text-red-500">*</span></label>
+                    <input id="ref-code" type="text" required placeholder="e.g. DR-AHMED-REF (from the shared card)" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500 uppercase tracking-wide">
+                    <p class="text-[10px] text-gray-400 mt-1">The code printed on the referral card you received from another clinic.</p>
                 </div>
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" required placeholder="vet@happypaws.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-gray-700 mb-1">Your Clinic Name</label>
+                    <input id="ref-clinic" type="text" placeholder="e.g. Happy Paws Veterinary Clinic" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Your Name</label>
+                        <input id="ref-name" type="text" placeholder="e.g. Dr. Ali" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Phone</label>
+                        <input id="ref-phone" type="tel" placeholder="+92 300 1234567" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                    </div>
                 </div>
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" required placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-gray-700 mb-1">Email</label>
+                    <input id="ref-email" type="email" placeholder="vet@happypaws.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Set a Password</label>
+                    <input id="ref-password" type="text" placeholder="Used to log in again later (default: Podvet@Referral1)" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand-500">
                 </div>
 
-                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition shadow-lg mt-2">
-                    Start Free 14-Day Trial
+                <p id="referral-msg" class="hidden text-[11px] font-semibold rounded-xl px-3 py-2"></p>
+
+                <button id="ref-submit" type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition shadow-lg mt-2 inline-flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-handshake"></i> Login with Referral Code
                 </button>
+                <p class="text-center text-[10px] text-gray-400">Valid code = your clinic is created instantly and you're signed in. No credit card needed.</p>
             </form>
         </div>
+    </div>
+
+    <!-- DEMO TOAST FEEDBACK -->
+    <div id="demo-toast">
+        <i class="fa-solid fa-circle-info text-brand-400"></i>
+        <span id="demo-toast-msg"></span>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
@@ -1267,12 +1403,89 @@
             invoices: 'Invoices & Payments — e-invoice, e-receipt and POS checkout',
             reminders: 'Dashboard — today\'s appointments, stock levels and automated reminders',
         };
-        const HERO_LINKS = {
-            records: '#/records',
-            calendar: '#/appointments',
-            invoices: '#/payments',
-            reminders: '#/dashboard',
+
+        // Demo toast — feedback shown in place, nothing redirects
+        function showDemo(msg) {
+            const toast = document.getElementById('demo-toast');
+            const msgEl = document.getElementById('demo-toast-msg');
+            if (msgEl) msgEl.textContent = msg;
+            if (!toast) return;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        // Build clickable hotspots on a screenshot container
+        function mountHotspots(container, items) {
+            if (!container) return;
+            container.innerHTML = '';
+            items.forEach(it => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'demo-hotspot';
+                btn.style.left = it.x + '%';
+                btn.style.top = it.y + '%';
+                btn.style.width = it.w + '%';
+                btn.style.height = it.h + '%';
+                btn.innerHTML = '<span class="dot"></span><span class="lbl"></span>';
+                btn.querySelector('.lbl').textContent = it.label;
+                btn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    it.action();
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        // Sidebar options shared by every PodVet screenshot
+        function sidebarHotspots(onPick) {
+            const rows = [
+                ['Overview', null],
+                ['Flowboard', null],
+                ['Appointments', 'calendar'],
+                ['Patients', null],
+                ['Medical Records', 'records'],
+                ['Lab', null],
+                ['Inventory', 'inventory'],
+                ['Reports', 'reports'],
+            ];
+            return rows.map((r, i) => ({
+                label: r[0],
+                x: 0.3,
+                y: 11 + i * 7.0,
+                w: 16,
+                h: 6.5,
+                action() {
+                    if (r[1] && onPick) onPick(r[1]);
+                    else showDemo(r[0] + ' — working in demo mode, right here on this page.');
+                }
+            }));
+        }
+
+        const SIDEBAR_MESSAGES = {
+            records: 'Medical Records — SOAP notes, prescriptions & history (demo).',
+            inventory: 'Inventory — stock deducts after each sale in real time (demo).',
+            reports: 'Reports — income, expense & profit analytics (demo).',
         };
+
+        // Wire up all demo hotspots after load
+        (function mountAllHotspots() {
+            const hero = document.getElementById('hero-hotspots');
+            if (hero) {
+                mountHotspots(hero, sidebarHotspots(key => {
+                    switchTab(key);
+                    showDemo('Demo navigation: screen switched in place — no redirect.');
+                }));
+                hero.classList.remove('pointer-events-none');
+            }
+            document.querySelectorAll('[data-demo-hotspots]').forEach(el => {
+                const key = el.getAttribute('data-demo-hotspots');
+                mountHotspots(el, sidebarHotspots(() => {
+                    showDemo(SIDEBAR_MESSAGES[key] || 'PodVet demo — clickable options, no redirect.');
+                }));
+            });
+        })();
 
         function switchTab(tabKey) {
             // Update button styles
@@ -1285,14 +1498,10 @@
                 activeBtn.className = 'hero-tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-brand-800/90 text-white border border-brand-400/50 shadow-md transition-all flex items-center gap-2';
             }
 
-            // Swap in the real PodVet screenshot for this tab + point link at the live app page
+            // Swap in the real PodVet screenshot for this tab (stays in place, no navigation)
             const img = document.getElementById('hero-screenshot');
             if (img && HERO_SHOTS[tabKey]) {
                 img.src = HERO_SHOTS[tabKey];
-            }
-            const link = document.getElementById('hero-screenshot-link');
-            if (link && HERO_LINKS[tabKey]) {
-                link.href = '/app' + HERO_LINKS[tabKey];
             }
             const caption = document.getElementById('hero-caption');
             if (caption && HERO_CAPTIONS[tabKey]) {
@@ -1348,11 +1557,81 @@
 
         // Modal Handler
         function openModal(type) {
+            if (type === 'referral') {
+                showModalView('referral');
+                const overlay = document.getElementById('modal-overlay');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                const codeInput = document.getElementById('ref-code');
+                if (codeInput) setTimeout(() => codeInput.focus(), 60);
+                return;
+            }
             window.location.href = (type === 'login') ? '/app' : '/signup';
         }
 
+        function showModalView(view) {
+            document.getElementById('modal-title').textContent = 'Referral Login';
+            document.getElementById('modal-subtitle').textContent =
+                'Have a referral card from another clinic? Enter its code to open your clinic on PodVet.';
+            document.getElementById('referral-form').style.display = 'block';
+        }
+
         function closeModal() {
-            document.getElementById('modal-overlay').classList.add('hidden');
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+
+        function referralMessage(el, text, ok) {
+            el.textContent = text;
+            el.className = 'text-[11px] font-semibold rounded-xl px-3 py-2 ' +
+                (ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200');
+            el.classList.remove('hidden');
+        }
+
+        // Referral login — the receiving clinic enters the card's code and is
+        // signed straight into their new self-provisioned clinic.
+        function submitReferralLogin(e) {
+            e.preventDefault();
+            const code = document.getElementById('ref-code').value.trim();
+            const msg = document.getElementById('referral-msg');
+            const btn = document.getElementById('ref-submit');
+            const btnOriginal = btn.innerHTML;
+            if (!code) {
+                referralMessage(msg, 'Please enter the referral code from the card.', false);
+                return false;
+            }
+            const payload = {
+                code,
+                clinicName: document.getElementById('ref-clinic').value.trim(),
+                name: document.getElementById('ref-name').value.trim(),
+                email: document.getElementById('ref-email').value.trim(),
+                phone: document.getElementById('ref-phone').value.trim(),
+                password: document.getElementById('ref-password').value.trim(),
+            };
+            msg.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying code...';
+            const done = (res) => {
+                if (res && res.success) {
+                    referralMessage(msg, (res.message || 'Referral accepted!') + ' Redirecting to your clinic...', true);
+                    setTimeout(() => { window.location.href = '/app'; }, 1500);
+                } else {
+                    referralMessage(msg, (res && res.message) || 'Referral login failed. Check the code.', false);
+                    btn.disabled = false;
+                    btn.innerHTML = btnOriginal;
+                }
+            };
+            if (window.electronAPI && window.electronAPI.referralLogin) {
+                window.electronAPI.referralLogin(payload).then(done);
+            } else {
+                fetch('/api/auth/referral-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                }).then(r => r.json()).then(done);
+            }
+            return false;
         }
 
         // Dynamic brand color: reuses the landing tailwind config's --brand-*

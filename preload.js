@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Multi-tenant auth (centralized backend, not the per-clinic MySQL)
     login: (credentials) => invoke('login', credentials),
     clinicSignup: (payload) => invoke('clinic-signup', payload),
+    referralLogin: (payload) => invoke('referral-login', payload),
+    generateReferral: (payload) => invoke('generate-referral', payload),
     switchClinic: (payload) => invoke('switch-clinic', payload),
     getSession: () => invoke("get-session"),
     resumeSession: () => invoke("resume-session"),

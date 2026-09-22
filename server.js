@@ -174,6 +174,28 @@ async function ensurePlatformSchema() {
   const [cc] = await platConn.query('SELECT COUNT(*) AS n FROM clinics WHERE id=1');
   if (!cc[0].n) await platConn.query('INSERT INTO clinics (id, clinic_name, slug) VALUES (1, "PodVet Clinic", "podvet")');
   await platConn.query('UPDATE users SET clinic_id=1 WHERE clinic_id IS NULL');
+  // Referral cards: a clinic shares a card carrying a code; the receiving
+  // clinic redeems it on the login page to self-provision their own clinic.
+  await platConn.query(`CREATE TABLE IF NOT EXISTS referrals (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(60) NOT NULL,
+    referrer_clinic_id INT DEFAULT NULL,
+    referrer_clinic_name VARCHAR(255) DEFAULT 'PodVet Clinic',
+    offer VARCHAR(255) DEFAULT '20% discount on Grooming for both clinics',
+    status ENUM('active','redeemed','expired') DEFAULT 'active',
+    referred_clinic_id INT DEFAULT NULL,
+    redeemed_by VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    redeemed_at TIMESTAMP NULL DEFAULT NULL
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+  await platConn.query('ALTER TABLE referrals ADD UNIQUE INDEX uq_referral_code (code)');
+  const [refCount] = await platConn.query('SELECT COUNT(*) AS n FROM referrals');
+  if (!refCount[0].n) {
+    await platConn.query(`INSERT INTO referrals (code, referrer_clinic_name, offer) VALUES
+      ('DR-AHMED-REF', 'Ahmed Vet Clinic', '20% discount on Grooming for both clinics'),
+      ('REF-POD20', 'City Pet Hospital', '20% discount on First Vaccination for both clinics'),
+      ('REF-POD25', 'Happy Tails Veterinary', '25% discount on Consultation for both clinics')`);
+  }
   // Platform (Super Admin) tables live in the same DB but are a separate trust
   // boundary â€” own credentials, roles, plans, audit trail. Must run before the
   // clinics UPDATE below, which uses columns this call adds.
@@ -193,7 +215,7 @@ async function createClinicDatabase(clinicId, clinicName) {
     // they hold platform credentials and the token-signing secret.
     const PLATFORM_TABLES = new Set([
       'users', 'clinics', 'platform_admins', 'roles', 'role_permissions',
-      'audit_logs', 'plans', 'platform_settings',
+      'audit_logs', 'plans', 'platform_settings', 'referrals',
     ]);
     for (const t of tables) {
       const name = Object.values(t)[0];
@@ -376,6 +398,74 @@ app.post('/api/auth/login', async (req, res) => {
     const token = makeToken(u.id, clinicId);
     res.json({ accessToken: token, refreshToken: token, ...(await okClinicSession(u, clinicId)) });
   } catch (e) { res.status(500).json({ error: { message: e.message } }); }
+});
+
+// Public referral verification (used by the shared referral card / QR code).
+app.get('/api/referrals/verify', async (req, res) => {
+  try {
+    const code = String(req.query.code || '').trim().toUpperCase();
+    if (!code) return res.json({ valid: false, message: 'Enter the referral code from the card.' });
+    const [rows] = await platConn.query('SELECT code, referrer_clinic_name, offer, status FROM referrals WHERE BINARY code = ?', [code]);
+    if (!rows.length) return res.json({ valid: false, message: 'Invalid referral code. Check the card you received.' });
+    const r = rows[0];
+    if (r.status !== 'active') return res.json({ valid: false, message: 'This referral code has already been used.' });
+    res.json({ valid: true, code: r.code, clinicName: r.referrer_clinic_name, offer: r.offer });
+  } catch (e) { res.json({ valid: false }); }
+});
+
+// Referral login: the receiving clinic enters the code from a shared referral
+// card. A valid, unused code self-provisions a brand-new clinic + OWNER
+// account and signs the caller in — no separate signup step needed.
+app.post('/api/auth/referral-login', async (req, res) => {
+  try {
+    const code = String((req.body.code || '').trim()).toUpperCase();
+    if (!code) return res.status(400).json({ error: { message: 'Please enter the referral code from the card.' } });
+    const [rows] = await platConn.query('SELECT * FROM referrals WHERE BINARY code = ?', [code]);
+    if (!rows.length) return res.status(400).json({ error: { message: 'Invalid referral code. Check the card you received from the other clinic.' } });
+    const ref = rows[0];
+    if (ref.status !== 'active') {
+      return res.status(400).json({ error: { message: 'This referral code has already been used or is no longer active.' } });
+    }
+    const clinicName = String(req.body.clinicName || req.body.clinic_name || '').trim() || 'Referred Clinic';
+    const ownerName = String(req.body.name || '').trim() || 'Owner';
+    const email = String(req.body.email || '').trim() || `ref_${code.replace(/[^A-Z0-9]/gi, '').toLowerCase()}@podvet.local`;
+    const phone = req.body.phone || null;
+    const username = `ref_${code.replace(/[^A-Z0-9]/gi, '').toLowerCase()}_${Date.now().toString(36)}`;
+    const password = req.body.password || 'Podvet@Referral1';
+
+    const hash = await bcrypt.hash(password, 10);
+    const [reg] = await platConn.query('INSERT INTO clinics (clinic_name, slug) VALUES (?, ?)', [clinicName, 'podvet']);
+    const clinicId = reg.insertId;
+    await createClinicDatabase(clinicId, clinicName);
+    const [r] = await platConn.query('INSERT INTO users (name, username, email, password, role, phone_number, clinic_id) VALUES (?, ?, ?, ?, "OWNER", ?, ?)',
+      [ownerName, username, email, hash, phone, clinicId]);
+    await platConn.query('UPDATE referrals SET status="redeemed", referred_clinic_id=?, redeemed_by=?, redeemed_at=IFNULL(redeemed_at, NOW()) WHERE id=?',
+      [clinicId, ownerName, ref.id]);
+    const token = makeToken(r.insertId, clinicId);
+    res.json({
+      accessToken: token, refreshToken: token,
+      user: { id: r.insertId, name: ownerName, username, email, isPlatformAdmin: false },
+      activeClinic: { clinicId, clinicName, slug: 'podvet', role: 'OWNER', branchId: null, accessBlocked: null },
+      referredBy: { clinicName: ref.referrer_clinic_name, code: ref.code, offer: ref.offer },
+      message: `Referral accepted from ${ref.referrer_clinic_name}. Welcome!`,
+    });
+  } catch (e) { res.status(500).json({ error: { message: e.message } }); }
+});
+
+// A logged-in clinic owner mints their own referral code to put on a card they
+// share with another clinic. Keeps the referral-card generator fully functional.
+app.post('/api/referrals', authMiddleware, async (req, res) => {
+  try {
+    const clinicName = String(req.body.clinicName || '').trim() || 'PodVet Clinic';
+    const offer = String(req.body.offer || '').trim() || '20% discount on Grooming for both clinics';
+    const requested = String(req.body.code || '').trim().toUpperCase();
+    const code = requested || `REF-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 90 + 10)}`;
+    await platConn.query('INSERT INTO referrals (code, referrer_clinic_id, referrer_clinic_name, offer) VALUES (?, ?, ?, ?)',
+      [code, req.clinicId, clinicName, offer]);
+    res.json({ success: true, code });
+  } catch (e) {
+    res.status(500).json({ error: { message: /duplicate/i.test(String(e.message)) ? 'That referral code already exists.' : e.message } });
+  }
 });
 
 app.post('/api/clinics', async (req, res) => {
