@@ -255,9 +255,16 @@
             <div class="rounded-2xl border border-brand-500/30 bg-white/10 p-2 sm:p-3 shadow-2xl backdrop-blur-xl">
                 <p id="hero-caption" class="text-center text-[11px] sm:text-xs font-medium text-brand-300 pb-2 pt-1 tracking-wide">Medical Records — SOAP exam notes, prescriptions and patient history</p>
                 
-                <!-- Main Dashboard Frame (live PodVet interface) -->
+                // Main Dashboard Frame (live PodVet interface)
                 <div id="dashboard-mockup" class="bg-white rounded-xl shadow-xl overflow-hidden text-gray-800 text-left border border-gray-100">
-                    <img id="hero-screenshot" src="/landing/records.png" alt="PodVet Medical Records screen" class="w-full h-auto block">
+                    <a id="hero-screenshot-link" href="/app#/records" target="_blank" rel="noopener" class="group block relative">
+                        <img id="hero-screenshot" src="/landing/records.png" alt="PodVet Medical Records screen" class="w-full h-auto block">
+                        <span class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-brand-900/90 text-white text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-2 rounded-full inline-flex items-center gap-2 shadow-lg opacity-90 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-mouse-pointer text-brand-300"></i> Open this screen in the live app
+                            <i class="fa-solid fa-arrow-up-right-from-square text-brand-300"></i>
+                        </span>
+                        <span class="absolute inset-0 bg-brand-900/0 group-hover:bg-brand-950/10 transition-colors pointer-events-none"></span>
+                    </a>
                     <div class="hidden">
                     
                     <!-- Top App Header -->
@@ -446,7 +453,9 @@
 
                 <!-- Right visual: real Records screen -->
                 <div class="lg:col-span-6 bg-white/10 rounded-2xl p-3 border border-brand-400/20 backdrop-blur-md">
-                    <img src="/landing/records.png" alt="PodVet Medical Records screen" class="rounded-xl shadow-inner w-full h-auto">
+                    <a href="/app#/records" target="_blank" rel="noopener" class="block group">
+                        <img src="/landing/records.png" alt="PodVet Medical Records screen" class="rounded-xl shadow-inner w-full h-auto group-hover:opacity-95 transition-opacity">
+                    </a>
                 </div>
 
             </div>
@@ -649,7 +658,9 @@
 
                 <!-- Visual Right: real Inventory screen -->
                 <div class="lg:col-span-6">
-                    <img src="/landing/inventory.png" alt="PodVet inventory & stock tracking screen" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto">
+                    <a href="/app#/inventory" target="_blank" rel="noopener" class="block group">
+                        <img src="/landing/inventory.png" alt="PodVet inventory & stock tracking screen" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto group-hover:opacity-95 transition-opacity">
+                    </a>
                 </div>
 
             </div>
@@ -659,7 +670,9 @@
                 
                 <!-- Visual Left: real Reports screen -->
                 <div class="lg:col-span-6 order-2 lg:order-1">
-                    <img src="/landing/reports.png" alt="PodVet reports & analytics dashboard" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto">
+                    <a href="/app#/reports" target="_blank" rel="noopener" class="block group">
+                        <img src="/landing/reports.png" alt="PodVet reports & analytics dashboard" class="rounded-3xl shadow-xl border border-brand-100 w-full h-auto group-hover:opacity-95 transition-opacity">
+                    </a>
                 </div>
 
                 <!-- Text Right -->
@@ -1254,6 +1267,12 @@
             invoices: 'Invoices & Payments — e-invoice, e-receipt and POS checkout',
             reminders: 'Dashboard — today\'s appointments, stock levels and automated reminders',
         };
+        const HERO_LINKS = {
+            records: '#/records',
+            calendar: '#/appointments',
+            invoices: '#/payments',
+            reminders: '#/dashboard',
+        };
 
         function switchTab(tabKey) {
             // Update button styles
@@ -1266,10 +1285,14 @@
                 activeBtn.className = 'hero-tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-brand-800/90 text-white border border-brand-400/50 shadow-md transition-all flex items-center gap-2';
             }
 
-            // Swap in the real PodVet screenshot for this tab
+            // Swap in the real PodVet screenshot for this tab + point link at the live app page
             const img = document.getElementById('hero-screenshot');
             if (img && HERO_SHOTS[tabKey]) {
                 img.src = HERO_SHOTS[tabKey];
+            }
+            const link = document.getElementById('hero-screenshot-link');
+            if (link && HERO_LINKS[tabKey]) {
+                link.href = '/app' + HERO_LINKS[tabKey];
             }
             const caption = document.getElementById('hero-caption');
             if (caption && HERO_CAPTIONS[tabKey]) {
