@@ -497,6 +497,7 @@ module.exports = {
 
   // ── Client Billing ──────────────────────────────────────────────────────
   getClientUnpaidLedger: (clientId) => apiFetch(`/api/clients/${clientId}/unpaid-ledger`, { auth: true }),
+  getClientPaymentHistory: (clientId) => apiFetch(`/api/clients/${clientId}/payment-history`, { auth: true }),
   listClientUnpaidSummary: (params) => apiFetch(`/api/clients/unpaid-summary${queryString(params)}`, { auth: true }),
   payAllClientAppointments: (clientId, payload) =>
     apiFetch(`/api/clients/${clientId}/pay-all`, { method: 'POST', auth: true, body: payload }),

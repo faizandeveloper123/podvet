@@ -1015,6 +1015,34 @@ ipcMain.handle('get-client-unpaid-summary', async (event, { search = '', page = 
 
 const payAllPaymentModeToApi = { Cash: "CASH", "Card Payment": "CARD_PAYMENT", "Bank Transfer": "BANK_TRANSFER" };
 
+ipcMain.handle('get-client-payment-history', async (event, clientId) => {
+  try {
+    const result = await saasClient.getClientPaymentHistory(clientId);
+    return {
+      success: true,
+      data: result.data.map((r) => ({
+        billing_id: r.id,
+        invoice_no: r.invoiceNo,
+        appointment_id: r.appointmentId,
+        pet_name: r.petName,
+        subtotal: r.subtotal,
+        discount: r.discount,
+        final_total: r.finalTotal,
+        amount_paid: r.amountPaid,
+        balance: Number(r.finalTotal || 0) - Number(r.amountPaid || 0),
+        status: r.status,
+        payment_mode: r.paymentMode,
+        coupon_code: r.couponCode,
+        created_at: r.createdAt,
+      })),
+      summary: result.summary || { bills: 0, billed: 0, paid: 0, balance: 0 },
+    };
+  } catch (error) {
+    console.error('get-client-payment-history error:', error);
+    return { success: false, message: error.message, data: [], summary: { bills: 0, billed: 0, paid: 0, balance: 0 } };
+  }
+});
+
 ipcMain.handle('pay-all-client-appointments', async (event, { client_id, payment_mode }) => {
   try {
     const result = await saasClient.payAllClientAppointments(client_id, {

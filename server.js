@@ -209,6 +209,82 @@ async function ensurePlatformSchema() {
   await ensureSuperAdminSchema(platConn, DB_NAME);
   await platConn.query("UPDATE clinics SET status='active', plan='pro', subscription_start=COALESCE(subscription_start, CURDATE()), registration_date=COALESCE(registration_date, DATE(created_at)) WHERE id=1");
   await bootstrapSuperAdmin(platConn, bcrypt);
+  await ensureSoapNoteColumns();
+}
+
+// Idempotent migration for soap_notes: the SoapModal saves many more fields
+// than the original table had, so add any missing columns on every startup
+// (also covers the clinic-1 database on the VPS where schema.sql's
+// CREATE TABLE IF NOT EXISTS won't alter an already-existing table).
+async function ensureSoapNoteColumns() {
+  const SOAP_COLS = [
+    ['temperature_input_unit', "VARCHAR(10) DEFAULT 'C'"],
+    ['weight_input_unit', "VARCHAR(10) DEFAULT 'kg'"],
+    ['bcs', 'INT DEFAULT NULL'],
+    ['mucous_membrane', 'VARCHAR(50) DEFAULT NULL'],
+    ['crt', 'DECIMAL(3,1) DEFAULT NULL'],
+    ['crt_under_2', 'TINYINT(1) DEFAULT NULL'],
+    ['pulse_quality', 'VARCHAR(50) DEFAULT NULL'],
+    ['hydration_status', 'VARCHAR(50) DEFAULT NULL'],
+    ['mentation', 'VARCHAR(50) DEFAULT NULL'],
+    ['visit_type', 'VARCHAR(50) DEFAULT NULL'],
+    ['condition_status', 'VARCHAR(50) DEFAULT NULL'],
+    ['is_pregnant', 'TINYINT(1) DEFAULT 0'],
+    ['has_anemia', 'TINYINT(1) DEFAULT 0'],
+    ['vaccination_given', 'TINYINT(1) DEFAULT 0'],
+    ['deworming_given', 'TINYINT(1) DEFAULT 0'],
+    ['diarrhea_type', 'VARCHAR(50) DEFAULT NULL'],
+    ['vomit_type', 'VARCHAR(50) DEFAULT NULL'],
+    ['ddx', 'TEXT'],
+    ['prognosis', 'TEXT'],
+    ['next_visit_days', 'INT DEFAULT NULL'],
+    ['doctor_notes', 'TEXT'],
+    ['exam_eyes_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_eyes_note', 'TEXT'],
+    ['exam_eyes_discharge_type', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_eyes_color', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_eyes_cornea', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_eyes_pupils', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_ears_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_ears_note', 'TEXT'],
+    ['exam_ears_discharge_type', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_ears_odor', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_ears_appearance', 'VARCHAR(50) DEFAULT NULL'],
+    ['exam_ears_pain', 'TINYINT(1) DEFAULT NULL'],
+    ['exam_oral_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_oral_note', 'TEXT'],
+    ['exam_skin_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_skin_note', 'TEXT'],
+    ['exam_lymph_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_lymph_note', 'TEXT'],
+    ['exam_cardio_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_cardio_note', 'TEXT'],
+    ['exam_resp_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_resp_note', 'TEXT'],
+    ['exam_gi_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_gi_note', 'TEXT'],
+    ['exam_musculo_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_musculo_note', 'TEXT'],
+    ['exam_neuro_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_neuro_note', 'TEXT'],
+    ['exam_uro_normal', 'TINYINT(1) DEFAULT 1'],
+    ['exam_uro_note', 'TEXT'],
+    ['tests_advised', 'TEXT'],
+    ['updated_at', 'TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'],
+  ];
+  const [[tbl]] = await platConn.query(
+    'SELECT COUNT(*) AS n FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?',
+    [DB_NAME, 'soap_notes']);
+  if (!tbl.n) return;
+  for (const [name, ddl] of SOAP_COLS) {
+    const [[e]] = await platConn.query(
+      'SELECT COUNT(*) AS n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?',
+      [DB_NAME, 'soap_notes', name]);
+    if (!e.n) {
+      try { await platConn.query(`ALTER TABLE soap_notes ADD COLUMN \`${name}\` ${ddl}`); }
+      catch (err) { console.error('ensureSoapNoteColumns skip', name, err.message); }
+    }
+  }
 }
 
 async function createClinicDatabase(clinicId, clinicName) {
@@ -888,6 +964,31 @@ app.get('/api/clients/:id/unpaid-ledger', authMiddleware, async (req, res) => {
     const appointments = await unpaidAppointmentRows(req.params.id);
     res.json({ data: { clientId: c[0].id, clientName: c[0].client_name, contactNumber: c[0].contact_number, address: c[0].address, totalDue: appointments.reduce((s, a) => s + a.remaining, 0), appointments } });
   } catch { res.json({ data: [] }); }
+});
+app.get('/api/clients/:id/payment-history', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT b.id, b.invoice_no, b.appointment_id, b.client_id, b.pet_name, b.subtotal, b.discount,
+              b.final_total, b.amount_paid, b.status, b.payment_mode, b.coupon_code, b.created_at
+       FROM billing b WHERE b.client_id = ? ORDER BY b.created_at DESC, b.id DESC`,
+      [req.params.id]
+    );
+    const [sum] = await db.query(
+      `SELECT COUNT(*) AS bills, COALESCE(SUM(final_total),0) AS billed, COALESCE(SUM(amount_paid),0) AS paid,
+              COALESCE(SUM(final_total - amount_paid),0) AS balance
+       FROM billing WHERE client_id = ?`,
+      [req.params.id]
+    );
+    res.json({
+      data: toCamel(rows),
+      summary: {
+        bills: Number(sum[0].bills) || 0,
+        billed: Number(sum[0].billed) || 0,
+        paid: Number(sum[0].paid) || 0,
+        balance: Number(sum[0].balance) || 0,
+      },
+    });
+  } catch (e) { console.error('[payment-history]', e.message); res.json({ data: [], summary: { bills: 0, billed: 0, paid: 0, balance: 0 } }); }
 });
 app.post('/api/clients/:id/pay-all', authMiddleware, async (req, res) => {
   try {
@@ -1751,8 +1852,16 @@ app.get('/api/records/search-pets', authMiddleware, async (req, res) => {
 
 // â”€â”€â”€ SOAP NOTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/soap-notes', authMiddleware, async (req, res) => {
-  try { const [rows] = await db.query('SELECT * FROM soap_notes WHERE pet_id=? ORDER BY created_at DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); }
-  catch { res.json({ data: [] }); }
+  try {
+    const [rows] = await db.query('SELECT * FROM soap_notes WHERE pet_id=? ORDER BY created_at DESC', [req.params.petId]);
+    res.json({ data: (rows.map(toCamel)).map((r) => {
+      let tests = r.testsAdvised ?? r.tests_advised ?? null;
+      if (typeof tests === 'string' && tests) {
+        try { tests = JSON.parse(tests); } catch { tests = [tests]; }
+      }
+      return { ...r, testsAdvised: Array.isArray(tests) ? tests : [] };
+    }) });
+  } catch { res.json({ data: [] }); }
 });
 app.get('/api/soap-notes/:id', authMiddleware, async (req, res) => {
   try { const [rows] = await db.query('SELECT * FROM soap_notes WHERE id=?', [req.params.id]); if (!rows.length) return res.status(404).json({ error: { message: 'Not found', code: 'NOT_FOUND' } }); res.json({ data: toCamel(rows[0]) }); }
@@ -1767,18 +1876,34 @@ app.get('/api/soap-notes/by-boarding-stay/:id/exists', authMiddleware, (req, res
 app.post('/api/pets/:petId/soap-notes', authMiddleware, async (req, res) => {
   try {
     if (!/^\d+$/.test(req.params.petId)) return res.status(400).json({ error: { message: 'Invalid pet id: ' + req.params.petId, code: 'BAD_REQUEST' } });
-    const d = req.body; const [r] = await db.query('INSERT INTO soap_notes (pet_id,appointment_id,doctor,subjective,objective,assessment,diagnosis,`plan`,temperature,heart_rate,respiratory_rate,weight) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-    [req.params.petId, d.appointmentId||null, d.doctor||'', d.subjective||'', d.objective||'', d.assessment||'', d.diagnosis||'', d.plan||'', d.temperature||null, d.heartRate||d.heart_rate||null, d.respiratoryRate||d.respiratory_rate||null, d.weight||null]);
+    const d = req.body; const [r] = await db.query(`INSERT INTO soap_notes (pet_id,appointment_id,boarding_stay_id,doctor,subjective,objective,assessment,diagnosis,\`plan\`,temperature,temperature_input_unit,heart_rate,respiratory_rate,weight,weight_input_unit,bcs,mucous_membrane,crt,crt_under_2,pulse_quality,hydration_status,mentation,visit_type,condition_status,is_pregnant,has_anemia,vaccination_given,deworming_given,diarrhea_type,vomit_type,ddx,prognosis,next_visit_days,doctor_notes,exam_eyes_normal,exam_eyes_note,exam_eyes_discharge_type,exam_eyes_color,exam_eyes_cornea,exam_eyes_pupils,exam_ears_normal,exam_ears_note,exam_ears_discharge_type,exam_ears_odor,exam_ears_appearance,exam_ears_pain,exam_oral_normal,exam_oral_note,exam_skin_normal,exam_skin_note,exam_lymph_normal,exam_lymph_note,exam_cardio_normal,exam_cardio_note,exam_resp_normal,exam_resp_note,exam_gi_normal,exam_gi_note,exam_musculo_normal,exam_musculo_note,exam_neuro_normal,exam_neuro_note,exam_uro_normal,exam_uro_note) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    [req.params.petId, d.appointmentId||d.appointment_id||null, d.boardingStayId||d.boarding_stay_id||null, d.doctor||'', d.subjective||'', d.objective||'', d.assessment||'', d.diagnosis||'', d.plan||'', d.temperature||null, d.temperatureInputUnit||d.temperature_input_unit||'C', d.heartRate||d.heart_rate||null, d.respiratoryRate||d.respiratory_rate||null, d.weight||null, d.weightInputUnit||d.weight_input_unit||'kg', d.bcs||null, d.mucousMembrane||d.mucous_membrane||null, d.crt||null, (d.crtUnder2??d.crt_under_2)??null, d.pulseQuality||d.pulse_quality||null, d.hydrationStatus||d.hydration_status||null, d.mentation||null, d.visitType||d.visit_type||null, d.conditionStatus||d.condition_status||null, (d.isPregnant??d.is_pregnant)??0, (d.hasAnemia??d.has_anemia)??0, (d.vaccinationGiven??d.vaccination_given)??0, (d.dewormingGiven??d.deworming_given)??0, d.diarrheaType||d.diarrhea_type||null, d.vomitType||d.vomit_type||null, d.ddx||null, d.prognosis||null, d.nextVisitDays||d.next_visit_days||null, d.doctorNotes||d.doctor_notes||null, (d.examEyesNormal??d.exam_eyes_normal)??1, d.examEyesNote||d.exam_eyes_note||null, d.examEyesDischargeType||d.exam_eyes_discharge_type||null, d.examEyesColor||d.exam_eyes_color||null, d.examEyesCornea||d.exam_eyes_cornea||null, d.examEyesPupils||d.exam_eyes_pupils||null, (d.examEarsNormal??d.exam_ears_normal)??1, d.examEarsNote||d.exam_ears_note||null, d.examEarsDischargeType||d.exam_ears_discharge_type||null, d.examEarsOdor||d.exam_ears_odor||null, d.examEarsAppearance||d.exam_ears_appearance||null, (d.examEarsPain??d.exam_ears_pain)??null, (d.examOralNormal??d.exam_oral_normal)??1, d.examOralNote||d.exam_oral_note||null, (d.examSkinNormal??d.exam_skin_normal)??1, d.examSkinNote||d.exam_skin_note||null, (d.examLymphNormal??d.exam_lymph_normal)??1, d.examLymphNote||d.exam_lymph_note||null, (d.examCardioNormal??d.exam_cardio_normal)??1, d.examCardioNote||d.exam_cardio_note||null, (d.examRespNormal??d.exam_resp_normal)??1, d.examRespNote||d.exam_resp_note||null, (d.examGiNormal??d.exam_gi_normal)??1, d.examGiNote||d.exam_gi_note||null, (d.examMusculoNormal??d.exam_musculo_normal)??1, d.examMusculoNote||d.exam_musculo_note||null, (d.examNeuroNormal??d.exam_neuro_normal)??1, d.examNeuroNote||d.exam_neuro_note||null, (d.examUroNormal??d.exam_uro_normal)??1, d.examUroNote||d.exam_uro_note||null]);
     res.json({ data: { id: r.insertId } }); } catch (e) { res.status(500).json({ error: { message: e.message } }); }
 });
 app.patch('/api/soap-notes/:id', authMiddleware, async (req, res) => {
-  try { const d = req.body; await db.query('UPDATE soap_notes SET doctor=?,subjective=?,objective=?,assessment=?,diagnosis=?,`plan`=?,temperature=?,heart_rate=?,respiratory_rate=?,weight=? WHERE id=?',
-    [d.doctor||'', d.subjective||'', d.objective||'', d.assessment||'', d.diagnosis||'', d.plan||'', d.temperature||null, d.heartRate||d.heart_rate||null, d.respiratoryRate||d.respiratory_rate||null, d.weight||null, req.params.id]);
-    res.json({ success: true }); } catch { res.json({ success: true }); }
+  try { const d = req.body; await db.query(`UPDATE soap_notes SET appointment_id=?,boarding_stay_id=?,doctor=?,subjective=?,objective=?,assessment=?,diagnosis=?,\`plan\`=?,temperature=?,temperature_input_unit=?,heart_rate=?,respiratory_rate=?,weight=?,weight_input_unit=?,bcs=?,mucous_membrane=?,crt=?,crt_under_2=?,pulse_quality=?,hydration_status=?,mentation=?,visit_type=?,condition_status=?,is_pregnant=?,has_anemia=?,vaccination_given=?,deworming_given=?,diarrhea_type=?,vomit_type=?,ddx=?,prognosis=?,next_visit_days=?,doctor_notes=?,exam_eyes_normal=?,exam_eyes_note=?,exam_eyes_discharge_type=?,exam_eyes_color=?,exam_eyes_cornea=?,exam_eyes_pupils=?,exam_ears_normal=?,exam_ears_note=?,exam_ears_discharge_type=?,exam_ears_odor=?,exam_ears_appearance=?,exam_ears_pain=?,exam_oral_normal=?,exam_oral_note=?,exam_skin_normal=?,exam_skin_note=?,exam_lymph_normal=?,exam_lymph_note=?,exam_cardio_normal=?,exam_cardio_note=?,exam_resp_normal=?,exam_resp_note=?,exam_gi_normal=?,exam_gi_note=?,exam_musculo_normal=?,exam_musculo_note=?,exam_neuro_normal=?,exam_neuro_note=?,exam_uro_normal=?,exam_uro_note=? WHERE id=?`,
+    [d.appointmentId||d.appointment_id||null, d.boardingStayId||d.boarding_stay_id||null, d.doctor||'', d.subjective||'', d.objective||'', d.assessment||'', d.diagnosis||'', d.plan||'', d.temperature||null, d.temperatureInputUnit||d.temperature_input_unit||'C', d.heartRate||d.heart_rate||null, d.respiratoryRate||d.respiratory_rate||null, d.weight||null, d.weightInputUnit||d.weight_input_unit||'kg', d.bcs||null, d.mucousMembrane||d.mucous_membrane||null, d.crt||null, (d.crtUnder2??d.crt_under_2)??null, d.pulseQuality||d.pulse_quality||null, d.hydrationStatus||d.hydration_status||null, d.mentation||null, d.visitType||d.visit_type||null, d.conditionStatus||d.condition_status||null, (d.isPregnant??d.is_pregnant)??0, (d.hasAnemia??d.has_anemia)??0, (d.vaccinationGiven??d.vaccination_given)??0, (d.dewormingGiven??d.deworming_given)??0, d.diarrheaType||d.diarrhea_type||null, d.vomitType||d.vomit_type||null, d.ddx||null, d.prognosis||null, d.nextVisitDays||d.next_visit_days||null, d.doctorNotes||d.doctor_notes||null, (d.examEyesNormal??d.exam_eyes_normal)??1, d.examEyesNote||d.exam_eyes_note||null, d.examEyesDischargeType||d.exam_eyes_discharge_type||null, d.examEyesColor||d.exam_eyes_color||null, d.examEyesCornea||d.exam_eyes_cornea||null, d.examEyesPupils||d.exam_eyes_pupils||null, (d.examEarsNormal??d.exam_ears_normal)??1, d.examEarsNote||d.exam_ears_note||null, d.examEarsDischargeType||d.exam_ears_discharge_type||null, d.examEarsOdor||d.exam_ears_odor||null, d.examEarsAppearance||d.exam_ears_appearance||null, (d.examEarsPain??d.exam_ears_pain)??null, (d.examOralNormal??d.exam_oral_normal)??1, d.examOralNote||d.exam_oral_note||null, (d.examSkinNormal??d.exam_skin_normal)??1, d.examSkinNote||d.exam_skin_note||null, (d.examLymphNormal??d.exam_lymph_normal)??1, d.examLymphNote||d.exam_lymph_note||null, (d.examCardioNormal??d.exam_cardio_normal)??1, d.examCardioNote||d.exam_cardio_note||null, (d.examRespNormal??d.exam_resp_normal)??1, d.examRespNote||d.exam_resp_note||null, (d.examGiNormal??d.exam_gi_normal)??1, d.examGiNote||d.exam_gi_note||null, (d.examMusculoNormal??d.exam_musculo_normal)??1, d.examMusculoNote||d.exam_musculo_note||null, (d.examNeuroNormal??d.exam_neuro_normal)??1, d.examNeuroNote||d.exam_neuro_note||null, (d.examUroNormal??d.exam_uro_normal)??1, d.examUroNote||d.exam_uro_note||null, req.params.id]); 
+    res.json({ success: true }); } catch (e) { console.error('soap-note update err', e.message); res.json({ success: false }); }
 });
 app.delete('/api/soap-notes/:id', authMiddleware, async (req, res) => { try { await db.query('DELETE FROM soap_notes WHERE id=?', [req.params.id]); res.json({ success: true }); } catch { res.json({ success: true }); } });
-app.get('/api/soap-notes/:id/tests-advised', authMiddleware, (req, res) => res.json({ data: [] }));
-app.put('/api/soap-notes/:id/tests-advised', authMiddleware, (req, res) => res.json({ success: true }));
+app.get('/api/soap-notes/:id/tests-advised', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT tests_advised FROM soap_notes WHERE id=?', [req.params.id]);
+    if (!rows.length) return res.json({ data: [] });
+    let tests = rows[0].tests_advised;
+    if (typeof tests === 'string' && tests) {
+      try { tests = JSON.parse(tests); } catch { tests = [tests]; }
+    }
+    res.json({ data: Array.isArray(tests) ? tests : [] });
+  } catch { res.json({ data: [] }); }
+});
+app.put('/api/soap-notes/:id/tests-advised', authMiddleware, async (req, res) => {
+  try {
+    const tests = Array.isArray(req.body.tests) ? req.body.tests : [];
+    await db.query('UPDATE soap_notes SET tests_advised=? WHERE id=?', [JSON.stringify(tests), req.params.id]);
+    res.json({ success: true });
+  } catch { res.json({ success: true }); }
+});
 
 // â”€â”€â”€ VACCINATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/pets/:petId/vaccinations', authMiddleware, async (req, res) => { try { const [rows] = await db.query('SELECT * FROM vaccinations WHERE pet_id=? ORDER BY administered_on DESC', [req.params.petId]); res.json({ data: toCamel(rows) }); } catch { res.json({ data: [] }); } });

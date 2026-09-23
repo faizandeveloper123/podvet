@@ -106,6 +106,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getClientUnpaidSummary: (params) => invoke('get-client-unpaid-summary', params),
     generateClientUnpaidLedger: (params) => invoke('generate-client-unpaid-ledger', params),
     payAllClientAppointments: (data) => invoke('pay-all-client-appointments', data),
+    getClientPaymentHistory: (clientId) => invoke('get-client-payment-history', clientId),
 
     // Outstanding Product Sales (walk-in Billing credit/partial sales)
     getProductBillingUnpaidClients: (params) => invoke('get-product-billing-unpaid-clients', params),
