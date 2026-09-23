@@ -7,6 +7,13 @@ const { AsyncLocalStorage } = require('async_hooks');
 const { ensureSuperAdminSchema, bootstrapSuperAdmin, registerSuperAdmin, authenticatePlatformAdmin } = require('./lib/superAdmin');
 const { registerSuperAdminExt } = require('./lib/superAdminExt');
 
+// Free-trial policy: every new clinic gets a 3-month trial by default, and a
+// referral card redemption adds one extra free month to BOTH the clinic that
+// redeemed the card and the clinic that shared it (3 + 1 = 4 months).
+const TRIAL_DAYS = 90;
+const REFERRAL_BONUS_DAYS = 30;
+const SUBSCRIPTION_DAY_MS = 86400000;
+
 const app = express();
 app.set('query parser', 'extended');
 app.use(cors());
@@ -295,6 +302,67 @@ function paginate(rows, total, page, pageSize) {
 
 const EMPTY = { data: [], total: 0, page: 1, totalPages: 0 };
 
+// ─── SUBSCRIPTION / FREE-TRIAL HELPERS ──────────────────────────────────────
+// All clinics carry: plan, status, subscription_start, subscription_expiry.
+// A free trial whose expiry has passed is SUSPENDED (login rejected) and every
+// referral card minted by that clinic is flipped to 'expired' so nobody can
+// redeem it again once the sender's trial is over.
+async function startTrial(clinicId, extraDays) {
+  const days = TRIAL_DAYS + (extraDays || 0);
+  await platConn.query(`UPDATE clinics
+      SET status='trial', plan='trial',
+          subscription_start = COALESCE(subscription_start, CURDATE()),
+          subscription_expiry = DATE_ADD(GREATEST(COALESCE(subscription_expiry, CURDATE()), CURDATE()), INTERVAL ? DAY),
+          registration_date = COALESCE(registration_date, CURDATE())
+      WHERE id = ?`, [days, clinicId]);
+}
+
+// Extend an existing clinic by N days from its expiry (or from today if it has
+// no expiry yet). Only applied to clinics that are still active/trial.
+async function extendSubscription(clinicId, days) {
+  await platConn.query(`UPDATE clinics
+      SET subscription_expiry = DATE_ADD(GREATEST(COALESCE(subscription_expiry, CURDATE()), CURDATE()), INTERVAL ? DAY),
+          subscription_start = COALESCE(subscription_start, CURDATE())
+      WHERE id = ? AND status IN ('active','trial')`, [days, clinicId]);
+}
+
+// Returns true when the clinic has active/trial status AND its subscription is
+// still in the future; otherwise suspends it, expires its cards and reports
+// the block so callers can reject the action.
+async function guardClinicSubscription(clinicId) {
+  if (!clinicId) return true;
+  const [rows] = await platConn.query('SELECT status, DATEDIFF(subscription_expiry, CURDATE()) AS days_left FROM clinics WHERE id = ?', [clinicId]);
+  if (!rows.length) return false;
+  const r = rows[0];
+  const expired = r.days_left !== null && r.days_left !== undefined && Number(r.days_left) < 0;
+  if (expired && (r.status === 'active' || r.status === 'trial')) {
+    await platConn.query("UPDATE clinics SET status='suspended', plan='trial' WHERE id = ?", [clinicId]);
+    await platConn.query("UPDATE referrals SET status='expired' WHERE referrer_clinic_id = ? AND status = 'active'", [clinicId]);
+    return false;
+  }
+  return r.status !== 'suspended' && r.status !== 'disabled';
+}
+
+// Daily sweep: suspend every clinic whose trial expired and expire all cards
+// they minted, so those cards can never be logged in with again.
+async function sweepExpiredTrials() {
+  try {
+    const [rows] = await platConn.query(
+      "SELECT id FROM clinics WHERE status IN ('active','trial') AND subscription_expiry IS NOT NULL AND DATEDIFF(subscription_expiry, CURDATE()) < 0");
+    for (const c of rows) {
+      await platConn.query("UPDATE clinics SET status='suspended', plan='trial' WHERE id = ?", [c.id]);
+      await platConn.query("UPDATE referrals SET status='expired' WHERE referrer_clinic_id = ? AND status = 'active'", [c.id]);
+      console.log(`[trial] clinic #${c.id} suspended (trial expired), its referral cards expired`);
+    }
+  } catch (_) {}
+}
+
+async function initSubscriptionSweep() {
+  const timer = setInterval(sweepExpiredTrials, 60 * 60 * 1000);
+  if (timer.unref) timer.unref();
+  setTimeout(sweepExpiredTrials, 5000);
+}
+
 // â”€â”€â”€ UNPAID BALANCES (appointments / walk-in billing / quick bills) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // All three "Outstanding Balances" panels + the client ledger share one shape:
 // billing rows with a balance remaining (final_total > amount_paid).
@@ -390,6 +458,9 @@ app.post('/api/auth/login', async (req, res) => {
     const valid = await bcrypt.compare(password, u.password);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     const clinicId = u.clinic_id || 1;
+    // Trial over? Auto-suspend before we check login, so an expired free
+    // trial can't sign in and its referral cards are deactivated.
+    await guardClinicSubscription(clinicId);
     const [cl] = await platConn.query('SELECT status FROM clinics WHERE id = ?', [clinicId]);
     const status = cl.length ? cl[0].status : 'active';
     if (status === 'suspended' || status === 'disabled') {
@@ -405,17 +476,25 @@ app.get('/api/referrals/verify', async (req, res) => {
   try {
     const code = String(req.query.code || '').trim().toUpperCase();
     if (!code) return res.json({ valid: false, message: 'Enter the referral code from the card.' });
-    const [rows] = await platConn.query('SELECT code, referrer_clinic_name, offer, status FROM referrals WHERE BINARY code = ?', [code]);
+    const [rows] = await platConn.query('SELECT code, referrer_clinic_name, referrer_clinic_id, offer, status FROM referrals WHERE BINARY code = ?', [code]);
     if (!rows.length) return res.json({ valid: false, message: 'Invalid referral code. Check the card you received.' });
     const r = rows[0];
-    if (r.status !== 'active') return res.json({ valid: false, message: 'This referral code has already been used.' });
+    if (r.status !== 'active') return res.json({ valid: false, message: 'This referral card has expired or has already been used.' });
+    // A card is only worth anything while the sender's trial is still running.
+    const ok = await guardClinicSubscription(r.referrer_clinic_id);
+    if (!ok) {
+      await platConn.query("UPDATE referrals SET status='expired' WHERE id = ?", [r.id]);
+      return res.json({ valid: false, message: 'This referral card has expired because the referring clinic\u2019s trial ended.' });
+    }
     res.json({ valid: true, code: r.code, clinicName: r.referrer_clinic_name, offer: r.offer });
   } catch (e) { res.json({ valid: false }); }
 });
 
 // Referral login: the receiving clinic enters the code from a shared referral
 // card. A valid, unused code self-provisions a brand-new clinic + OWNER
-// account and signs the caller in — no separate signup step needed.
+// account and signs the caller in — no separate signup step needed. The new
+// clinic gets the standard 3-month trial PLUS one extra free month from the
+// referral, and the sender clinic's own trial is extended by one month too.
 app.post('/api/auth/referral-login', async (req, res) => {
   try {
     const code = String((req.body.code || '').trim()).toUpperCase();
@@ -424,7 +503,14 @@ app.post('/api/auth/referral-login', async (req, res) => {
     if (!rows.length) return res.status(400).json({ error: { message: 'Invalid referral code. Check the card you received from the other clinic.' } });
     const ref = rows[0];
     if (ref.status !== 'active') {
-      return res.status(400).json({ error: { message: 'This referral code has already been used or is no longer active.' } });
+      return res.status(400).json({ error: { message: 'This referral card has expired or has already been used.' } });
+    }
+    // The sender's trial must still be live — an expired sender can no longer
+    // be logged in with, and their card is dead (free trial is suspended).
+    const okSender = await guardClinicSubscription(ref.referrer_clinic_id);
+    if (!okSender) {
+      await platConn.query("UPDATE referrals SET status='expired' WHERE id = ?", [ref.id]);
+      return res.status(403).json({ error: { message: 'This referral card has expired because the referring clinic\u2019s free trial ended.' } });
     }
     const clinicName = String(req.body.clinicName || req.body.clinic_name || '').trim() || 'Referred Clinic';
     const ownerName = String(req.body.name || '').trim() || 'Owner';
@@ -437,25 +523,38 @@ app.post('/api/auth/referral-login', async (req, res) => {
     const [reg] = await platConn.query('INSERT INTO clinics (clinic_name, slug) VALUES (?, ?)', [clinicName, 'podvet']);
     const clinicId = reg.insertId;
     await createClinicDatabase(clinicId, clinicName);
+    // 3-month trial + 1 extra month from the referral = 4 months.
+    await startTrial(clinicId, REFERRAL_BONUS_DAYS);
     const [r] = await platConn.query('INSERT INTO users (name, username, email, password, role, phone_number, clinic_id) VALUES (?, ?, ?, ?, "OWNER", ?, ?)',
       [ownerName, username, email, hash, phone, clinicId]);
     await platConn.query('UPDATE referrals SET status="redeemed", referred_clinic_id=?, redeemed_by=?, redeemed_at=IFNULL(redeemed_at, NOW()) WHERE id=?',
       [clinicId, ownerName, ref.id]);
+    // Reward the sender too: one extra month on their subscription.
+    if (ref.referrer_clinic_id) await extendSubscription(ref.referrer_clinic_id, REFERRAL_BONUS_DAYS);
+
+    const [expiryRows] = await platConn.query('SELECT subscription_expiry FROM clinics WHERE id = ?', [clinicId]);
+    const trialEnd = expiryRows.length && expiryRows[0].subscription_expiry
+      ? new Date(expiryRows[0].subscription_expiry).toISOString().slice(0, 10)
+      : null;
     const token = makeToken(r.insertId, clinicId);
     res.json({
       accessToken: token, refreshToken: token,
       user: { id: r.insertId, name: ownerName, username, email, isPlatformAdmin: false },
       activeClinic: { clinicId, clinicName, slug: 'podvet', role: 'OWNER', branchId: null, accessBlocked: null },
       referredBy: { clinicName: ref.referrer_clinic_name, code: ref.code, offer: ref.offer },
-      message: `Referral accepted from ${ref.referrer_clinic_name}. Welcome!`,
+      message: `Referral accepted from ${ref.referrer_clinic_name}. 3-month free trial + 1 extra month — your trial ends on ${trialEnd}.`,
     });
   } catch (e) { res.status(500).json({ error: { message: e.message } }); }
 });
 
 // A logged-in clinic owner mints their own referral code to put on a card they
-// share with another clinic. Keeps the referral-card generator fully functional.
+// share with another clinic. Every call creates a different, redeemable card.
 app.post('/api/referrals', authMiddleware, async (req, res) => {
   try {
+    // Suspended/expired clinics can't mint referral cards — their trial is over.
+    if (!(await guardClinicSubscription(req.clinicId))) {
+      return res.status(403).json({ error: { message: 'Your free trial has ended, so you can no longer generate referral cards until you upgrade or renew.' } });
+    }
     const clinicName = String(req.body.clinicName || '').trim() || 'PodVet Clinic';
     const offer = String(req.body.offer || '').trim() || '20% discount on Grooming for both clinics';
     const requested = String(req.body.code || '').trim().toUpperCase();
@@ -480,6 +579,7 @@ app.post('/api/clinics', async (req, res) => {
     const [reg] = await platConn.query('INSERT INTO clinics (clinic_name, slug) VALUES (?, ?)', [clinicName, 'podvet']);
     const clinicId = reg.insertId;
     await createClinicDatabase(clinicId, clinicName);
+    await startTrial(clinicId, 0);
     const [r] = await platConn.query('INSERT INTO users (name, username, email, password, role, phone_number, clinic_id) VALUES (?, ?, ?, ?, "OWNER", ?, ?)',
       [name, username, email, hash, owner.phoneNumber || owner.phone_number || null, clinicId]);
     const token = makeToken(r.insertId, clinicId);
@@ -606,7 +706,7 @@ app.get('/api/plans', authMiddleware, (req, res) => res.json({ data: [
     name: 'Free',
     priceMonthly: 0,
     priceYearly: 0,
-    trialDays: 30,
+    trialDays: 90,
     features: [
       'Unlimited clients and pets',
       'Appointments & billing',
@@ -2362,6 +2462,7 @@ const PORT = 4000;
 
 function startServer(port) {
   const p = port || PORT;
+  initSubscriptionSweep();
   const listen = () => new Promise((resolve) => {
     const srv = app.listen(p, () => {
       console.log(`PodVet API server running on port ${p}`);

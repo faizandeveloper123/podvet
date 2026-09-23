@@ -154,6 +154,10 @@
                     <i class="fa-solid fa-crown text-amber-500"></i>
                     <span>VIP Member</span>
                 </button>
+                <button id="btnGenNewReferral" onclick="generateNewReferralCard()" class="text-xs bg-amber-500 hover:bg-amber-400 text-white px-3 py-1.5 rounded-lg border border-amber-600 transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-arrow-rotate-right"></i>
+                    <span>New Referral Card</span>
+                </button>
             </div>
         </div>
     </header>
@@ -425,6 +429,9 @@
                 </button>
             </div>
 
+            <!-- Generate New Referral Card feedback -->
+            <div id="genMsg" class="hidden w-full max-w-md rounded-xl px-3 py-2 text-[11px] font-semibold border"></div>
+
             <!-- Helpful Hints -->
             <div class="w-full max-w-md bg-white p-3.5 rounded-xl border border-gray-200 text-xs text-gray-500 space-y-1">
                 <p class="font-semibold text-gray-700 flex items-center gap-1.5">
@@ -432,6 +439,7 @@
                 </p>
                 <ul class="list-disc list-inside space-y-0.5 text-[11px] text-gray-500">
                     <li>Referral Card par discount fixed 20% hai â€” change nahi ho sakta.</li>
+                    <li>"New Referral Card" button har baar ek naya unique code banata hai jo aap kisi aur clinic ko bhej sakty hain.</li>
                     <li>Front or Back dono sides live preview aur export ke liye tayyar hain.</li>
                     <li>Download button dabane se high quality image download ho jaye gi.</li>
                 </ul>
@@ -509,6 +517,72 @@
             field.value = FIXED_DISCOUNT;
             field.disabled = true;
             field.readOnly = true;
+        }
+
+        // Web session used to mint a fresh referral code when not inside the
+        // desktop app. The app saves it under "podvet_session" on this origin.
+        function getSession() {
+            try { return JSON.parse(localStorage.getItem('podvet_session') || 'null') || null; }
+            catch (_) { return null; }
+        }
+        function setGenMsg(text, ok) {
+            const el = document.getElementById('genMsg');
+            el.classList.remove('hidden');
+            el.className = 'w-full max-w-md rounded-xl px-3 py-2 text-[11px] font-semibold border ' +
+                (ok ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200');
+            el.textContent = text;
+        }
+        // Mint a BRAND-NEW unique referral code (each call differs) so this card
+        // can be shared with another clinic, who then logs in with the code. The
+        // minting clinic stays logged in; a suspended/expired trial is rejected.
+        function generateNewReferralCard() {
+            const btn = document.getElementById('btnGenNewReferral');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating card...';
+            const applyCode = (code) => {
+                const refInput = document.getElementById('inputRefCode');
+                const idInput = document.getElementById('inputCardId');
+                applyPreset('referral');
+                refInput.value = code;
+                idInput.value = 'PV-REF-' + code.replace(/[^A-Z0-9]/gi, '').slice(-4) + '-' + Math.floor(10 + Math.random() * 89);
+                updateCard();
+                setGenMsg('New referral card ready! Code ' + code + ' \u2014 download the PNG and send it to the other clinic. They log in with this code.', true);
+            };
+            const fail = (msg) => {
+                btn.disabled = false;
+                btn.innerHTML = original;
+                setGenMsg(msg || 'Could not generate a referral card. Please try again.', false);
+            };
+            const fin = () => { btn.disabled = false; btn.innerHTML = original; };
+            // Desktop/embedded: the app's preload has a minting API.
+            if (window.electronAPI && typeof window.electronAPI.generateReferral === 'function') {
+                window.electronAPI.generateReferral({})
+                    .then((r) => {
+                        if (r && r.success && r.code) { applyCode(r.code); }
+                        else { fail((r && (r.message || r.error && r.error.message)) || 'Could not generate a referral card.'); }
+                    })
+                    .catch((e) => fail(e && e.message)).finally(fin);
+                return;
+            }
+            // Web: the clinic is usually already signed in on this origin.
+            const sess = getSession();
+            if (!sess || !sess.tokens || !sess.tokens.accessToken) {
+                fail('Please log in first (this page has no saved session). Redirecting to the login page\u2026');
+                setTimeout(() => { window.location.href = '/app'; }, 1600);
+                return;
+            }
+            fetch('/api/referrals', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + sess.tokens.accessToken
+                },
+                body: JSON.stringify({})
+            }).then((r) => r.json()).then((j) => {
+                if (j && j.code) { applyCode(j.code); }
+                else { fail((j && j.error && (j.error.message || j.error)) || 'Could not generate a referral card.'); }
+            }).catch(() => fail('Timed out. Your free trial may be suspended \u2014 log in to check.')).finally(fin);
         }
 
         // Initialize QR code on load
