@@ -879,8 +879,8 @@ function generatePOSSlipPDF(data, outputPath) {
     // null price is a deliberate sentinel for grouped category rows with no
     // single real unit price (see buildAppointmentInvoicePayload) — shown as
     // "-" rather than fabricating an average.
-    const price   = item.price == null ? null : parseFloat(item.price);
-    const total   = parseFloat(item.total ?? qty * (price ?? 0));
+    const price   = item.price == null ? (branding.price ?? DEFAULTS.price ?? 500) : parseFloat(item.price);
+    const total   = item.total != null ? parseFloat(item.total) : qty * (price ?? 0);
     const qtyDisp = fmtQty(qty);
 
     doc.setFont("helvetica", "bold");
@@ -1058,8 +1058,8 @@ async function printPOSSlip(data, printerName = "POS-80-Series") {
     // null price is a deliberate sentinel for grouped category rows with no
     // single real unit price (see buildAppointmentInvoicePayload) — shown as
     // "-" rather than fabricating an average.
-    const price   = item.price == null ? null : parseFloat(item.price);
-    const total   = parseFloat(item.total ?? qty * (price ?? 0));
+    const price   = item.price == null ? (branding.price ?? DEFAULTS.price ?? 500) : parseFloat(item.price);
+    const total   = item.total != null ? parseFloat(item.total) : qty * (price ?? 0);
     const qtyDisp = fmtQty(qty);
     return `
     <div class="item-name">${item.name ?? "Item"}</div>
