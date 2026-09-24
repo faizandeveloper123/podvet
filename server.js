@@ -169,6 +169,10 @@ const db = new Proxy({}, {
 });
 
 async function ensurePlatformSchema() {
+  // Soap-note columns must be added FIRST and independently: the ALTER block
+  // below throws on pre-existing index names (uclinics/referrals/employees),
+  // which would abort this whole function before reaching the column migration.
+  try { await ensureSoapNoteColumns(); } catch (e) { console.error('ensureSoapNoteColumns failed:', e.message); }
   await platConn.query(`CREATE TABLE IF NOT EXISTS clinics (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     clinic_name VARCHAR(255) NOT NULL,
@@ -209,7 +213,6 @@ async function ensurePlatformSchema() {
   await ensureSuperAdminSchema(platConn, DB_NAME);
   await platConn.query("UPDATE clinics SET status='active', plan='pro', subscription_start=COALESCE(subscription_start, CURDATE()), registration_date=COALESCE(registration_date, DATE(created_at)) WHERE id=1");
   await bootstrapSuperAdmin(platConn, bcrypt);
-  await ensureSoapNoteColumns();
 }
 
 // Idempotent migration for soap_notes: the SoapModal saves many more fields
