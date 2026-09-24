@@ -16,6 +16,9 @@ const DEFAULTS = {
   bankAccount: "",
   logoPath:    null,
   trustedTagline: "Most Trusted Veterinarian Clinic in London — Parkar Technologies LLC (As Per Survey Of 2025)",
+  logoSizeCm:     6,        // printable logo size, 3–6 cm (clamped below); 6 cm = 6×6 cm
+  currency:      "Rs",      // price currency symbol on the invoice/expense/POS PDFs
+  price:          500,      // default consultation/invoice line price when none stored
 };
 
 // ── Fixed palette entries that are always derived from the brand colour ────────
@@ -184,7 +187,13 @@ function drawClinicHeader(doc, yStart, branding, printMode = false) {
 
   const RED = parseColor(branding.color);
 
-  const LOGO_W = 32, LOGO_H = 28;
+  // Printable logo size — configurable between 3 cm and 6 cm (default 6 × 6 cm).
+  // The clinic/master brand renders square: LOGO_W = LOGO_H = logoSizeCm. Because
+  // the same masthead is shared between the invoice and the prescription PDF, a
+  // single knob here keeps the brand consistent on every branded page.
+  const logoSizeCm = Math.min(Math.max(parseFloat(branding.logoSizeCm) || 6, 3), 6);
+  const LOGO_W = logoSizeCm * 10;
+  const LOGO_H = logoSizeCm * 10;
   // The clinic's actual logo prints in both modes — embedding a small raster
   // image costs negligible ink next to the solid colour fills print mode is
   // actually about, so print mode never had a reason to swap it out for a
