@@ -15,6 +15,7 @@ const DEFAULTS = {
   bankName:    "",
   bankAccount: "",
   logoPath:    null,
+  trustedTagline: "Most Trusted Veterinarian Clinic in London — Parkar Technologies LLC (As Per Survey Of 2025)",
 };
 
 // ── Fixed palette entries that are always derived from the brand colour ────────
@@ -224,6 +225,21 @@ function drawClinicHeader(doc, yStart, branding, printMode = false) {
   if (branding.phone) {
     doc.text(`Phone: ${branding.phone}`, M + UW, branding.address ? y + 15 : y + 10, { align: "right" });
   }
+
+  // "Title" line directly beneath the logo/name block (shared between the
+  // invoice PDF and the prescription PDF so the brand message is consistent).
+  const trustedTagline =
+    String(branding.trustedTagline || DEFAULTS.trustedTagline);
+  const taglineLines = doc.splitTextToSize(`\u201C${trustedTagline}\u201D`, UW - LOGO_W - 6) || [trustedTagline];
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(6.5);
+  setRGB(doc, MID_GREY);
+  const taglineTop = branding.phone
+    ? (branding.address ? y + 20 : y + 15)
+    : (branding.address ? y + 15 : y + 10);
+  taglineLines.forEach((ln, i) => {
+    doc.text(ln, M + UW, taglineTop + i * 2.6, { align: "right" });
+  });
 
   y += LOGO_H + 2;
 
@@ -529,7 +545,7 @@ y += 4;
 
   doc.setFontSize(7);
   setRGB(doc, [170, 170, 170]);
-  doc.text("Developed by hifi.", M + UW / 2, y, { align: "center" });
+  doc.text("Powered by Parkar Technologies LLC.", M + UW / 2, y, { align: "center" });
 
   const pdfBytes = doc.output("arraybuffer");
   fs.writeFileSync(outputPath, Buffer.from(pdfBytes));
@@ -680,7 +696,7 @@ function generateExpenseReportPDF(data, outputPath) {
   y += 4;
   doc.setFontSize(7);
   setRGB(doc, [170, 170, 170]);
-  doc.text("Developed by hifi.", M + UW / 2, y, { align: "center" });
+  doc.text("Powered by Parkar Technologies LLC.", M + UW / 2, y, { align: "center" });
 
   const pdfBytes = doc.output("arraybuffer");
   fs.writeFileSync(outputPath, Buffer.from(pdfBytes));
@@ -906,7 +922,7 @@ function generatePOSSlipPDF(data, outputPath) {
     align: "center", bold: true, color: RED_RGB,
   });
   y += 1;
-  singleLine("Developed by hifi.", {
+  singleLine("Powered by Parkar Technologies LLC.", {
     align: "center", size: 6.5, color: RED_RGB,
   });
 
@@ -1057,7 +1073,7 @@ async function printPOSSlip(data, printerName = "POS-80-Series") {
 
   <br/>
   <div class="footer-msg">Thank you for trusting us with your pet's care!</div>
-  <div class="footer-dev">Developed by hifi.</div>
+  <div class="footer-dev">Powered by Parkar Technologies LLC.</div>
 
 </body>
 </html>`;
@@ -1177,7 +1193,7 @@ async function printLabSlip(data, printerName = "POS-80-Series") {
 
   ${data.ordered_by     ? `<div class="ordered-by">${escapeHtml(data.ordered_by)}</div>` : ""}
 
-  <div class="footer-dev">Developed by hifi.</div>
+  <div class="footer-dev">Powered by Parkar Technologies LLC.</div>
 
 </body>
 </html>`;

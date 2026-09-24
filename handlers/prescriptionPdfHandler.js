@@ -328,7 +328,7 @@ async function generatePrescriptionPdf(prescription, pet, orgName, address, phon
     }
 
     doc.save().fillColor(TEAL_LIGHT).fontSize(7.5).font('Helvetica')
-       .text('Developed by @hifi', ML, footerY + 16,
+       .text('Powered by Parkar Technologies LLC', ML, footerY + 16,
          { width: CONTENT_W, align: 'right' }).restore();
 
     doc.save().fillColor('#cbd5e0').fontSize(7).font('Helvetica')

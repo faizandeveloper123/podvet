@@ -947,7 +947,7 @@ ipcMain.handle('generate-client-unpaid-ledger', async (event, { client }) => {
     doc.setTextColor(170, 170, 170);
     doc.text("Thank you for trusting us with your pet's care!", M + UW / 2, y, { align: "center" });
     y += 4;
-    doc.text("Developed by hifi.", M + UW / 2, y, { align: "center" });
+    doc.text("Powered by Parkar Technologies LLC", M + UW / 2, y, { align: "center" });
 
     // ── Save to temp + return raw bytes ──────────────────────────────────
     // Written to a temp file (not ~/Documents, and not shell.openPath'd)
