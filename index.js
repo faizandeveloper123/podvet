@@ -304,6 +304,7 @@ app.get('/', (req, res) => {
   res.type('text/html').send(landingHtml);
 });
 app.get('/app', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   res.type('text/html').send(webIndexHtml);
 });
 
@@ -321,9 +322,14 @@ app.get('/super-admin/{*splat}', (req, res) => {
   res.type('text/html').send(superAdminHtml);
 });
 
+app.use('/assets', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 app.use(express.static(DIST_DIR));
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/_rpc/')) {
+    res.setHeader('Cache-Control', 'no-store');
     return res.type('text/html').send(webIndexHtml);
   }
   next();

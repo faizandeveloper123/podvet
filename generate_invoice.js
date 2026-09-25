@@ -16,10 +16,12 @@ const DEFAULTS = {
   bankAccount: "",
   logoPath:    null,
   trustedTagline: "Most Trusted Veterinarian Clinic in London — Parkar Technologies LLC (As Per Survey Of 2025)",
-  logoSizeCm:     6,        // printable logo size, 3–6 cm (clamped below); 6 cm = 6×6 cm
+  logoSizeCm:     3.5,      // printable logo size, 1.5–6 cm (clamped below); 3.5 cm = 3.5×3.5 cm
   currency:      "Rs",      // price currency symbol on the invoice/expense/POS PDFs
   price:          500,      // default consultation/invoice line price when none stored
 };
+
+const INVOICE_LOGO_SIZE_CM = 1.8;
 
 // ── Fixed palette entries that are always derived from the brand colour ────────
 const WHITE     = [255, 255, 255];
@@ -187,11 +189,11 @@ function drawClinicHeader(doc, yStart, branding, printMode = false) {
 
   const RED = parseColor(branding.color);
 
-  // Printable logo size — configurable between 3 cm and 6 cm (default 6 × 6 cm).
+  // Printable logo size — configurable between 1.5 cm and 6 cm (default 3.5 × 3.5 cm).
   // The clinic/master brand renders square: LOGO_W = LOGO_H = logoSizeCm. Because
   // the same masthead is shared between the invoice and the prescription PDF, a
   // single knob here keeps the brand consistent on every branded page.
-  const logoSizeCm = Math.min(Math.max(parseFloat(branding.logoSizeCm) || 6, 3), 6);
+  const logoSizeCm = Math.min(Math.max(parseFloat(branding.logoSizeCm) || 3.5, 1.5), 6);
   const LOGO_W = logoSizeCm * 10;
   const LOGO_H = logoSizeCm * 10;
   // The clinic's actual logo prints in both modes — embedding a small raster
@@ -277,7 +279,7 @@ function generateInvoiceJS(data, outputPath) {
   let y = M;
 
   // Header
-  y = drawClinicHeader(doc, y, branding);
+  y = drawClinicHeader(doc, y, { ...branding, logoSizeCm: INVOICE_LOGO_SIZE_CM });
 
   // ── INVOICE title bar ──────────────────────────────────────────────────────
   const BAR_H = 14;
@@ -916,7 +918,7 @@ function generatePOSSlipPDF(data, outputPath) {
   doc.setFontSize(9);
   doc.setTextColor(255, 255, 255);
   doc.text("TOTAL", M + 2, y + 4);
-  doc.text(fmtAmt(data.finalTotal ?? 0), M + UW - 1, y + 4, { align: "right" });
+  doc.text(fmtAmt(parseFloat(data.finalTotal ?? DEFAULTS.price ?? 500)), M + UW - 1, y + 4, { align: "right" });
   y += 10;
 
   // Bank details
